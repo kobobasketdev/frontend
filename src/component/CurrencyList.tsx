@@ -37,8 +37,8 @@ export default function CurrencyList({ currencyList, selection, open, isLocation
 							</StyledTypographySubhead>
 						</Stack>
 					</StyledBox>
-					<Stack>
-						<ScrollableContainer showNavigation scrollableArea="300px" contentViewArea="100%">
+					<Stack height={'400px'}>
+						<ScrollableContainer showNavigation>
 							<StyledDeliveryList>
 								<Typography fontFamily={'Roboto'} fontSize={'14px'} mb={1}>{isLocationBased ? 'Suggested based on your location' : 'Based on your selection'}</Typography>
 								<SelectedCurrencyListItem>
@@ -115,8 +115,8 @@ const StyledTypographyHead = styled(Typography)({
 	letterSpacing: '1px'
 });
 
-const StyledDeliveryList = styled(List)(({ theme }) => ({
-	paddingRight: theme.spacing(1)
+const StyledDeliveryList = styled(List)(() => ({
+	backgroundColor:'orange'
 }));
 
 const StyledTypographySubhead = styled(Typography)({

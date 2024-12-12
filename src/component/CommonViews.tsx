@@ -106,6 +106,9 @@ export const ProductPriceTypography = styled(Typography, {
 	fontSize: props.$fontSize || '16px',
 	lineHeight: '100%',
 	letterSpacing: '0.15px',
+	[theme.breakpoints.down(466)]: {
+		fontSize: props.$fontSize && `calc(${props.$fontSize} - 4px)` || '16px'
+	},
 }));
 
 export const ProductNameTypography = styled(Typography)(({ theme }) => ({
@@ -137,6 +140,17 @@ export const ProductLocationPriceTypography = styled(Typography, {
 	textDecoration: $strikeOut ? 'line-through' : 'none'
 }));
 
+export const ProductLocationPriceSpan = styled('span')(({ theme }) => ({
+	color: theme.palette.primaryBlack.main,
+	display: 'inline-block',
+	fontFamily: 'Roboto',
+	fontSize: '14px',
+	fontWeight: 'bold',
+	lineHeight: '100%',
+	letterSpacing: '0.17px',
+	textDecoration: 'line-through' 
+}));
+
 export const ProductSavingTypography = styled(Typography)(({ theme }) => ({
 	color: theme.palette.primaryOrange.main,
 	fontFamily: 'Roboto',
@@ -144,13 +158,16 @@ export const ProductSavingTypography = styled(Typography)(({ theme }) => ({
 	fontSize: '14px',
 	lineHeight: '100%',
 	letterSpacing: '0.17px',
+	[theme.breakpoints.down(466)]: {
+		fontSize: '12px'
+	},
 }));
 
 export const ProductPromotionChip = styled(Chip)(({ theme })=> ({
 	backgroundColor: theme.palette.primaryOrange.main,
 	fontFamily: 'Roboto',
 	fontWeight: '500',
-	fontSize: '12px',
+	fontSize: '11px',
 	lineHeight: '22px',
 	letterSpacing: '0.46px',
 	textTransform: 'uppercase',

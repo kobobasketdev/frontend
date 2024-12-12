@@ -1,5 +1,5 @@
-import { Grid2, IconButton, Stack, styled } from "@mui/material";
-import { ProductAvatar, ProductLocationPriceTypography, ProductNameTypography, ProductPriceTypography, ProductPromotionChip, ProductSavingTypography, ProductWeightTypography } from "./CommonViews";
+import { IconButton, Stack, styled } from "@mui/material";
+import { ProductAvatar, ProductLocationPriceSpan, ProductLocationPriceTypography, ProductNameTypography, ProductPriceTypography, ProductPromotionChip, ProductSavingTypography, ProductWeightTypography } from "./CommonViews";
 import { IProductItemProps } from ".";
 import ScrollableContainer from "./ScrollableContainer";
 import GrommetWishListSvg from "./svg/GrommetWishlistSvg";
@@ -15,12 +15,9 @@ export default function ProductItem({
 	item, 
 	showPrice, 
 	isCircularImage, 
-	imageSize = { width: 224 }, 
 	fullDetails,
 	fontSize,
 	fontWeight,
-	contentArea = '200px',
-	...otherProps
 }: IProductItemProps) {
 	const currency = 'CAD $';
 	const [isWishListItem, setIsWishListItem] = useState<boolean>(false);
@@ -37,63 +34,61 @@ export default function ProductItem({
 
 	const price = item.promotion?.promoPrice || item.price;
 	return (
-		<Grid2 gap={2.5} position={'relative'} {...otherProps}>
-			<Stack gap={2.5} position={'relative'}>
+		<Stack gap={2.5} position={'relative'}>
+			{
+				fullDetails && (
+					<ProductPromotionWishlistStack $hasPromotion={Boolean(item.promotion)}>
+						{
+							item.promotion && <ProductPromotionChip label={item.promotion.promoName} size="small"/>
+						}
+						<WishLishIconButton onClick={handleAddToWishlist()}>
+							<GrommetWishListSvg $isFilled={isWishListItem} $fillColor={theme.palette.primaryOrange.main}/>
+						</WishLishIconButton>
+					</ProductPromotionWishlistStack>
+				)
+			}
+			<Stack gap={1}>
+				<Stack>
+					<ScrollableContainer orientation="horizontal" float height="200px">
+						{
+							item.images.map((image, index) => (
+								<Stack key={index}>
+									<ProductAvatar 
+										key={index}
+										src={image || ''} 
+										alt={item.name}
+										variant={isCircularImage ? 'circular' : 'rounded'} 
+									/>
+								</Stack>
+							))
+						}
+					</ScrollableContainer>
+				</Stack>
+			
 				{
 					fullDetails && (
-						<ProductPromotionWishlistStack $hasPromotion={Boolean(item.promotion)}>
-							{
-								item.promotion && <ProductPromotionChip label={item.promotion.promoName}/>
-							}
-							<WishLishIconButton onClick={handleAddToWishlist()}>
-								<GrommetWishListSvg $isFilled={isWishListItem} $fillColor={theme.palette.primaryOrange.main}/>
-							</WishLishIconButton>
-						</ProductPromotionWishlistStack>
+						<Stack>
+							<ProductNameTypography>
+								{item.name}
+							</ProductNameTypography>
+							<ProductWeightTypography>
+								{item.weight}
+							</ProductWeightTypography>
+							<Stack direction={'row'} alignItems={'center'} gap={1} pt={1}>
+								<ProductLocationPriceTypography>
+									African store near you {' '}
+									<ProductLocationPriceSpan >
+										{currency}{item.locationPrice}
+									</ProductLocationPriceSpan>
+								</ProductLocationPriceTypography>
+							</Stack>
+						</Stack>
 					)
 				}
-				<Stack gap={1}>
-					<Stack borderRadius={1.5}  overflow={'hidden'}>
-						<ScrollableContainer scrollableArea="100%" contentViewArea={contentArea} orientation="horizontal" float scrollBy={imageSize.width}>
-							<Stack direction={'row'}>
-								{
-									item.images.map((image, index) => (
-										<ProductAvatar 
-											key={index}
-											src={image || ''} 
-											alt={item.name}
-											variant={isCircularImage ? 'circular' : 'rounded'} 
-											$size={imageSize}
-										/>
-									))
-								}
-							</Stack>
-						</ScrollableContainer>
-					</Stack>
-			
-					{
-						fullDetails && (
-							<Stack>
-								<ProductNameTypography>
-									{item.name}
-								</ProductNameTypography>
-								<ProductWeightTypography>
-									{item.weight}
-								</ProductWeightTypography>
-								<Stack direction={'row'} alignItems={'center'} gap={1} pt={1}>
-									<ProductLocationPriceTypography>
-										African store near you
-									</ProductLocationPriceTypography>
-									<ProductLocationPriceTypography $strikeOut fontWeight={'bold'}>
-										{currency}{item.locationPrice}
-									</ProductLocationPriceTypography>
-								</Stack>
-							</Stack>
-						)
-					}
-				</Stack>
-				{
-					showPrice && 
-					<Stack direction={'row'} gap={1} alignItems={'baseline'}>
+			</Stack>
+			{
+				showPrice && 
+					<Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
 						<ProductPriceTypography $isPromotion={Boolean(item.promotion)} $fontSize={fontSize} $fontWeight={fontWeight}>
 							{currency}{price}
 						</ProductPriceTypography>
@@ -104,13 +99,12 @@ export default function ProductItem({
 							</ProductSavingTypography>
 						}
 					</Stack>
-				}
-				{
-					fullDetails && <ProductAddToCartControl />
-				}
+			}
+			{
+				fullDetails && <ProductAddToCartControl />
+			}
 
-			</Stack>
-		</Grid2>
+		</Stack>
 	);
 }
 
@@ -127,4 +121,6 @@ const ProductPromotionWishlistStack = styled(Stack,{
 	alignItems: 'center'
 }));
 
-const WishLishIconButton = styled(IconButton)({});
+const WishLishIconButton = styled(IconButton)(({ theme }) => ({
+	paddingRight: theme.spacing(1.5)
+}));

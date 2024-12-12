@@ -6,8 +6,8 @@ export default function MenuContainer({ contentViewArea = '45px' }: { contentVie
 	const menus = ['STAPLES', 'FLOUR', 'OILS', 'BEAUTY', 'SPICES', 'SNACKS', 'DEALS'];
 	return (
 		<Stack flexGrow={1} height={contentViewArea}>
-			<ScrollableContainer orientation="horizontal" scrollableArea="100%" contentViewArea={contentViewArea}>
-				<StyledStack direction={'row'} gap={2} flexGrow={1}>
+			<ScrollableContainer orientation="horizontal">
+				<StyledStack direction={'row'} gap={2} flexGrow={1} justifyContent={'space-around'}>
 					{
 						menus.map((menu, index) => <MenuButton key={index}>{menu}</MenuButton>)
 					}
@@ -25,6 +25,7 @@ const StyledStack = styled(Stack)(({ theme }) => ({
 }));
 
 const MenuButton = styled(Button)(({ theme })=> ({
+	minWidth: '90px',
 	fontFamily: 'Alata',
 	fontSize: '24px',
 	lineHeight: '133.4%',

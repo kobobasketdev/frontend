@@ -13,7 +13,7 @@ export default function SearchDropdown() {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	//TODO: Get category list from query
 	const categories = [
-		{ id: 1, name: 'All categories' }, 
+		{ id: 1, name: 'All ategories' }, 
 		{ id: 2, name: 'Staples' },
 		{ id: 3, name:  'Oils' }, 
 		{ id: 4, name: 'Flour' }, 

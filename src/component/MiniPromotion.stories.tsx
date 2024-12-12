@@ -12,7 +12,7 @@ const meta: Meta<typeof MiniPromotion> = {
 	},
 	args: {
 		title: 'Best sellers in Food', 
-		type: ({ spacing: 2, size: { height: 120, width: 120 }, contentViewArea: '170px' }) as TMiniScroll, 
+		type: ({ spacing: 2, size: { height: '120px', width: '120px' }, }) as TMiniScroll, 
 		items: [
 			{
 				productId: 1, 
@@ -92,7 +92,7 @@ export const SMALLMOBILE_SCROLL: Story = {
 const circleArgs: { isCircularImage: boolean, showPrice: boolean, type: TMiniScroll }  = {
 	isCircularImage : true,
 	showPrice :  false, 
-	type: ({ name: 'scroll', spacing: 2, size: { height: 120, width: 120 }, contentViewArea: '150px' }), 
+	type: ({ name: 'scroll', spacing: 2, size: { height: '120px', width: '120px' }, }), 
 };
 export const DESKTOP_SCROLL_CIRCLE: Story = {
 	decorators: (Story) => (<div style={{ width: '350px' }}><Story /></div>),
@@ -137,7 +137,7 @@ export const SMALLMOBILE_SCROLL_CIRCLE: Story = {
 
 const gridArgs: { showPrice: boolean, type: TMiniGrid } = {
 	showPrice :  false, 
-	type: ({ name: 'grid', spacing: 2, size: { height: 100, width: 100 }, column: 1 }) , 
+	type: ({ name: 'grid', spacing: 2, size: { height: '100px', width: '100px' }, column: 1 }) , 
 };
 export const DESKTOP_GRID: Story = {
 	decorators: (Story) => (<div style={{ width: '350px' }}><Story /></div>),

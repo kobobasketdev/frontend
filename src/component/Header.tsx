@@ -1,4 +1,4 @@
-import { AppBar, Box, IconButton, Slide, Stack, styled, Toolbar, Typography, useScrollTrigger  } from "@mui/material";
+import { AppBar, IconButton, Slide, Stack, styled, Toolbar, Typography, useScrollTrigger  } from "@mui/material";
 import HeaderSearch from "./HeaderSearch";
 import WebTopNav from "./WebTopNav";
 import NavigationUserActions from "./NavigationUserActions";
@@ -80,8 +80,6 @@ export default function Header() {
 					</Toolbar>
 				</StyledAppBar>
 			</HideOnScroll>
-			<Toolbar/>
-			<Toolbar/>
 		</>
 	);
 }
@@ -133,11 +131,11 @@ const StyledSearchStack = styled(Stack)(({ theme }) => ({
 		justifyContent: 'space-between',
 		gap: theme.spacing(1.5),
 	},
-	[theme.breakpoints.between('xs', 835)] : {
+	[theme.breakpoints.between('xs', NORMAL_PHONE_BREAKPOINT)] : {
 		width: '70%',
 		minWidth: '360px',
 		alignSelf: 'center',
-		alignItems: 'space-between',
+		alignItems: 'space-evenly',
 		gap: theme.spacing(.5),
 	},
 	[theme.breakpoints.between('xs', XTRA_SMALL_PHONE_BREAKPOINT)] : {

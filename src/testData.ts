@@ -6,7 +6,7 @@ export const items = [
 		isWishListItem: false,
 		price: 22, 
 		locationPrice: 35, 
-		images: [""], 
+		images: ["", "", ''], 
 	},
 	{
 		productId: 2, 

@@ -1,4 +1,4 @@
-import { Button, Checkbox, Drawer, FormControlLabel, FormGroup, Grid2 as Grid, IconButton, List, ListItem, ListItemButton, Stack, Typography, styled } from "@mui/material";
+import { Button, Checkbox, Drawer, FormControlLabel, FormGroup, Grid2 as Grid, IconButton, Link, List, ListItem, ListItemButton, Stack, Typography, styled } from "@mui/material";
 import FilterSvg from "./svg/FilterSvg";
 import { useState } from "react";
 import { TABLET_BREAKPOINT, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
@@ -77,12 +77,14 @@ export default function FilterProduct() {
 							</Stack>
 						</Stack>
 						<Stack width={'500px'} p={3.5} pt={2}>
-							<Stack direction={'row'} alignItems={'center'}>
-								<Typography fontFamily={'Roboto'} fontSize={'16px'} fontWeight={'600'}>
-									{selectedFilterProduct} 
-								</Typography>
-								<ChevronRight />
-							</Stack>
+							<StyledFilterLink underline="none" href="">
+								<Stack direction={'row'} alignItems={'center'}>
+									<Typography fontFamily={'Roboto'} fontSize={'16px'} fontWeight={'600'}>
+										{selectedFilterProduct} 
+									</Typography>
+									<ChevronRight />
+								</Stack>
+							</StyledFilterLink>
 							<Stack pt={4}>
 								<Grid container spacing={4}>
 									<Grid>
@@ -195,4 +197,8 @@ const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
 		fontSize: '16px',
 		letterSpacing: '0.15px'
 	}
+}));
+
+const StyledFilterLink= styled(Link)(({ theme }) => ({
+	color: theme.palette.primaryBlack.main
 }));
