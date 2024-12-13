@@ -46,7 +46,10 @@ export default function MarketPlace() {
 							{Array(24).fill('Item').map((arrayItem, index) => (
 								<ProductItem 
 									key={index}
-									item={{ ...items[0], name: arrayItem+" "+index }} 
+									item={{ ...items[0], name: arrayItem+" "+index , promotion: { 
+										promoName: "Valentine's Deals", 
+										promoPrice: 10 
+									} }} 
 									showPrice={true} 
 									isCircularImage={false}
 									fullDetails

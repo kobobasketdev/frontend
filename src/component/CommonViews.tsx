@@ -1,4 +1,4 @@
-import { TABLET_BREAKPOINT, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
+import { SMALLDESKTOP_BREAKPOINT, TABLET_BREAKPOINT, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Avatar, Box, BoxProps, Button, Chip, Link, Stack, styled, Typography } from "@mui/material";
 import { useState } from "react";
@@ -10,6 +10,11 @@ export const WebOnlyView = styled('div')(({ theme }) => ({
 	}
 }));
 
+export const LargeDesktopOnlyView = styled('div')(({ theme }) => ({
+	[theme.breakpoints.between('xs', SMALLDESKTOP_BREAKPOINT)]: {
+		display: 'none',
+	}
+}));
 export const LargeMobileOnlyView = styled('div')<BoxProps>(({ theme, width, bgcolor }) => ({
 	display: 'none',
 	[theme.breakpoints.between('xs', TABLET_BREAKPOINT)]: {
@@ -20,6 +25,15 @@ export const LargeMobileOnlyView = styled('div')<BoxProps>(({ theme, width, bgco
 	[theme.breakpoints.between('xs', XTRA_SMALL_PHONE_BREAKPOINT)]: {
 		display: 'none'
 	}
+}));
+
+export const SmallDesktopOnlyView = styled('div')<BoxProps>(({ theme, width, bgcolor }) => ({
+	display: 'none',
+	[theme.breakpoints.between('xs', SMALLDESKTOP_BREAKPOINT)]: {
+		width: width || 'auto',
+		display: 'inline-flex',
+		backgroundColor: bgcolor
+	},
 }));
 
 export const AllMobileOnlyView = styled('div')<BoxProps>(({ theme, width, bgcolor }) => ({

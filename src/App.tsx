@@ -1,11 +1,12 @@
-import { CssBaseline, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, styled } from '@mui/material';
+import { CssBaseline, Drawer, IconButton, Stack, styled } from '@mui/material';
 import Header from '#component/Header.tsx';
 import MarketPlace from '#page/MarketPlace.tsx';
 import Footer from '#page/Footer.tsx';
 import { drawerWidth, NORMAL_PHONE_BREAKPOINT, SMALLDESKTOP_BREAKPOINT } from '#constants.tsx';
 import { theme } from '#customtheme.ts';
-import { ChevronLeft, ChevronRight, Inbox, Mail } from '@mui/icons-material';
+import { ChevronLeft, ChevronRight, } from '@mui/icons-material';
 import { useState } from 'react';
+import CartDisplay from '#component/CartDisplay.tsx';
 
 function App() {
 	
@@ -22,13 +23,13 @@ function App() {
 	return (
 		<>
 			<CssBaseline />
-			<Header />
-			<ContentBodyStack >
+			<Header open={open} />
+			<Main open={open}>
 				<StyledStackContent >
 					<MarketPlace />
 				</StyledStackContent>
 				<Footer />
-			</ContentBodyStack>
+			</Main>
 			<Drawer
 				sx={{
 					width: drawerWidth,
@@ -46,18 +47,7 @@ function App() {
 						{theme.direction === 'rtl' ? <ChevronLeft /> : <ChevronRight />}
 					</IconButton>
 				</DrawerHeader>
-				<List>
-					{['All mail', 'Trash', 'Spam'].map((text, index) => (
-						<ListItem key={text} disablePadding>
-							<ListItemButton>
-								<ListItemIcon>
-									{index % 2 === 0 ? <Inbox /> : <Mail />}
-								</ListItemIcon>
-								<ListItemText primary={text} />
-							</ListItemButton>
-						</ListItem>
-					))}
-				</List>
+				<CartDisplay />
 			</Drawer>
 			
 		</>
@@ -82,9 +72,40 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 	justifyContent: 'flex-start',
 }));
 
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
+	open?: boolean;
+}>(({ theme }) => ({
+	overflow: 'auto',
+	flexGrow: 1,
+	transition: theme.transitions.create('margin', {
+		easing: theme.transitions.easing.sharp,
+		duration: theme.transitions.duration.leavingScreen,
+	}),
+	// marginRight: -drawerWidth,
+	/**
+	 * This is necessary to enable the selection of content. In the DOM, the stacking order is determined
+	 * by the order of appearance. Following this rule, elements appearing later in the markup will overlay
+	 * those that appear earlier. Since the Drawer comes after the Main content, this adjustment ensures
+	 * proper interaction with the underlying content.
+	 */
+	position: 'relative',
+	variants: [
+		{
+			props: ({ open }) => open,
+			style: {
+				transition: theme.transitions.create('margin', {
+					easing: theme.transitions.easing.easeOut,
+					duration: theme.transitions.duration.enteringScreen,
+				}),
+				marginRight: drawerWidth,
+			},
+		},
+	],
+}));
+  
 const ContentBodyStack= styled('main')({
 	position: 'relative',
-	width: '900px',
+	width: 'auto',
 	backgroundColor: 'red'
 });
 export default App;

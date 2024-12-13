@@ -1,11 +1,11 @@
-import { AppBar, IconButton, Slide, Stack, styled, Toolbar, Typography, useScrollTrigger  } from "@mui/material";
+import { AppBar, AppBarProps, IconButton, Slide, Stack, styled, Toolbar, Typography, useScrollTrigger  } from "@mui/material";
 import HeaderSearch from "./HeaderSearch";
 import WebTopNav from "./WebTopNav";
 import NavigationUserActions from "./NavigationUserActions";
 import { Menu } from '@mui/icons-material';
-import { NORMAL_PHONE_BREAKPOINT, SMALLDESKTOP_BREAKPOINT, TABLET_BREAKPOINT, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
+import { drawerWidth, NORMAL_PHONE_BREAKPOINT, SMALLDESKTOP_BREAKPOINT, TABLET_BREAKPOINT, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
 import FilterProduct from "./FilterProduct";
-import { LargeMobileOnlyView, AllMobileOnlyView, WebOnlyView } from "./CommonViews";
+import { LargeMobileOnlyView, AllMobileOnlyView, WebOnlyView, SmallDesktopOnlyView, LargeDesktopOnlyView } from "./CommonViews";
 import DeliverySelection from "./DeliverySelection";
 import MenuContainer from "./MenuContainer";
 
@@ -21,17 +21,14 @@ function HideOnScroll({ children }: Props) {
 		<Slide appear={false} direction="down" in={!trigger}>
 			{children}
 		</Slide>
-		// <div>
-		// 	{children}
-		// </div>
 	);
 }
 
-export default function Header() {
+export default function Header({ open }: { open?: boolean }) {
 	return (
 		<>
 			<HideOnScroll>
-				<StyledAppBar elevation={0}>
+				<StyledAppBar elevation={0} open={open}>
 					<Toolbar>
 						<Stack width={1} alignItems={'center'} >
 							<HeaderWrapperStack width={.95} gap={2}>
@@ -57,9 +54,9 @@ export default function Header() {
 									<StyledSearchStack>
 										<SearchHolderStack  gap={2}>
 											<HeaderSearch /> 
-											<AllMobileOnlyView>
+											<SmallDesktopOnlyView>
 												<FilterProduct />
-											</AllMobileOnlyView>
+											</SmallDesktopOnlyView>
 										</SearchHolderStack>
 										<LargeMobileOnlyView>
 											<DeliverySelection locationIcon disableCurrency />
@@ -67,9 +64,9 @@ export default function Header() {
 									</StyledSearchStack>
 								</StyledStackBrand>
 								<Stack direction={'row'} alignItems={'center'}>
-									<WebOnlyView>
+									<LargeDesktopOnlyView>
 										<FilterProduct />
-									</WebOnlyView>
+									</LargeDesktopOnlyView>
 									<MenuContainer />
 									<WebOnlyView>
 										<NavigationUserActions />
@@ -84,9 +81,32 @@ export default function Header() {
 	);
 }
 
-const StyledAppBar = styled(AppBar)(({ theme }) => ({
+interface TAppBarProps extends AppBarProps {
+	open?: boolean;
+}
+
+const StyledAppBar = styled(AppBar, {
+	shouldForwardProp: (prop) => prop !== 'open',
+})<TAppBarProps>(({ theme }) => ({
 	backgroundColor: theme.palette.menuBackground.main,
-	color: 'black'
+	color: 'black',
+	transition: theme.transitions.create(['margin', 'width'], {
+		easing: theme.transitions.easing.sharp,
+		duration: theme.transitions.duration.leavingScreen,
+	}),
+	variants: [
+		{
+			props: ({ open }) => open,
+			style: {
+				width: `calc(100% - ${drawerWidth}px)`,
+				transition: theme.transitions.create(['margin', 'width'], {
+					easing: theme.transitions.easing.easeOut,
+					duration: theme.transitions.duration.enteringScreen,
+				}),
+				marginRight: drawerWidth,
+			},
+		},
+	],
 }));
 
 const HeaderWrapperStack = styled(Stack)(({ theme }) => ({
