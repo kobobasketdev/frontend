@@ -17,14 +17,13 @@ const meta: Meta<typeof ProductItem> = {
 			price: 15, 
 			isWishListItem: false,
 			locationPrice: 30, 
-			images: [""], 
+			images: ["", ""], 
 			promotion: { 
 				promoName: 'Best seller', 
 				promoPrice: 10
 			} }, 
 		showPrice: true, 
 		isCircularImage: false, 
-		imageSize: { width: 243 }, 
 		fullDetails: true,
 		fontSize: '18px',
 		fontWeight: '700',

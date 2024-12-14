@@ -1,5 +1,5 @@
-import { Grid2, Stack, styled, Typography } from "@mui/material";
-import { TAvatarSizing, TItem, TMiniGrid, TMiniPromotionProps, TMiniScroll } from ".";
+import { Stack, styled, Typography } from "@mui/material";
+import { TAvatarSizing, TItem, TMiniGrid, TMiniPromotionProps } from ".";
 import ScrollableContainer from "./ScrollableContainer";
 import { NORMAL_PHONE_BREAKPOINT } from "#constants.tsx";
 import { ProductAvatar as MiniPromotionAvatar, ProductPriceTypography as MiniPromotionPriceTypography } from "./CommonViews";
@@ -11,6 +11,8 @@ export default function MiniPromotion({
 	bgColor,
 	showPrice = false, 
 	isCircularImage = false,  
+	dynamicClass,
+	height
 }: TMiniPromotionProps) {
 	let promoContent;
 	if(type.name === 'grid') {
@@ -22,10 +24,10 @@ export default function MiniPromotion({
 			column={column} 
 			spacing={type.spacing} 
 			size={type.size} 
+			dynamicClass={dynamicClass}
 		/>;
 	}
 	else {
-		const contentViewAreaValue = (type as TMiniScroll).contentViewArea;
 		promoContent = <ScrollablePromotion 
 			items={items} 
 			showPrice={showPrice} 
@@ -33,11 +35,10 @@ export default function MiniPromotion({
 			spacing={type.spacing} 
 			size={type.size}
 			scrollBy={type.scollBy}
-			contentViewArea={contentViewAreaValue}
 		/>;
 	}
 	return (
-		<Stack width={'inherit'} height={'auto'} bgcolor={bgColor} borderRadius={2} pt={2} gap={1}>
+		<Stack width={1} height={height || 'inherit'} bgcolor={bgColor} borderRadius={2} pt={2} gap={1}>
 			<MiniPromotionTypography pl={2}>
 				{title}
 			</MiniPromotionTypography>
@@ -51,43 +52,45 @@ const GridPromotion = ({
 	showPrice, 
 	isCircularImage, 
 	size,
-	column, 
-	spacing 
+	column=2, 
+	spacing=2,
+	dynamicClass
 }: { 
 	items: TItem[], 
 	showPrice: boolean, 
 	isCircularImage: boolean,
 	size?: TAvatarSizing,
 	column: number
-	spacing?: number 
+	spacing?: number,
+	dynamicClass?: boolean 
 }) => {
 	return (
-		<Grid2 container spacing={spacing} columns={column}>
+		<MiniPromotionalGrid $columnGap={column} $spacing={spacing} className="grid-parent">
 			{
 				items.map(item => (
-					<Grid2 
+					<PromotionContent 
+						dynamicClass={dynamicClass}
 						key={item.productId}
-					>
-						<PromotionContent 
-							item={item} 
-							showPrice={showPrice} 
-							isCircularImage={isCircularImage} 
-							size={size} 
-						/>
-					</Grid2>
+						item={item} 
+						showPrice={showPrice} 
+						isCircularImage={isCircularImage} 
+						size={size}
+					/>
 				))
 			}
-		</Grid2>
+		</MiniPromotionalGrid>
 	);
 };
 
 const PromotionContent = ({ 
 	item, 
 	showPrice, 
+	dynamicClass,
 	isCircularImage, 
 	size,  
 }: { 
 	item: TItem, 
+	dynamicClass?: boolean,
 	showPrice: boolean, 
 	isCircularImage: boolean,
 	size?: TAvatarSizing,
@@ -99,6 +102,7 @@ const PromotionContent = ({
 				src={item.images[0] || ''} 
 				alt={item.name}
 				variant={isCircularImage ? 'circular' : 'rounded'} 
+				className={dynamicClass ? 'dynamic-avatar' : ''}
 				$size={size}
 			/>
 			{
@@ -116,7 +120,6 @@ const ScrollablePromotion = ({
 	size, 
 	spacing,
 	scrollBy,
-	contentViewArea 
 }: { 
 	items: TItem[], 
 	showPrice: boolean, 
@@ -124,11 +127,10 @@ const ScrollablePromotion = ({
 	spacing: number 
 	size?: TAvatarSizing,
 	scrollBy?: number,
-	contentViewArea?: string
 }) => {
 	return (
-		<ScrollableContainer orientation="horizontal" scrollableArea="100%" contentViewArea={contentViewArea} float scrollBy={scrollBy}>
-			<Stack direction={'row'} gap={spacing} pl={2} pr={2} justifyContent={'center'}>
+		<ScrollableContainer orientation="horizontal" float scrollBy={scrollBy}>
+			<Stack direction={'row'} gap={spacing} pl={2} pr={2} >
 				{items.map(item => (
 					<PromotionContent 
 						key={item.productId}
@@ -154,3 +156,12 @@ const MiniPromotionTypography = styled(Typography)(({ theme })=>({
 	}
 }));
 
+const MiniPromotionalGrid = styled('div', {
+	shouldForwardProp: prop => !['$columnGap', '$spacing'].includes(prop as string)
+})<{ $columnGap: number, $spacing: number }>(({ theme, $columnGap, $spacing }) => ({
+	display: 'grid',
+	padding: theme.spacing(2),
+	gridTemplateColumns: 'repeat(auto-fit, minmax(100px, auto))',
+	columnGap: theme.spacing($columnGap || 2),
+	rowGap: theme.spacing($spacing || 2)
+}));

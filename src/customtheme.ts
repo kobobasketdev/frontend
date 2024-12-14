@@ -44,6 +44,7 @@ export const theme = createTheme({
 		},
 		primaryOrange: {
 			main: '#F74C25',
+			lightshade: '#FFA689',
 			deeper: '#D24120'
 		},
 		customBrown: {
@@ -52,7 +53,9 @@ export const theme = createTheme({
 			deeper: '#4E342E'
 		},
 		customGrey: {
-			main: '#EFEBE9'
+			main: '#EFEBE9',
+			lightshade: '#D0D0D0',
+			deeper: '#848484',
 		},
 		scrollNavColor: {
 			main: '#ffffff',

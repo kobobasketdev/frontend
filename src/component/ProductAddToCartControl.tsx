@@ -1,8 +1,22 @@
 import { Remove, Add } from "@mui/icons-material";
-import { Stack, IconButton, styled, Typography, Button } from "@mui/material";
+import { Stack, IconButton, styled, Typography, Button, keyframes } from "@mui/material";
 import ProductAddToCartSvg from "./svg/ProductAddToCartSvg";
 import { useState } from "react";
 import { NORMAL_PHONE_BREAKPOINT } from "#constants.tsx";
+import { theme } from '../customtheme';
+
+const Effect = keyframes`
+	0% {
+		transform: scale(1,1);
+		background-color: ${theme.palette.primaryOrange.main}
+	}
+	50% {
+		transform: scale(1.08,1.08);
+	}
+	100% {
+		transform: scale(1,1);
+	}
+`;
 
 export default function ProductAddToCartControl() {
 	const [count, setCount] = useState(1);
@@ -15,6 +29,10 @@ export default function ProductAddToCartControl() {
 		setCount(newCount);
 	};
 
+	const handleAddToCart = () => () => {
+		setCount(1);
+	};
+	
 	return (
 		<StyledStack direction={'row'} alignItems={'center'}  gap={1} width={'fit-content'}>
 			<Stack direction={'row'} alignItems={'center'}>
@@ -28,7 +46,7 @@ export default function ProductAddToCartControl() {
 					<Add />
 				</IconButton>
 			</Stack>
-			<AddToCartButton startIcon={<ProductAddToCartSvg />} size="small">
+			<AddToCartButton startIcon={<ProductAddToCartSvg />} size="small" onClick={handleAddToCart()}>
 				Add to Cart
 			</AddToCartButton>
 		</StyledStack>
@@ -44,7 +62,13 @@ const StyledStack = styled(Stack)(({ theme })=>({
 	[theme.breakpoints.between('xs', NORMAL_PHONE_BREAKPOINT)] : {
 		paddingLeft: theme.spacing(0),
 		paddingRight: theme.spacing(.5),
-	}
+	},
+	[theme.breakpoints.down(466)]: {
+		paddingLeft: theme.spacing(.5),
+		flexDirection: 'column',
+		width: '100%',
+		alignItems: 'unset'
+	},
 }));
 
 const QuantityCountTypography = styled(Typography)(({ theme }) => ({
@@ -69,7 +93,13 @@ const AddToCartButton = styled(Button)(({ theme }) => ({
 	paddingRight: theme.spacing(1.5),
 	borderRadius: '16px',
 	color: '#FFFFFF',
-	':hover': {
-		backgroundColor: theme.palette.customBrown.deeper
+	'.MuiTouchRipple-root': {
+		transition: '.5s',
 	},
+	':hover': {
+		backgroundColor: theme.palette.customBrown.deeper,
+	},
+	':focus': {
+		animation: `${Effect} 500ms ${theme.transitions.easing.easeIn} `,
+	}
 }));

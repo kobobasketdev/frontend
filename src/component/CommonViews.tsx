@@ -1,4 +1,4 @@
-import { TABLET_BREAKPOINT, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
+import { SMALLDESKTOP_BREAKPOINT, TABLET_BREAKPOINT, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Avatar, Box, BoxProps, Button, Chip, Link, Stack, styled, Typography } from "@mui/material";
 import { useState } from "react";
@@ -10,6 +10,11 @@ export const WebOnlyView = styled('div')(({ theme }) => ({
 	}
 }));
 
+export const LargeDesktopOnlyView = styled('div')(({ theme }) => ({
+	[theme.breakpoints.between('xs', SMALLDESKTOP_BREAKPOINT)]: {
+		display: 'none',
+	}
+}));
 export const LargeMobileOnlyView = styled('div')<BoxProps>(({ theme, width, bgcolor }) => ({
 	display: 'none',
 	[theme.breakpoints.between('xs', TABLET_BREAKPOINT)]: {
@@ -20,6 +25,15 @@ export const LargeMobileOnlyView = styled('div')<BoxProps>(({ theme, width, bgco
 	[theme.breakpoints.between('xs', XTRA_SMALL_PHONE_BREAKPOINT)]: {
 		display: 'none'
 	}
+}));
+
+export const SmallDesktopOnlyView = styled('div')<BoxProps>(({ theme, width, bgcolor }) => ({
+	display: 'none',
+	[theme.breakpoints.between('xs', SMALLDESKTOP_BREAKPOINT)]: {
+		width: width || 'auto',
+		display: 'inline-flex',
+		backgroundColor: bgcolor
+	},
 }));
 
 export const AllMobileOnlyView = styled('div')<BoxProps>(({ theme, width, bgcolor }) => ({
@@ -106,6 +120,9 @@ export const ProductPriceTypography = styled(Typography, {
 	fontSize: props.$fontSize || '16px',
 	lineHeight: '100%',
 	letterSpacing: '0.15px',
+	[theme.breakpoints.down(466)]: {
+		fontSize: props.$fontSize && `calc(${props.$fontSize} - 4px)` || '16px'
+	},
 }));
 
 export const ProductNameTypography = styled(Typography)(({ theme }) => ({
@@ -137,6 +154,17 @@ export const ProductLocationPriceTypography = styled(Typography, {
 	textDecoration: $strikeOut ? 'line-through' : 'none'
 }));
 
+export const ProductLocationPriceSpan = styled('span')(({ theme }) => ({
+	color: theme.palette.primaryBlack.main,
+	display: 'inline-block',
+	fontFamily: 'Roboto',
+	fontSize: '14px',
+	fontWeight: 'bold',
+	lineHeight: '100%',
+	letterSpacing: '0.17px',
+	textDecoration: 'line-through' 
+}));
+
 export const ProductSavingTypography = styled(Typography)(({ theme }) => ({
 	color: theme.palette.primaryOrange.main,
 	fontFamily: 'Roboto',
@@ -144,13 +172,16 @@ export const ProductSavingTypography = styled(Typography)(({ theme }) => ({
 	fontSize: '14px',
 	lineHeight: '100%',
 	letterSpacing: '0.17px',
+	[theme.breakpoints.down(466)]: {
+		fontSize: '12px'
+	},
 }));
 
 export const ProductPromotionChip = styled(Chip)(({ theme })=> ({
 	backgroundColor: theme.palette.primaryOrange.main,
 	fontFamily: 'Roboto',
 	fontWeight: '500',
-	fontSize: '12px',
+	fontSize: '11px',
 	lineHeight: '22px',
 	letterSpacing: '0.46px',
 	textTransform: 'uppercase',
