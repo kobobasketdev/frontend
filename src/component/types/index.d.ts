@@ -1,10 +1,9 @@
-export type CurrencySelection = { id: number, name: string, currency: string, country: string  };
 export type CategorySelection = { id: number, name: string };
 export type TPromotionInfo = { promoName: string, promoPrice: number };
 export type TAvatarSizing = { height?: string, width?: string };
 export type TMiniGrid = { name: 'grid', spacing: number, column: number, size?: TAvatarSizing };
 export type TMiniScroll = { name: 'scroll', spacing: number, size?: TAvatarSizing, scollBy?: number };
-export type TItem = { productId: number, name: string, weight: string, price: number, locationPrice: number, isWishListItem: boolean, images: string[], promotion?: TPromotionInfo };
+export type TItem = { productId: number, name: string, weight: { value: number, measurement: string }, price: number, locationPrice: number, isWishListItem: boolean, images: string[], promotion?: TPromotionInfo };
 export type TMiniPromotionProps = { 
 	title: string, 
 	width: number | string,

@@ -2,7 +2,7 @@ export const items = [
 	{
 		productId: 1, 
 		name: 'Ofada Rice', 
-		weight: '2kg', 
+		weight: { value: 2, measurement: 'kg' }, 
 		isWishListItem: false,
 		price: 22, 
 		locationPrice: 35, 
@@ -11,7 +11,7 @@ export const items = [
 	{
 		productId: 2, 
 		name: 'Smoked Panla Fish', 
-		weight: '3kg', 
+		weight: { value: 3, measurement: 'kg' }, 
 		price: 15, 
 		isWishListItem: false,
 		locationPrice: 30, 
@@ -24,7 +24,7 @@ export const items = [
 	{
 		productId: 24, 
 		name: 'Ijebu Garri', 
-		weight: '3kg', 
+		weight: { value: 3, measurement: 'kg' }, 
 		price: 15, 
 		isWishListItem: false,
 		locationPrice: 30, 
@@ -34,7 +34,7 @@ export const items = [
 	{
 		productId: 5, 
 		name: 'Dried Ugwu Leaf', 
-		weight: '3kg', 
+		weight: { value: 3, measurement: 'kg' },
 		price: 15, 
 		isWishListItem: false,
 		locationPrice: 20, 
@@ -42,8 +42,8 @@ export const items = [
 	},
 	{
 		productId: 3, 
-		name: 'Cameroon Pepper', 
-		weight: '500g', 
+		name: 'Cameroon Pepper',  
+		weight: { value: 500, measurement: 'g' },
 		isWishListItem: false,
 		price: 29, 
 		locationPrice: 35, 
@@ -56,7 +56,7 @@ export const items = [
 	{
 		productId: 6, 
 		name: 'Periwinkle', 
-		weight: '500g', 
+		weight: { value: 500, measurement: 'g' },
 		isWishListItem: true,
 		price: 29, 
 		locationPrice: 35, 
@@ -65,7 +65,7 @@ export const items = [
 	{
 		productId: 7, 
 		name: 'Locust Beans (Iru)', 
-		weight: '500g', 
+		weight: { value: 800, measurement: 'g' },
 		isWishListItem: false,
 		price: 24, 
 		locationPrice: 30, 
@@ -74,7 +74,7 @@ export const items = [
 	{
 		productId: 9, 
 		name: 'Orijin Bitter', 
-		weight: '500g', 
+		weight: { value: 0.1, measurement: 'kg' },
 		isWishListItem: false,
 		price: 9, 
 		locationPrice: 15, 
@@ -87,7 +87,7 @@ export const items = [
 	{
 		productId: 10, 
 		name: 'Yellow Garri', 
-		weight: '800g', 
+		weight: { value: 1, measurement: 'kg' },
 		isWishListItem: false,
 		price: 24, 
 		locationPrice: 30, 
@@ -95,8 +95,8 @@ export const items = [
 	},
 	{
 		productId: 11, 
-		name: 'Beans Flour', 
-		weight: '2g', 
+		name: 'Beans Flour',
+		weight: { value: 700, measurement: 'g' },
 		isWishListItem: false,
 		price: 22, 
 		locationPrice: 28, 
@@ -105,7 +105,7 @@ export const items = [
 	{
 		productId: 12, 
 		name: 'Palm Oil', 
-		weight: '5kg', 
+		weight: { value: 5, measurement: 'kg' },
 		isWishListItem: false,
 		price: 26, 
 		locationPrice: 30, 
@@ -118,7 +118,7 @@ export const items = [
 	{
 		productId: 13, 
 		name: 'Local Spice', 
-		weight: '500g', 
+		weight: { value: 2, measurement: 'kg' },
 		isWishListItem: false,
 		price: 15, 
 		locationPrice: 24, 
@@ -127,7 +127,7 @@ export const items = [
 	{
 		productId: 14, 
 		name: 'Water Leaf', 
-		weight: '500g', 
+		weight: { value: 500, measurement: 'g' },
 		isWishListItem: false,
 		price: 24, 
 		locationPrice: 32, 
@@ -136,7 +136,7 @@ export const items = [
 	{
 		productId: 15, 
 		name: 'Cray Fish', 
-		weight: '5kg', 
+		weight: { value: 5, measurement: 'kg' },
 		isWishListItem: false,
 		price: 30, 
 		locationPrice: 35, 
@@ -149,7 +149,7 @@ export const items = [
 	{
 		productId: 16, 
 		name: 'Kilishi', 
-		weight: '500g', 
+		weight: { value: 500, measurement: 'g' },
 		isWishListItem: false,
 		price: 20, 
 		locationPrice: 28, 

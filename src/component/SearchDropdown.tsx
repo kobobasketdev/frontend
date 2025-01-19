@@ -1,7 +1,7 @@
 import { ClickAwayListener, List, ListItem, ListItemButton, Paper, Popper, styled } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
 import { useState, MouseEvent } from "react";
-import { CategorySelection } from ".";
+import { CategorySelection } from "./types";
 import { NavigationHeaderButton } from "./NavigationHeaderButton";
 
 export default function SearchDropdown() {
@@ -50,7 +50,7 @@ export default function SearchDropdown() {
 			>
 				{selection.name}
 			</NavigationHeaderButton>
-			<StyledPopper id={id} open={open} anchorEl={anchorEl} placement="bottom-end">
+			<StyledPopper id={id} open={open} anchorEl={anchorEl} placement="bottom-start">
 				<ClickAwayListener onClickAway={handleClickAway}>
 					<Paper elevation={2}>
 						<StyledList>

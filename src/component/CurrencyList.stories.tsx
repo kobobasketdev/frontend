@@ -15,7 +15,7 @@ const meta: Meta<typeof CurrencyList> = {
 			{ id: 6, name: 'Pounds Sterling', currency: 'GBP £', country: 'United Kingdom' }, 
 			{ id: 7, name: 'Euro', currency: 'EUR €', country: 'Germany' }
 		], 
-		selection : { id: 1, name: 'Canadian Dollar', currency: 'CAD $', country: 'Canada' },
+		selection : { name: 'Canadian Dollar', country: 'Canada',code: 'CAD', symbol: '$' },
 		open: true, 
 		isLocationBased: true,
 		handleChooseSelection: fn(),

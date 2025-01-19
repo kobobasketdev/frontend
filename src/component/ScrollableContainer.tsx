@@ -1,28 +1,94 @@
 import { IconButton, Stack, styled } from "@mui/material";
 import { ExpandLess, ExpandMore, ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { Dispatch, useEffect, useRef, useState, SetStateAction } from "react";
-import { TScrollNavigationMode, TScrollOrientation } from ".";
+import { Dispatch, useEffect, useRef, useState, SetStateAction, MouseEvent } from "react";
+import { TScrollNavigationMode, TScrollOrientation } from "./types";
 
 const processNavigationDisabled = ({
 	setShouldDisableTopNavigation,
 	setShouldDisableBottomNavigation,
-	containerData, 
+	translateValue, 
+	boundary
 }: {
 	setShouldDisableTopNavigation:  Dispatch<SetStateAction<boolean>>,
 	setShouldDisableBottomNavigation: Dispatch<SetStateAction<boolean>>,
-	containerData: { scrollDistance: number, scrollArea: number, clientArea: number }
+	translateValue: number,
+	boundary: number
 }) => {
-	setShouldDisableTopNavigation(containerData.scrollDistance === 0);
-	const endScroll = containerData.scrollArea - containerData.clientArea;
-	setShouldDisableBottomNavigation(containerData.scrollDistance >= endScroll);
-	return endScroll;
+	setShouldDisableTopNavigation(translateValue >= 0);
+	setShouldDisableBottomNavigation(translateValue <= boundary);
+};
+const getBoundary = (outterRef: React.MutableRefObject<HTMLDivElement | null>, scrollerRef:  React.MutableRefObject<HTMLDivElement | null>, orientation: TScrollOrientation) => {
+	
+	const boundaryValues = orientation === 'vertical' ? 
+		{ outterSize: outterRef.current!.clientHeight, scrollerSize: scrollerRef.current!.clientHeight }
+		: { outterSize: outterRef.current!.clientWidth, scrollerSize: scrollerRef.current!.clientWidth };
+
+	const boundary = boundaryValues.outterSize - boundaryValues.scrollerSize;
+	return { boundary, shouldDisableTranslate: boundary >= 0 };
 };
 
-const positionRowChildren = (nodeChildren: HTMLCollection) => {
-	let count = 0;
+const resetScroller = ({
+	translateValue, 
+	boundary, 
+	shouldDisableTranslate,
+	orientation
+}: {
+	translateValue: React.MutableRefObject<number>, 
+	boundary: number,
+	shouldDisableTranslate: boolean,
+	orientation: TScrollOrientation
+}) => {
+	if(shouldDisableTranslate) {
+		return '0px 0px';
+	}
+
+	if(translateValue.current > 0) {
+		translateValue.current = 0;
+	}
+	
+	if(boundary < 0 && translateValue.current < boundary) {
+		translateValue.current = boundary;
+	}
+
+	return orientation === 'vertical' ? `0px ${translateValue.current}px` : `${translateValue.current}px 0px`;
+};
+
+const setTranslatedValue = ({
+	translateValue, 
+	boundary, 
+	shouldDisableTranslate,
+	orientation
+}: {
+	translateValue: React.MutableRefObject<number>, 
+	boundary: number,
+	shouldDisableTranslate: boolean,
+	orientation: TScrollOrientation
+}) => {
+	if(shouldDisableTranslate) {
+		return '0px 0px';
+	}
+	if(translateValue.current > 0) {
+		translateValue.current = 30;
+	}
+
+	if(translateValue.current < boundary) {
+		translateValue.current = boundary - 30 ;
+	}
+		
+	return orientation === 'vertical' ? `0px ${translateValue.current}px` : `${translateValue.current}px 0px`;
+};
+
+const horizontalArrangeContents = ({
+	outterContainerWidth, nodeChildren, orientation, fullContent
+}: {
+	outterContainerWidth: number, nodeChildren: HTMLCollection, orientation: TScrollOrientation, fullContent: boolean
+}) => {
+	if(orientation === 'vertical' || !fullContent) {
+		return;
+	}
+
 	for(const node of nodeChildren) {
-		(node as HTMLElement).style.left = `${count * 100}%`;
-		++count;
+		(node as HTMLElement).style.width = `${outterContainerWidth}px`;
 	}
 };
 
@@ -33,69 +99,146 @@ enum SCROLL_NAVIGATION_ID_ENUM {
 export interface IScrollableContainer {
 	orientation?: TScrollOrientation,
 	showNavigation?: boolean,
+	fullContent?: boolean,
 	scrollBy?: number,
 	float?: boolean,
 	height?: string,
 	width?: string,
 	children: React.ReactElement<unknown>[] | React.ReactElement<unknown>
 }
+
+export interface IClientPointer {
+	x: number ,
+	y: number ,
+}
+
 export default function ScrollableContainer({ 
 	children, 
 	orientation = 'vertical', 
 	showNavigation = false, 
+	fullContent = false,
 	scrollBy,
 	height,
 	width,
 	float = false,
 }: IScrollableContainer) {
 
-	const continousScrollIntervalIdRef = useRef<ReturnType<typeof setInterval>>();
 	const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+	const outterContainerRef = useRef<HTMLDivElement | null>(null);
 	const [shouldDisableTopNavigation, setShouldDisableTopNavigation] =  useState(true);
 	const [shouldDisableBottomNavigation, setShouldDisableBottomNavigation] =  useState(true);
 	const [isFloatHovered, setIsFloatHover] = useState<boolean>(false);
+	const isMouseDown = useRef<boolean>(false);
+	const mouseDownPosition = useRef<IClientPointer>({ x: 0, y: 0 });
+	const translateValue = useRef<number>(0);
+	const movePosition = useRef<IClientPointer>({ x: 0, y: 0 });
 	const direction = orientation === 'vertical' ? 'column'  : 'row' ;
 
 	useEffect(() => {
-		if(scrollContainerRef.current) {
-			if(orientation === 'horizontal') {
-				positionRowChildren(scrollContainerRef.current.children);
-			}
-			processNavigationDisabled(
-				{ 
-					setShouldDisableTopNavigation,
-					setShouldDisableBottomNavigation,
-					containerData: {
-						scrollDistance: scrollContainerRef.current[orientation === 'vertical' ? 'scrollTop' : 'scrollLeft'] ,
-						scrollArea: scrollContainerRef.current[orientation === 'vertical' ? 'scrollHeight' : 'scrollWidth'],
-						clientArea: scrollContainerRef.current[orientation === 'vertical' ? 'clientHeight' : 'clientWidth']
-					}
-				}
-			);
-		}
-
-	}, [orientation]);
-
-	const handleScrollBy = (navDirection: number, scrollValue?: number ) => {
-		if(!scrollContainerRef.current) {
+		if(!scrollContainerRef.current || !outterContainerRef.current) {
 			return;
 		}
-		const defaultScrollDistance = scrollValue || orientation === 'vertical' ? scrollContainerRef.current.clientHeight : scrollContainerRef.current.clientWidth;
-
-		scrollContainerRef.current.scrollBy({
-			behavior: 'smooth',
-			[orientation === 'horizontal' ? 'left' : 'top']: navDirection === 1 ? defaultScrollDistance : -defaultScrollDistance
+		horizontalArrangeContents({ 
+			fullContent,
+			outterContainerWidth: outterContainerRef.current.clientWidth, 
+			nodeChildren: scrollContainerRef.current.children, 
+			orientation 
 		});
+		const { boundary } = getBoundary(outterContainerRef, scrollContainerRef, orientation);
+			
+		processNavigationDisabled(
+			{ 
+				setShouldDisableTopNavigation,
+				setShouldDisableBottomNavigation,
+				translateValue: translateValue.current,
+				boundary
+			}
+		);
+
+		const handleResize = () => {
+			horizontalArrangeContents({ 
+				outterContainerWidth: outterContainerRef.current!.clientWidth, 
+				nodeChildren: scrollContainerRef.current!.children, 
+				orientation,
+				fullContent 
+			});
+			const { boundary, shouldDisableTranslate } = getBoundary(outterContainerRef, scrollContainerRef, orientation);
+			scrollContainerRef.current!.style.translate = resetScroller({ translateValue, boundary, shouldDisableTranslate, orientation });
+		};
+		
+		addEventListener('resize', handleResize);
+
+		return () => {
+			removeEventListener('resize', handleResize);
+		};
+	}, [orientation, fullContent]);
+
+	const handleScrollBy = (navDirection: number, scrollValue?: number ) => {
+		isMouseDown.current = false;
+
+		if(!scrollContainerRef.current || !outterContainerRef.current) {
+			return;
+		}
+		const { boundary, shouldDisableTranslate } = getBoundary(outterContainerRef, scrollContainerRef, orientation);
+		
+		const defaultScrollDistance =   orientation === 'horizontal' && fullContent ? outterContainerRef.current.clientWidth : scrollValue || 100;
+
+		translateValue.current += navDirection === 1 ? -defaultScrollDistance : defaultScrollDistance;
+		const properties = { translateValue, boundary, shouldDisableTranslate, orientation };
+
+		setTranslatedValue(properties);
+		scrollContainerRef.current.style.translate = resetScroller(properties); 
+		processNavigationDisabled(
+			{ 
+				setShouldDisableTopNavigation,
+				setShouldDisableBottomNavigation,
+				translateValue: translateValue.current,
+				boundary
+			}
+		);
 	};
 
-	const handleContinousScroll = (navDirection: number, scrollValue?: number) => {
-		continousScrollIntervalIdRef.current = setInterval(() => {
-			handleScrollBy(navDirection, scrollValue);
-		}, 500);
+	const handleScrollerPan = (e: MouseEvent<HTMLDivElement | MouseEvent>) => {
+		e.preventDefault();
+		if(!scrollContainerRef.current || !outterContainerRef.current) {
+			return;
+		}
+		if( !isMouseDown.current ) {
+			return;
+		}
+
+		movePosition.current = { x: e.clientX, y: e.clientY };
+		
+		const movement = orientation === 'vertical' ? movePosition.current.y - mouseDownPosition.current.y : movePosition.current.x - mouseDownPosition.current.x;
+		translateValue.current += movement;
+
+		const { boundary, shouldDisableTranslate } = getBoundary(outterContainerRef, scrollContainerRef, orientation);
+		scrollContainerRef.current.style.translate = setTranslatedValue({ translateValue, boundary, shouldDisableTranslate, orientation });
 	};
 
-	const handleStopContinousScroll = () => {
-		clearInterval(continousScrollIntervalIdRef.current);
+	const handleMouseDown = (e: MouseEvent<HTMLDivElement | MouseEvent>) => {
+		mouseDownPosition.current = { x: e.clientX, y: e.clientY };
+		isMouseDown.current = true;
+	};
+
+	const handleResetMouse = () => () => {
+		isMouseDown.current = false;
+		if(!scrollContainerRef.current || !outterContainerRef.current) {
+			return;
+		}
+
+		const { boundary, shouldDisableTranslate } = getBoundary(outterContainerRef, scrollContainerRef, orientation);
+
+		scrollContainerRef.current.style.translate = resetScroller({ translateValue, boundary, shouldDisableTranslate, orientation });
+		processNavigationDisabled(
+			{ 
+				setShouldDisableTopNavigation,
+				setShouldDisableBottomNavigation,
+				translateValue: translateValue.current,
+				boundary
+			}
+		);
+
 	};
 
 	const handleMouseEnter = () => () => {
@@ -104,28 +247,6 @@ export default function ScrollableContainer({
 
 	const handleMouseLeave = () => () => {
 		setIsFloatHover(false);
-	};
-
-	const handleOnscroll = () => {
-		if(!scrollContainerRef.current) {
-			return;
-		}
-		const scrollDistance = scrollContainerRef.current[orientation === 'vertical' ? 'scrollTop' : 'scrollLeft'] ;
-		const endScroll = processNavigationDisabled(
-			{ 
-				setShouldDisableTopNavigation,
-				setShouldDisableBottomNavigation,
-				containerData: {
-					scrollDistance ,
-					scrollArea: scrollContainerRef.current[orientation === 'vertical' ? 'scrollHeight' : 'scrollWidth'],
-					clientArea: scrollContainerRef.current[orientation === 'vertical' ? 'clientHeight' : 'clientWidth']
-				},
-			}
-		);
-
-		if(scrollDistance === 0 || scrollDistance >= endScroll) {
-			handleStopContinousScroll();
-		}
 	};
 
 	return(
@@ -138,36 +259,42 @@ export default function ScrollableContainer({
 			>
 				{
 					(showNavigation || (isFloatHovered && float && !shouldDisableTopNavigation)) &&
-					<NavigationStack alignItems={'center'} justifyContent={'center'} $mode={{ float, id: SCROLL_NAVIGATION_ID_ENUM.PREV, orientation }}>
+					<NavigationStack alignItems={'center'} justifyContent={'center'} $mode={{ float, id: SCROLL_NAVIGATION_ID_ENUM.PREV, orientation }} id="prev-nav">
 						<span>
 							<IconButton 
 								size="small"
 								disabled={shouldDisableTopNavigation}
 								aria-controls="scrollable-container" 
-								onMouseDown={() =>  handleContinousScroll(SCROLL_NAVIGATION_ID_ENUM.PREV, scrollBy)}
-								onMouseUp={() => handleStopContinousScroll()}
 								onClick={() => handleScrollBy(SCROLL_NAVIGATION_ID_ENUM.PREV, scrollBy)}>
 								{orientation === 'horizontal' ? <ChevronLeft /> : <ExpandLess />}
 							</IconButton>
 						</span>
 					</NavigationStack>
 				}
-				<OutterContainer className="outter-scroller">
-					<InnerContainer id='scrollable-container' role="scrollbar" ref={scrollContainerRef} onScroll={handleOnscroll} $direction={direction}>
+				<OutterContainer className="outter-scroller"
+					ref={outterContainerRef}
+					onMouseDown={(e) => handleMouseDown(e)}
+					onMouseUp={handleResetMouse()}
+					onMouseLeave={handleResetMouse()}
+					onMouseMove={(e) => handleScrollerPan(e)}>
+					<InnerContainer 
+						id='scrollable-container' 
+						role="scrollbar" 
+						ref={scrollContainerRef} 
+						$direction={direction}
+					>
 						{children}
 					</InnerContainer>
 				</OutterContainer>
 				{
 					(showNavigation || (isFloatHovered && float && !shouldDisableBottomNavigation)) && 
-					<NavigationStack alignItems={'center'} justifyContent={'center'} $mode={{ float, id: SCROLL_NAVIGATION_ID_ENUM.NEXT, orientation }}>
+					<NavigationStack alignItems={'center'} justifyContent={'center'} $mode={{ float, id: SCROLL_NAVIGATION_ID_ENUM.NEXT, orientation }} id="next-nav">
 						<span>
 							<IconButton 
 								size="small"
 
 								disabled={shouldDisableBottomNavigation}
 								aria-controls="scrollable-container"
-								onMouseDown={() =>  handleContinousScroll(SCROLL_NAVIGATION_ID_ENUM.NEXT, scrollBy)}
-								onMouseUp={() => handleStopContinousScroll()}
 								onClick={() => handleScrollBy(SCROLL_NAVIGATION_ID_ENUM.NEXT, scrollBy)}>
 								{orientation === 'horizontal' ? <ChevronRight /> : <ExpandMore />}
 							</IconButton>
@@ -208,31 +335,18 @@ const OutterContainer = styled('div')({
 	overflow: 'hidden',
 	width: '100%',
 	height: 'inherit',
+	touchAction: 'pan-y, pan-x'
 });
 
 const InnerContainer = styled(Stack, {
 	shouldForwardProp: prop => prop !== '$direction'
-})<{ $direction: 'column' | 'row' }>(({ theme, $direction })=>({
+})<{ $direction: 'column' | 'row' }>(({ $direction })=>({
 	flexDirection: $direction,
-	position: 'absolute',
-	top: '0px',
-	bottom: $direction === 'row' ? '-17px' : '0px',
-	left: '0px',
-	right: $direction === 'column' ? '-17px' : '0px',
-	...($direction === 'column' ? { overflowY: 'scroll', overflowX: 'auto' } : { 
-		overflowY: 'auto', 
-		overflowX: 'scroll',
-		'& > *': {
-			width: '100%',
-			height: '100%',
-			position: 'absolute',
-		} 
+	width: $direction === 'column' ? 'inherit' : 'fit-content',
+	transition: '.5s',
+	...( $direction === 'row' && {
+		height: 'inherit',
 	}),
-	[theme.breakpoints.up(1670)]: {
-		bottom: $direction === 'row' ? 'calc(-17px - 4%)' : '0px',
-		right: $direction === 'column' ? 'calc(-17px - 2%)' : '0px',
-	},
-	
 }));
 
 const NavigationStack = styled(Stack, {

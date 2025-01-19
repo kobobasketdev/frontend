@@ -1,47 +1,43 @@
-import { SMALLDESKTOP_BREAKPOINT, TABLET_BREAKPOINT, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
+import { SMALL_SCREEN_MAX_WIDTH, SMALLDESKTOP_BREAKPOINT, TABLET_BREAKPOINT, TABLET_SCREEN_MAX_WIDTH, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { Avatar, Box, BoxProps, Button, Chip, Link, Stack, styled, Typography } from "@mui/material";
+import { Avatar, Box, Button, Chip, Link, Stack, styled, Typography } from "@mui/material";
 import { useState } from "react";
-import { TAvatarSizing } from ".";
+import { TAvatarSizing } from "./types";
 
-export const WebOnlyView = styled('div')(({ theme }) => ({
-	[theme.breakpoints.between('xs', TABLET_BREAKPOINT)]: {
+export const WebOnlyView = styled(Box)(({ theme }) => ({
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		display: 'none',
 	}
 }));
 
-export const LargeDesktopOnlyView = styled('div')(({ theme }) => ({
+export const LargeDesktopOnlyView = styled(Box)(({ theme }) => ({
 	[theme.breakpoints.between('xs', SMALLDESKTOP_BREAKPOINT)]: {
 		display: 'none',
 	}
 }));
-export const LargeMobileOnlyView = styled('div')<BoxProps>(({ theme, width, bgcolor }) => ({
-	display: 'none',
+export const LargeMobileOnlyView = styled(Box)(({ theme, width }) => ({
 	[theme.breakpoints.between('xs', TABLET_BREAKPOINT)]: {
 		width: width || 'auto',
 		display: 'inline-flex',
-		backgroundColor: bgcolor
 	},
 	[theme.breakpoints.between('xs', XTRA_SMALL_PHONE_BREAKPOINT)]: {
 		display: 'none'
 	}
 }));
 
-export const SmallDesktopOnlyView = styled('div')<BoxProps>(({ theme, width, bgcolor }) => ({
+export const SmallDesktopOnlyView = styled(Box)(({ theme, width }) => ({
 	display: 'none',
 	[theme.breakpoints.between('xs', SMALLDESKTOP_BREAKPOINT)]: {
 		width: width || 'auto',
 		display: 'inline-flex',
-		backgroundColor: bgcolor
 	},
 }));
 
-export const AllMobileOnlyView = styled('div')<BoxProps>(({ theme, width, bgcolor }) => ({
+export const AllMobileOnlyView = styled(Box)(({ theme, width }) => ({
 	display: 'none',
-	[theme.breakpoints.between('xs', TABLET_BREAKPOINT)]: {
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		width: width || 'auto',
 		display: 'inline-flex',
-		backgroundColor: bgcolor
 	},
 }));
 
@@ -186,5 +182,8 @@ export const ProductPromotionChip = styled(Chip)(({ theme })=> ({
 	letterSpacing: '0.46px',
 	textTransform: 'uppercase',
 	color: '#FFFFFF',
+	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
+		fontSize: '9px'
+	}
 }));
 

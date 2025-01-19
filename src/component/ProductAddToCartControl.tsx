@@ -1,9 +1,12 @@
 import { Remove, Add } from "@mui/icons-material";
-import { Stack, IconButton, styled, Typography, Button, keyframes } from "@mui/material";
+import { Stack, IconButton, styled, Typography, Button, keyframes, SvgIcon } from "@mui/material";
 import ProductAddToCartSvg from "./svg/ProductAddToCartSvg";
 import { useState } from "react";
-import { NORMAL_PHONE_BREAKPOINT } from "#constants.tsx";
+import { MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { theme } from '../customtheme';
+import { addItemToCart, openCart } from "#state-management/slices/cart.slice.ts";
+import { TItem } from "./types";
+import { useAppDispatch } from "#state-management/hooks.ts";
 
 const Effect = keyframes`
 	0% {
@@ -18,8 +21,10 @@ const Effect = keyframes`
 	}
 `;
 
-export default function ProductAddToCartControl() {
+export default function ProductAddToCartControl({ item }: { item: TItem }) {
 	const [count, setCount] = useState(1);
+	const dispatch = useAppDispatch();
+	
     
 	const handleQuantity = (value: number) => () => {
 		const newCount = count + value;
@@ -30,6 +35,8 @@ export default function ProductAddToCartControl() {
 	};
 
 	const handleAddToCart = () => () => {
+		dispatch(addItemToCart({ item, quantity: count }));
+		dispatch(openCart());
 		setCount(1);
 	};
 	
@@ -46,8 +53,14 @@ export default function ProductAddToCartControl() {
 					<Add />
 				</IconButton>
 			</Stack>
-			<AddToCartButton startIcon={<ProductAddToCartSvg />} size="small" onClick={handleAddToCart()}>
-				Add to Cart
+			<AddToCartButton size="small" onClick={handleAddToCart()}>
+				<SvgIcon viewBox="0 -2 14 14" id="mobile-svg">
+					<ProductAddToCartSvg />
+				</SvgIcon>
+				<ProductAddToCartSvg />
+				<span>
+					Add to Cart
+				</span>
 			</AddToCartButton>
 		</StyledStack>
 	);
@@ -59,15 +72,9 @@ const StyledStack = styled(Stack)(({ theme })=>({
 	padding: theme.spacing(0.4),
 	paddingLeft: theme.spacing(1),
 	paddingRight: theme.spacing(.5),
-	[theme.breakpoints.between('xs', NORMAL_PHONE_BREAKPOINT)] : {
+	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)] : {
 		paddingLeft: theme.spacing(0),
 		paddingRight: theme.spacing(.5),
-	},
-	[theme.breakpoints.down(466)]: {
-		paddingLeft: theme.spacing(.5),
-		flexDirection: 'column',
-		width: '100%',
-		alignItems: 'unset'
 	},
 }));
 
@@ -93,6 +100,12 @@ const AddToCartButton = styled(Button)(({ theme }) => ({
 	paddingRight: theme.spacing(1.5),
 	borderRadius: '16px',
 	color: '#FFFFFF',
+	'& > #mobile-svg': {
+		display: 'none'
+	},
+	'& > span': {
+		marginLeft: theme.spacing()
+	},
 	'.MuiTouchRipple-root': {
 		transition: '.5s',
 	},
@@ -101,5 +114,17 @@ const AddToCartButton = styled(Button)(({ theme }) => ({
 	},
 	':focus': {
 		animation: `${Effect} 500ms ${theme.transitions.easing.easeIn} `,
+	},
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]:{
+		borderRadius: '28px',
+		'& > #mobile-svg': {
+			display: 'inline'
+		},
+		'& > svg:not(#mobile-svg)': {
+			display: 'none'
+		},
+		'& > span': {
+			display: 'none'
+		}
 	}
 }));

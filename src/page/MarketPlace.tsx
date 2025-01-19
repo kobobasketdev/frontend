@@ -3,7 +3,7 @@ import { Button, Stack, styled, Typography } from "@mui/material";
 //TODO Get Item data as items
 import { items } from "#testData.ts";
 import { theme } from "#customtheme.ts"; 
-import { NORMAL_PHONE_BREAKPOINT, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
+import { CUSTOM_893_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import ProductItem from "#component/ProductItem.tsx";
 import { ProductAvatar } from "#component/CommonViews.tsx";
 import ScrollableContainer from "#component/ScrollableContainer.tsx";
@@ -11,7 +11,7 @@ import ScrollableContainer from "#component/ScrollableContainer.tsx";
 export default function MarketPlace() {
 	
 	return (
-		<Stack width={1} bgcolor={''}>
+		<Stack width={1}>
 			<Banner>
 			</Banner>
 			<Stack width={1} gap={6} pt={4} pb={4}>
@@ -46,7 +46,7 @@ export default function MarketPlace() {
 							{Array(24).fill('Item').map((arrayItem, index) => (
 								<ProductItem 
 									key={index}
-									item={{ ...items[0], name: arrayItem+" "+index , promotion: { 
+									item={{ ...items[0], productId: index, name: arrayItem+" "+index , promotion: { 
 										promoName: "Valentine's Deals", 
 										promoPrice: 10 
 									} }} 
@@ -62,7 +62,7 @@ export default function MarketPlace() {
 				</ContentStack>
 				<ProductPromotionContainer>
 					<ProductPromotionGrid>
-						<StyledLeftStack gap={4}>
+						<StyledLeftStack gap={2}>
 							<MiniPromotion title={"Shop new products this week"} width={"inherit"} type={{
 								name: 'grid',
 								spacing: 2,
@@ -75,21 +75,21 @@ export default function MarketPlace() {
 								column: 2
 							}} items={items.slice(0,2)} bgColor={theme.palette.menuBackground.main} />
 						</StyledLeftStack>
-						<StyledLargePromotionStack borderRadius={1}>
-							<ScrollableContainer orientation="horizontal" float>
+						<StyledLargePromotionStack borderRadius={3} overflow={'hidden'}>
+							<ScrollableContainer orientation="horizontal" float fullContent>
 								{
-									['', '', ''].map((image, index) => (
-										<Stack key={index}>
-											<ProductAvatar key={index} src={image} variant="rounded"/>
+									["","",""].map((image, index) => (
+										<CustomPromotionStack key={index}>
+											<ProductAvatar src={image} variant="rounded"/>
 											<LargePromotionShopNow>
 												Shop Now
 											</LargePromotionShopNow> 
-										</Stack>
+										</CustomPromotionStack>
 									))
 								}
 							</ScrollableContainer>
 						</StyledLargePromotionStack>
-						<StyledRightStack gap={4}>
+						<StyledRightStack gap={2}>
 							<MiniPromotion title={"Shop quality Farmed oils"} width={"inherit"} type={{
 								name: 'grid',
 								spacing: 2,
@@ -141,18 +141,16 @@ const ContentStack = styled(Stack)(() => ({
 	marginRight: 'auto',
 }));
 
+
 const ShopTypography = styled(Typography)(({ theme }) => ({
 	color: theme.palette.primaryBlack.main,
 	fontFamily: 'Alata',
 	fontWeight: '400',
 	fontSize: '30px',
 	lineHeight: '133.4%',
-	[theme.breakpoints.between('xs', NORMAL_PHONE_BREAKPOINT)]: {
-		fontSize: '24px'
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		paddingLeft: theme.spacing()
 	},
-	[theme.breakpoints.between('xs', 500)]: {
-		textAlign: 'center'
-	}
 }));
 
 const ShopTypographyLight = styled(Typography)(({ theme }) => ({
@@ -162,237 +160,170 @@ const ShopTypographyLight = styled(Typography)(({ theme }) => ({
 	fontSize: '18px',
 	lineHeight: '175%',
 	letterSpacing: '0.15px',
-	[theme.breakpoints.between('xs', NORMAL_PHONE_BREAKPOINT)]: {
-		fontSize: '16px'
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		paddingLeft: theme.spacing()
 	},
-	[theme.breakpoints.between('xs', 500)]: {
-		textAlign: 'center'
-	}
+	
 }));
 
 const MiniPromotionGrid = styled('div')(({ theme }) => ({
 	display: 'grid',
 	width: 'fit-content',
-	columnGap: theme.spacing(8),
-	gridTemplateColumns: "repeat(2,640px)",
-	[theme.breakpoints.down(1370)]: {
-		gridTemplateColumns: "repeat(2, 410px)",
+	columnGap: theme.spacing(3),
+	rowGap: theme.spacing(4),
+	gridTemplateColumns: "repeat(2, 680px)",
+	[theme.breakpoints.down(LARGED_DESKTOP_SCREEN_MAX_WIDTH)]: {
+		gridTemplateColumns: "repeat(2, 450px)",
 	},
-	[theme.breakpoints.down(916)]: {
-		gridTemplateColumns: "repeat(2, 300px)",
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		gridTemplateColumns: "repeat(2, minmax(400px,auto))",
+		padding: `0px ${theme.spacing(1)}`,
 	},
-	[theme.breakpoints.down(681)]: {
-		gridTemplateColumns: "repeat(1, 440px)",
-		columGap: theme.spacing(0),
-		rowGap: theme.spacing(8)
+	[theme.breakpoints.down(893)]: {
+		gridTemplateColumns: "repeat(1, 690px)",
+		padding: `0px`,
 	},
-	[theme.breakpoints.down(466)]: {
-		gridTemplateColumns: "repeat(1, 365px)",
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+		gridTemplateColumns: "repeat(1, minmax(318px, auto))",
+		padding: `0px ${theme.spacing(2)}`,
 	},
-	[theme.breakpoints.down(XTRA_SMALL_PHONE_BREAKPOINT)]: {
-		gridTemplateColumns: "repeat(1, 310px)",
+	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
+		gridTemplateColumns: "repeat(1, minmax(318px, auto))",
+		padding: `0px`,
 	}
 }));
 
 const ProductItemGrid = styled('div')(({ theme }) => ({
 	display: 'grid',
-	width: 'fit-content',
-	columnGap: theme.spacing(2),
-	rowGap: theme.spacing(8),
-	gridTemplateColumns: "repeat(6, 210px)",
-	[theme.breakpoints.down(1370)]: {
-		gridTemplateColumns: "repeat(4, 210px)",
+	width: '100%',
+	rowGap: theme.spacing(3),
+	columnGap: theme.spacing(1.5),
+	padding: `0px ${theme.spacing(.3)}`,
+	gridAutoFlow: 'row dense',
+	gridTemplateColumns: "repeat(6,220PX)",
+	[theme.breakpoints.down(LARGED_DESKTOP_SCREEN_MAX_WIDTH)]: {
+		gridTemplateColumns: "repeat(4,220PX)",
 	},
-	[theme.breakpoints.down(916)]: {
-		gridTemplateColumns: "repeat(3, 210px)",
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		padding: `0px ${theme.spacing()}`,
+		gridTemplateColumns: "repeat(4,minmax(185px, 220px))",
 	},
-	[theme.breakpoints.down(681)]: {
-		gridTemplateColumns: "repeat(2, 210px)",
+	[theme.breakpoints.down(CUSTOM_893_WIDTH)]: {
+		rowGap: theme.spacing(3),
+		columnGap: theme.spacing(1.5),
+		padding: `0px ${theme.spacing(.3)}`,
+		gridTemplateColumns: "repeat(3,minmax(185px, 220px))",
 	},
-	[theme.breakpoints.down(466)]: {
-		gridTemplateColumns: "repeat(2, 180px)",
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+		rowGap: theme.spacing(3),
+		columnGap: theme.spacing(1.5),
+		padding: `0px ${theme.spacing(.3)}`,
+		gridTemplateColumns: "repeat(3,minmax(155px, 220px))",
 	},
-	[theme.breakpoints.down(XTRA_SMALL_PHONE_BREAKPOINT)]: {
+	[theme.breakpoints.down(690)]: {
+		rowGap: theme.spacing(3),
+		columnGap: theme.spacing(2),
+		padding: `0px ${theme.spacing(.3)}`,
+		gridTemplateColumns: "repeat(2,minmax(155px, 220px))",
+	},
+	[theme.breakpoints.down(447)] : {
+		columnGap: theme.spacing(0),
+		justifyContent: 'space-around',
 		gridTemplateColumns: "repeat(2, 150px)",
-		marginLeft: 'auto',
-		marginRight: 'auto'
 	}
 }));
 
-const ProductPromotionContainer = styled('div')(() => ({
-	alignItems: 'center',
-	width: 'fit-content',
-	marginLeft: 'auto',
-	marginRight: 'auto',
+const ProductPromotionContainer = styled('div')(({ theme }) => ({
+	
+	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
+		width: '100%'
+	}
 }));
 
 const ProductPromotionGrid = styled('div')(({ theme }) => ({
-	columnGap: theme.spacing(2),
 	display: 'grid',
-	gridTemplateColumns: "repeat(3, 440px)",
+	rowGap: theme.spacing(4),
 	'& .dynamic-avatar': {
-		height: '120px'
+		height: '115px'
 	},
-	[theme.breakpoints.down(1370)]: {
-		gridTemplateColumns: "repeat(3, 380px)",
+	justifyContent: 'center',
+	columnGap: theme.spacing(4),
+	gridTemplateColumns: "repeat(3, 400px)",
+	
+	[theme.breakpoints.down(LARGED_DESKTOP_SCREEN_MAX_WIDTH)] : {
+		gridTemplateColumns: "repeat(3, 320px)",
+		columnGap: theme.spacing(2),
+	},
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)] : {
 		'& .dynamic-avatar': {
 			height: '110px'
 		},
+		gridTemplateColumns: "repeat(2, auto)",
 	},
-	[theme.breakpoints.down(1198)]: {
-		gridTemplateColumns: "repeat(3, 280px)",
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)] : {
 		'& .dynamic-avatar': {
-			width: '110px',
+			height: '120px'
 		},
+		gridTemplateColumns: "repeat(1, 452px)",
 	},
-	[theme.breakpoints.down(916)]: {
-		gridTemplateColumns: "repeat(auto-fill, minmax(230px, auto))",
-		width: '700px',
-		gridAutoFlow: 'dense',
-		rowGap: theme.spacing(4),
-	},
-	[theme.breakpoints.down(728)]: {
-		display: 'flex',
-		flexDirection: 'column',
-		maxWidth: '500px',
-		gridAutoFlow: 'row',
-		rowGap: theme.spacing(6),
-	},
-	[theme.breakpoints.down(530)]: {
-		maxWidth: '420px',
-	},
-	[theme.breakpoints.down(445)]: {
-		maxWidth: '350px',
-	},
+	[theme.breakpoints.down(485)] : {
+		
+		justifyContent: 'center',
+		gridTemplateColumns: "repeat(1, minmax(320px, auto))",
+	}
 }));
 
 const StyledLeftStack = styled(Stack)(({ theme }) => ({
-	[theme.breakpoints.down(916)]: {
-		gap: theme.spacing(1.5),
-		flexDirection: 'column-reverse',
-		'& > div:nth-of-type(1) .grid-parent': {
-			paddingLeft: theme.spacing(5.5),
-			'& .dynamic-avatar': {
-				width: '100px',
-				height: '100px'
-			},
-		},
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		flexDirection: 'row',
+		gridColumn: '1 / 3',
 	},
-	[theme.breakpoints.down(728)]: {
-		rowGap: theme.spacing(4),
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+		gridColumn: '1 / 1',
+		flexDirection: 'column',
+		' > div:first-of-type .grid-parent': {
+			gridTemplateColumns: 'repeat(3, auto)',
+		}
 	},
-	[theme.breakpoints.down(530)]: {
-		'& > div:nth-of-type(1) .grid-parent': {
-			paddingLeft: theme.spacing(4),
+	[theme.breakpoints.down(364)]: {
+		' > div:first-of-type .grid-parent': {
+			gridTemplateColumns: 'repeat(2, auto)',
 			'& .dynamic-avatar': {
-				width: '100px',
-				height: '100px'
+				height: '130px'
 			},
-		},
-
-		'& > div:nth-of-type(2) .grid-parent': {
-			columnGap: theme.spacing(4),
-			paddingLeft: theme.spacing(5.5),
-			gridTemplateColumns: 'repeat(auto-fit, 150px)'
-		},
-	},
-	[theme.breakpoints.down(445)]: {
-		'& > div:nth-of-type(1) .grid-parent': {
-			paddingLeft: theme.spacing(5),
-			'& .dynamic-avatar': {
-				width: '100px',
-				height: '100px'
-			},
-		},
-
-		'& > div:nth-of-type(2) .grid-parent': {
-			columnGap: theme.spacing(4),
-			paddingLeft: theme.spacing(4),
-			gridTemplateColumns: 'repeat(auto-fit, 124px)'
-		},
+		}
 	},
 }));
 
 const StyledLargePromotionStack = styled(Stack)(({ theme }) => ({
-	[theme.breakpoints.down(728)]: {
-		height: '450px'
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		height: '500px',
+	},
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+		height: '500px',
 	},
 }));
 
-const StyledRightStack = styled(Stack)(({ theme }) => ({
-	[theme.breakpoints.down(916)]: {
-		gap: theme.spacing(2),
-		flexDirection: 'row-reverse',
-		alignItems: 'baseline',
-		gridColumn: '1 / 3',
-		'& .dynamic-avatar': {
-			width: '140.5px'
-		},
-		'& > div:nth-of-type(2)': {
-			width: '700px',
-			'.grid-parent': {
-				rowGap: theme.spacing(4),
-			}
-		},
-		'& > div:nth-of-type(1) ': {
-			height: '100%',
-			'.grid-parent': {
-				alignSelf: 'center',
-				rowGap: theme.spacing(4),
-				gridTemplateColumns: 'repeat(1, 200px)'
-			}
-		}
-	},
-	[theme.breakpoints.down(728)]: {
-		flexDirection: 'column',
-		gridColumn: 'none',
-		rowGap: theme.spacing(4),
-		'& .dynamic-avatar': {
-			width: '120px',
-			height: '120px'
-		},
-		'& > div:nth-of-type(2)': {
-			width: '100%',
-			'.grid-parent': {
-				rowGap: theme.spacing(3),
-				columnGap: theme.spacing(3),
-				paddingLeft: theme.spacing(6),
-				gridTemplateColumns: 'repeat(auto-fit, 120px)'
-			}
-		},
-		'& > div:nth-of-type(1) ': {
-			'.grid-parent': {
-				alignSelf: 'unset',
-				rowGap: 'unset',
-				columnGap: theme.spacing(3),
-				gridTemplateColumns: 'repeat(auto-fit, 220px)'
-			}
-		}
-	},
-	[theme.breakpoints.down(530)]: {
-		'& > div:nth-of-type(1) .grid-parent': {
-			paddingLeft: theme.spacing(5.5),
-			gridTemplateColumns: 'repeat(auto-fit, 150px)'
-		},
-		'& > div:nth-of-type(2) .grid-parent': {
-			paddingLeft: theme.spacing(8),
-			columnGap: theme.spacing(5),
-		},
-	},
-	[theme.breakpoints.down(445)]: {
-		'& > div:nth-of-type(2) .grid-parent': {
-			paddingLeft: theme.spacing(4.5),
-			'& .dynamic-avatar': {
-				width: '100px',
-				height: '100px'
-			},
-		},
+const CustomPromotionStack = styled(Stack)(() => ({
+	position: 'relative',
+	width: '100%',
+	height: '100%',
+}));
 
-		'& > div:nth-of-type(1) .grid-parent': {
-			columnGap: theme.spacing(4),
-			paddingLeft: theme.spacing(4),
-			gridTemplateColumns: 'repeat(auto-fit, 124px)'
-		},
+const StyledRightStack = styled(Stack)(({ theme }) => ({
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		flexDirection: 'row',
+		'& > div:first-of-type ' : {
+			width: 'unset'
+		}
+	},
+	[theme.breakpoints.between(911, TABLET_SCREEN_MAX_WIDTH)]: {
+		'& > div:nth-of-type(2) .grid-parent' : {
+			gridTemplateColumns: 'repeat(2, auto)'
+		}
+	},
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+		flexDirection: 'column',
 	},
 }));
 
@@ -407,7 +338,7 @@ const LargePromotionShopNow = styled(Button)(({ theme }) => ({
 	textTransform: 'uppercase',
 	color: '#FFFFFF',
 	position: 'absolute',
-	bottom: '90px',
+	bottom: '20px',
 	right: '20px',
 	paddingLeft: theme.spacing(2),
 	paddingRight: theme.spacing(2)

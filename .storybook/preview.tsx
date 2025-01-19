@@ -1,9 +1,11 @@
 import type { Preview } from "@storybook/react";
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from "@mui/material";
+import { Provider } from 'react-redux';
 import './index.css';
 import React from "react";
 import { theme } from '#customtheme';
+import { store } from '../src/state-management/store';
 
 
 const preview: Preview = {
@@ -17,10 +19,12 @@ const preview: Preview = {
 	},
 	decorators: [
 		(Story) => (
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				<Story />
-			</ThemeProvider>
+			<Provider store={store}>
+				<ThemeProvider theme={theme}>
+					<CssBaseline />
+					<Story />
+				</ThemeProvider>
+			</Provider>
 		)
 	]
 };

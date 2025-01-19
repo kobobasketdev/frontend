@@ -2,45 +2,50 @@ import { CssBaseline, Drawer, IconButton, Stack, styled } from '@mui/material';
 import Header from '#component/Header.tsx';
 import MarketPlace from '#page/MarketPlace.tsx';
 import Footer from '#page/Footer.tsx';
-import { drawerWidth, NORMAL_PHONE_BREAKPOINT, SMALLDESKTOP_BREAKPOINT } from '#constants.tsx';
+import { DESKTOP_SCREEN_MAX_WIDTH, drawerWidth, MEDIUM_SCREEN_MAX_WIDTH } from '#constants.tsx';
 import { theme } from '#customtheme.ts';
 import { ChevronLeft, ChevronRight, } from '@mui/icons-material';
-import { useState } from 'react';
 import CartDisplay from '#component/CartDisplay.tsx';
+import { useAppDispatch, useAppSelector } from '#state-management/hooks.ts';
+import { closeCart, selectCartVisibile } from '#state-management/slices/cart.slice.ts';
+import { getWindowWidth } from './utils';
+import GenericProduct from '#page/GenericProduct.tsx';
+
 
 function App() {
-	
-	const [open, setOpen] = useState(true);
-
-	const handleDrawerOpen = () => {
-		setOpen(true);
-	};
+	const isCartOpen = useAppSelector(selectCartVisibile);
+	const dispatch = useAppDispatch();
 
 	const handleDrawerClose = () => {
-		setOpen(false);
+		dispatch(closeCart());
 	};
 
 	return (
 		<>
 			<CssBaseline />
-			<Header open={open} />
-			<Main open={open}>
+			<Header open={isCartOpen} />
+			<Main open={isCartOpen}>
 				<StyledStackContent >
-					<MarketPlace />
+					{/* <MarketPlace /> */}
+					<GenericProduct />
 				</StyledStackContent>
-				<Footer />
+				<Stack>
+					<Footer />
+				</Stack>
 			</Main>
 			<Drawer
 				sx={{
 					width: drawerWidth,
+					bgcolor: 'yellow',
 					flexShrink: 0,
 					'& .MuiDrawer-paper': {
 						width: drawerWidth,
+						// border: '1px solid red',
 					},
 				}}
 				variant="persistent"
 				anchor="right"
-				open={open}
+				open={isCartOpen}
 			>
 				<DrawerHeader>
 					<IconButton onClick={handleDrawerClose}>
@@ -55,12 +60,13 @@ function App() {
 }
 
 const StyledStackContent = styled(Stack)(({ theme }) => ({
-	paddingTop: theme.spacing(19.3),
-	[theme.breakpoints.between('xs', SMALLDESKTOP_BREAKPOINT)] : {
-		paddingTop: theme.spacing(26)
+	// paddingTop: theme.spacing(17),
+	paddingTop: theme.spacing(16),
+	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)] : {
+		paddingTop: theme.spacing(23)
 	},
-	[theme.breakpoints.between('xs', NORMAL_PHONE_BREAKPOINT)] : {
-		paddingTop: theme.spacing(32)
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)] : {
+		paddingTop: theme.spacing(26)
 	},
 }));
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -97,15 +103,11 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
 					easing: theme.transitions.easing.easeOut,
 					duration: theme.transitions.duration.enteringScreen,
 				}),
-				marginRight: drawerWidth,
+				marginRight: getWindowWidth() > MEDIUM_SCREEN_MAX_WIDTH ? drawerWidth : '0px',
 			},
 		},
 	],
 }));
   
-const ContentBodyStack= styled('main')({
-	position: 'relative',
-	width: 'auto',
-	backgroundColor: 'red'
-});
+
 export default App;

@@ -37,7 +37,7 @@ export default function AboutDropdown() {
 					About us
 				</NavigationHeaderButton>
 			</Stack>
-			<StyledPopper id={id} open={open} anchorEl={anchorEl} placement="bottom-end">
+			<StyledPopper id={id} open={open} anchorEl={anchorEl} placement="bottom-start">
 				<ClickAwayListener onClickAway={handleClickAway}>
 					<Paper elevation={1}>
 						<StyledList>

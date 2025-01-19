@@ -1,16 +1,17 @@
 import { IconButton, Stack, styled } from "@mui/material";
-import { ProductAvatar, ProductLocationPriceSpan, ProductLocationPriceTypography, ProductNameTypography, ProductPriceTypography, ProductPromotionChip, ProductSavingTypography, ProductWeightTypography } from "./CommonViews";
-import { IProductItemProps } from ".";
+import { ProductAvatar, ProductPromotionChip } from "./CommonViews";
+import { IProductItemProps, TItem } from "./types";
 import ScrollableContainer from "./ScrollableContainer";
 import GrommetWishListSvg from "./svg/GrommetWishlistSvg";
 import { theme } from "#customtheme.ts";
 import { useEffect, useState } from "react";
 import ProductAddToCartControl from "./ProductAddToCartControl";
+import ProductInfo from "./ProductInfo";
+import { SMALL_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { useAppDispatch } from "#state-management/hooks.ts";
+import { addToWishlist, removeFromWishlist } from "#state-management/slices/wishlist.slice.ts";
 
-const getSavedPercent = (price: number, locationPrice: number) => {
-	// return (Math.round((Math.abs(price - locationPrice)/locationPrice)*100));
-	return Math.abs(price - locationPrice);
-};
+
 export default function ProductItem({ 
 	item, 
 	showPrice, 
@@ -19,20 +20,24 @@ export default function ProductItem({
 	fontSize,
 	fontWeight,
 }: IProductItemProps) {
-	const currency = 'CAD $';
+	const dispatch = useAppDispatch();
 	const [isWishListItem, setIsWishListItem] = useState<boolean>(false);
 
 	useEffect(() => {
 		setIsWishListItem(item.isWishListItem);
 	},[item.isWishListItem]);
 
-	const handleAddToWishlist = () => () => {
+	const handleAddToWishlist = (item: TItem) => () => {
+		if(isWishListItem) {
+			dispatch(removeFromWishlist(""+item.productId));
+		}
+		else {
+			dispatch(addToWishlist(item));
+		}
 		const newWishListStatus = !isWishListItem;
 		setIsWishListItem(newWishListStatus);
-		//TODO send wishlist update to server
 	};
 
-	const price = item.promotion?.promoPrice || item.price;
 	return (
 		<Stack gap={2.5} position={'relative'}>
 			{
@@ -41,15 +46,15 @@ export default function ProductItem({
 						{
 							item.promotion && <ProductPromotionChip label={item.promotion.promoName} size="small"/>
 						}
-						<WishLishIconButton onClick={handleAddToWishlist()}>
+						<WishLishIconButton onClick={handleAddToWishlist(item)}>
 							<GrommetWishListSvg $isFilled={isWishListItem} $fillColor={theme.palette.primaryOrange.main}/>
 						</WishLishIconButton>
 					</ProductPromotionWishlistStack>
 				)
 			}
 			<Stack gap={1}>
-				<Stack>
-					<ScrollableContainer orientation="horizontal" float height="200px">
+				<Stack borderRadius={3} overflow={'hidden'}>
+					<ScrollableContainer orientation="horizontal" float  fullContent>
 						{
 							item.images.map((image, index) => (
 								<Stack key={index}>
@@ -65,43 +70,10 @@ export default function ProductItem({
 					</ScrollableContainer>
 				</Stack>
 			
-				{
-					fullDetails && (
-						<Stack>
-							<ProductNameTypography>
-								{item.name}
-							</ProductNameTypography>
-							<ProductWeightTypography>
-								{item.weight}
-							</ProductWeightTypography>
-							<Stack direction={'row'} alignItems={'center'} gap={1} pt={1}>
-								<ProductLocationPriceTypography>
-									African store near you {' '}
-									<ProductLocationPriceSpan >
-										{currency}{item.locationPrice}
-									</ProductLocationPriceSpan>
-								</ProductLocationPriceTypography>
-							</Stack>
-						</Stack>
-					)
-				}
+				<ProductInfo item={item} showPrice={showPrice} fullDetails={fullDetails} fontSize={fontSize} fontWeight={fontWeight} />
 			</Stack>
 			{
-				showPrice && 
-					<Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
-						<ProductPriceTypography $isPromotion={Boolean(item.promotion)} $fontSize={fontSize} $fontWeight={fontWeight}>
-							{currency}{price}
-						</ProductPriceTypography>
-						{
-							fullDetails && 
-							<ProductSavingTypography>
-								save CAD ${getSavedPercent(price, item.locationPrice)}
-							</ProductSavingTypography>
-						}
-					</Stack>
-			}
-			{
-				fullDetails && <ProductAddToCartControl />
+				fullDetails && <ProductAddToCartControl item={item}/>
 			}
 
 		</Stack>
@@ -118,7 +90,10 @@ const ProductPromotionWishlistStack = styled(Stack,{
 	padding: theme.spacing(1),
 	flexDirection: 'row',
 	justifyContent: $hasPromotion ? 'space-between' : 'right',
-	alignItems: 'center'
+	alignItems: 'center',
+	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)] : {
+		padding: theme.spacing(0.3)
+	}
 }));
 
 const WishLishIconButton = styled(IconButton)(({ theme }) => ({
