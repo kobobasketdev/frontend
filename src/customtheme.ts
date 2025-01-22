@@ -7,7 +7,8 @@ declare module '@mui/material/styles' {
 		primaryOrange: Palette['primary'];
 		customBrown: Palette['primary'];
 		customGrey: Palette['primary'];
-		scrollNavColor: Palette['primary']
+		scrollNavColor: Palette['primary'],
+		primaryGreen: Palette['primary']
 	}
 
 	interface PaletteOptions {
@@ -16,7 +17,8 @@ declare module '@mui/material/styles' {
 		primaryOrange?: PaletteOptions['primary'];
 		customBrown?: PaletteOptions['primary'];
 		customGrey?: PaletteOptions['primary'];
-		scrollNavColor?: PaletteOptions['primary']
+		scrollNavColor?: PaletteOptions['primary'],
+		primaryGreen?: PaletteOptions['primary']
 	}
 }
 
@@ -24,20 +26,32 @@ declare module '@mui/material/styles' {
 	interface PaletteColor {
 		lightshade?: string;
 		deeper?: string;
+		moreDeeper?: string;
+		disabled?: string
 	}
 
 	interface SimplePaletteColorOptions {
 		lightshade?: string;
 		deeper?: string;
+		moreDeeper?: string;
+		disabled?: string;
 	}
 }
 
+// linear-gradient(180deg, #F74C25 8.7%, #FFF700 165.22%)
 export const theme = createTheme({
 	palette: {
+		primaryGreen: {
+			main: '#003D28',
+			lightshade: '#F6FFEF',
+			disabled: 'rgba(91, 85, 0, 0.24)'
+		},
 		primaryBlack: {
 			main: '#222222',
 			lightshade:'#3D3D3D',
-			deeper: '#6A6A6A'
+			deeper: '#6A6A6A',
+			disabled: '#8A8A8A',
+			moreDeeper: '#090909'
 		},
 		menuBackground: {
 			main: '#FFF3F2'

@@ -8,7 +8,7 @@ export type TWishlist = {
 };
 
 interface IWishlistState {
-	wishlistItems: TWishlist
+	wishlistItems: TWishlist,
 }
 
 const initialState : IWishlistState= {

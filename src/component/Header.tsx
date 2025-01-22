@@ -4,15 +4,16 @@ import WebTopNav from "./WebTopNav";
 import NavigationUserActions from "./NavigationUserActions";
 import { drawerWidth,  SMALL_SCREEN_MAX_WIDTH,  MEDIUM_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, DESKTOP_SCREEN_MAX_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import FilterProduct from "./FilterProduct";
-import { WebOnlyView } from "./CommonViews";
 import DeliverySelection from "./DeliverySelection";
-import MenuContainer from "./MenuContainer";
 import { getWindowWidth } from "#utils/index.ts";
 import BrandLogoSvg from "./svg/BrandLogoSvg";
 import HambugerMenu from "./HambugerMenu";
 import { useAppDispatch } from "#state-management/hooks.ts";
 import { setShowHeader } from "#state-management/slices/active-menu.slice.ts";
 import { useEffect } from "react";
+import { Link } from "@tanstack/react-router";
+import { RoutePath } from "#utils/route.ts";
+import MenuStack from "./MenuStack";
 
 interface Props {
 	children: React.ReactElement<unknown>
@@ -47,12 +48,16 @@ export default function Header({ open }: { open?: boolean }) {
 								<BrandHeaderStack>
 									<HambugerMenu />
 									<CustomerLogoStack mb={1} flexGrow={1}>
-										<MobileBrandSvgContainer>
-											<BrandLogoSvg width="140" height="40" viewBox="40 4 200 80" />
-										</MobileBrandSvgContainer>
-										<BrandSvgContainer>
-											<BrandLogoSvg width="250" height="40" viewBox="20 15 300 55" />
-										</BrandSvgContainer>
+										<Link to={RoutePath.HOME}>
+											<Stack>
+												<MobileBrandSvgContainer>
+													<BrandLogoSvg width="140" height="40" viewBox="40 4 200 80" />
+												</MobileBrandSvgContainer>
+											</Stack>
+											<BrandSvgContainer>
+												<BrandLogoSvg width="250" height="40" viewBox="20 15 300 55" />
+											</BrandSvgContainer>
+										</Link>
 									</CustomerLogoStack>
 									<BrandWebTopButtonContainer>
 										<WebTopNav />
@@ -73,15 +78,7 @@ export default function Header({ open }: { open?: boolean }) {
 									</MobileViewDeliveryContainer>
 								</HeaderSearchStack>
 							</HeaderWrapperStack>
-							<MenuStack width={1}>
-								<ReverseDesktopNormalOnlyView>
-									<FilterProduct />
-								</ReverseDesktopNormalOnlyView>
-								<MenuContainer />
-								<WebOnlyView>
-									<NavigationUserActions />
-								</WebOnlyView>
-							</MenuStack>
+							<MenuStack />
 						</OutterContainerStack>
 					</CustomHeaderToolbar>
 				</StyledAppBar>
@@ -97,7 +94,7 @@ interface TAppBarProps extends AppBarProps {
 const StyledAppBar = styled(AppBar, {
 	shouldForwardProp: (prop) => prop !== 'open',
 })<TAppBarProps>(({ theme }) => ({
-	backgroundColor: theme.palette.menuBackground.main,
+	backgroundColor: theme.palette.primaryGreen.lightshade,
 	color: 'black',
 	transition: theme.transitions.create(['margin', 'width'], {
 		easing: theme.transitions.easing.sharp,
@@ -107,12 +104,12 @@ const StyledAppBar = styled(AppBar, {
 		{
 			props: ({ open }) => open,
 			style: {
-				width: `calc(100% - ${getWindowWidth() > MEDIUM_SCREEN_MAX_WIDTH ? drawerWidth : 0}px)`,
+				width: `calc(100% - ${getWindowWidth() > TABLET_SCREEN_MAX_WIDTH ? drawerWidth : 0}px)`,
 				transition: theme.transitions.create(['margin', 'width'], {
 					easing: theme.transitions.easing.easeOut,
 					duration: theme.transitions.duration.enteringScreen * 5,
 				}),
-				marginRight: getWindowWidth() > MEDIUM_SCREEN_MAX_WIDTH ? drawerWidth : '0px',
+				marginRight: getWindowWidth() > TABLET_SCREEN_MAX_WIDTH ? drawerWidth : '0px',
 			},
 		},
 	],
@@ -181,7 +178,8 @@ const BrandSvgContainer = styled('span')(({ theme }) => ({
 const MobileBrandSvgContainer = styled('span')(({ theme }) => ({
 	display: 'none',
 	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
-		display: 'inline-flex'
+		display: 'inline-flex',
+		alignItems: 'baseline',
 	}
 }));
 
@@ -203,14 +201,6 @@ const DesktopNormalOnlyView = styled(Box)(({ theme }) => ({
 	display: 'none',
 	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
 		display: 'inline-flex',
-	},
-}));
-
-const ReverseDesktopNormalOnlyView = styled(Box)(({ theme }) => ({
-	paddingTop: theme.spacing(.5),
-	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
-		paddingTop: 'unset',
-		display: 'none'
 	},
 }));
 
@@ -291,29 +281,6 @@ const MobileViewDeliveryContainer = styled(Stack)(({ theme }) => ({
 		justifyContent: 'left',
 		flexGrow: 1
 	},
-}));
-
-const MenuStack = styled(Stack)(({ theme }) => ({
-	flexDirection: 'row',
-	marginTop: theme.spacing(.5),
-	width: '100%',
-	padding: `0px ${theme.spacing(.5)}`,
-	alignItems: 'center',
-	justifyContent: 'space-between',
-	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
-		marginTop: theme.spacing(.8),
-	},
-	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		justifyContent: 'center',
-		marginTop: '4px',
-	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		justifyContent: 'space-between',
-		marginTop: '-18px',
-	},
-	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
-		marginTop: '-10px',
-	}
 }));
 
 

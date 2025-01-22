@@ -1,6 +1,6 @@
-import { SMALL_SCREEN_MAX_WIDTH, SMALLDESKTOP_BREAKPOINT, TABLET_BREAKPOINT, TABLET_SCREEN_MAX_WIDTH, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
+import { LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, SMALLDESKTOP_BREAKPOINT, TABLET_BREAKPOINT, TABLET_SCREEN_MAX_WIDTH, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { Avatar, Box, Button, Chip, Link, Stack, styled, Typography } from "@mui/material";
+import { Avatar, Box, Button, Chip, IconButton, Link, Stack, styled, Typography } from "@mui/material";
 import { useState } from "react";
 import { TAvatarSizing } from "./types";
 
@@ -71,14 +71,16 @@ export const DropDownView = ({ title, children }: { title: string, children: Rea
 	);
 };
 
-export const FilterItem = ({ title, imageSrc = "", href="" }: { title: string, imageSrc?: string, href?: string }) => {
+export const FilterItem = ({ title="", imageSrc = "", href="" }: { title?: string, imageSrc?: string, href?: string }) => {
 	return (
 		<FilterItemLink underline="none" href={href}>
 			<Stack alignItems={'center'} gap={1} >
 				<FilterAvatar alt={title} src={imageSrc} />
-				<Typography fontWeight={'light'} fontFamily={'Roboto'} fontSize={'14px'} textAlign={'center'} width={'74px'}>
-					{title}
-				</Typography>
+				{
+					title && <Typography fontWeight={'light'} fontFamily={'Roboto'} fontSize={'14px'} textAlign={'center'} width={'74px'}>
+						{title}
+					</Typography>
+				}
 			</Stack>
 		</FilterItemLink>
 	);
@@ -121,13 +123,18 @@ export const ProductPriceTypography = styled(Typography, {
 	},
 }));
 
-export const ProductNameTypography = styled(Typography)(({ theme }) => ({
+export const ProductNameTypography = styled(Typography, {
+	shouldForwardProp: prop => prop !== '$fontSize'
+})<{ $fontSize?: string }>(({ theme, $fontSize }) => ({
 	color: theme.palette.primaryBlack.lightshade,
 	fontFamily: 'Roboto',
 	fontWeight: '600',
-	fontSize: '18px',
+	fontSize: $fontSize || '18px',
 	lineHeight: '175%',
 	letterSpacing: '0.15px',
+	[theme.breakpoints.down(466)]: {
+		fontSize: $fontSize && `calc(${$fontSize} - 4px)` || '16px'
+	},
 }));
 
 export const ProductWeightTypography = styled(Typography)(({ theme }) => ({
@@ -187,3 +194,82 @@ export const ProductPromotionChip = styled(Chip)(({ theme })=> ({
 	}
 }));
 
+export const MiniPromotionGrid = styled('div')(({ theme }) => ({
+	display: 'grid',
+	width: 'fit-content',
+	columnGap: theme.spacing(3),
+	rowGap: theme.spacing(4),
+	gridTemplateColumns: "repeat(2, 680px)",
+	[theme.breakpoints.down(LARGED_DESKTOP_SCREEN_MAX_WIDTH)]: {
+		gridTemplateColumns: "repeat(2, 450px)",
+	},
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		gridTemplateColumns: "repeat(2, minmax(400px,auto))",
+		padding: `0px ${theme.spacing(1)}`,
+	},
+	[theme.breakpoints.down(893)]: {
+		gridTemplateColumns: "repeat(1, 690px)",
+		padding: `0px`,
+	},
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+		gridTemplateColumns: "repeat(1, minmax(318px, auto))",
+		padding: `0px ${theme.spacing(2)}`,
+	},
+	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
+		gridTemplateColumns: "repeat(1, minmax(318px, auto))",
+		padding: `0px`,
+	}
+}));
+
+export const ContentStack = styled(Stack)(() => ({
+	alignItems: 'center',
+	width: 'fit-content',
+	marginLeft: 'auto',
+	marginRight: 'auto',
+}));
+
+export const ShopTypography = styled(Typography)(({ theme }) => ({
+	color: theme.palette.primaryBlack.main,
+	fontFamily: 'Alata',
+	fontWeight: '400',
+	fontSize: '30px',
+	lineHeight: '133.4%',
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		paddingLeft: theme.spacing()
+	},
+}));
+
+export const ShopTypographyLight = styled(Typography)(({ theme }) => ({
+	color: theme.palette.primaryBlack.main,
+	fontFamily: 'Roboto',
+	fontWeight: '400',
+	fontSize: '18px',
+	lineHeight: '175%',
+	letterSpacing: '0.15px',
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		paddingLeft: theme.spacing()
+	},
+	
+}));
+
+export const CustomIconButton = styled(IconButton)(() => ({
+	boxSizing: 'border-box',
+	backgroundColor: 'rgba(255, 255, 255, 0.82)',
+	boxShadow: '0px 2px 11.4px rgba(0, 0, 0, 0.1)',
+	fontWeight: 'normal',
+	borderRadius: '30px',
+	fontFamily: 'Roboto',
+	color: 'black',
+	paddingLeft: '15px',
+	paddingRight: '15px',
+}));
+
+export const CustomSpan = styled('span')(({ theme }) => ({
+	display: 'inline-flex',
+	marginLeft: theme.spacing(.5),
+	fontSize: '1rem'
+}));
+
+export const WishLishIconButton = styled(IconButton)(({ theme }) => ({
+	paddingRight: theme.spacing(1.5)
+}));

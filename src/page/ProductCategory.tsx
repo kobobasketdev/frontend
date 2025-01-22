@@ -8,80 +8,105 @@ import { theme } from "#customtheme.ts";
 import { items } from "#testData.ts";
 import { Button, Stack, styled } from "@mui/material";
 
-export default function GenericProduct() {
+export default function ProductCategory() {
 	
 	return (
-		<StyledStack>
-			<ProductSpecificFilter />
-			<ProductCategoryStack width={1} gap={6} pt={4} pb={4}>
-				<ContentStack>
-					<ProductItemGrid>
-						{Array(24).fill('Item').map((arrayItem, index) => (
-							<ProductItem 
-								key={index}
-								item={{ ...items[0], productId: index, name: arrayItem+" "+index , promotion: { 
-									promoName: "Valentine's Deals", 
-									promoPrice: 10 
-								} }} 
-								showPrice={true} 
-								isCircularImage={false}
-								fullDetails
-								fontSize="24px"
-								fontWeight="600"
-							/>
-						))}
-					</ProductItemGrid>
-				</ContentStack>
-				<ProductPromotionContainer>
-					<ProductPromotionGrid>
-						<StyledLeftStack gap={2}>
-							<MiniPromotion title={"Shop new products this week"} width={"inherit"} type={{
-								name: 'grid',
-								spacing: 2,
-								column: 2
-							}} items={items.slice(0,6)} bgColor={theme.palette.customGrey.main} isCircularImage dynamicClass/>
+		<StyledStackContent>
+			<StyledStack>
+				<ProductSpecificFilter />
+				<ProductCategoryStack width={1} gap={6} pt={4} pb={4}>
+					<ContentStack>
+						<ProductItemGrid>
+							{Array(24).fill('Item').map((arrayItem, index) => (
+								<ProductItem 
+									key={index}
+									item={{ ...items[0], productId: index, name: arrayItem+" "+index , promotion: { 
+										promoName: "Valentine's Deals", 
+										promoPrice: 10 
+									} }} 
+									showPrice={true} 
+									isCircularImage={false}
+									fullDetails
+									fontSize="24px"
+									fontWeight="600"
+								/>
+							))}
+						</ProductItemGrid>
+					</ContentStack>
+					<ProductPromotionContainer>
+						<ProductPromotionGrid>
+							<StyledLeftStack gap={2}>
+								<MiniPromotion title={"Shop new products this week"} width={"inherit"} type={{
+									name: 'grid',
+									spacing: 2,
+									column: 2
+								}} items={items.slice(0,6)} bgColor={theme.palette.customGrey.main} isCircularImage dynamicClass/>
 
-							<MiniPromotion title={"Amazing Deals on Staples"} width={"inherit"} type={{
-								name: 'grid',
-								spacing: 2,
-								column: 2
-							}} items={items.slice(0,2)} bgColor={theme.palette.menuBackground.main} />
-						</StyledLeftStack>
-						<StyledLargePromotionStack borderRadius={3} overflow={'hidden'}>
-							<ScrollableContainer orientation="horizontal" float fullContent>
-								{
-									["","",""].map((image, index) => (
-										<CustomPromotionStack key={index}>
-											<ProductAvatar src={image} variant="rounded"/>
-											<LargePromotionShopNow>
-												Shop Now
-											</LargePromotionShopNow> 
-										</CustomPromotionStack>
-									))
-								}
-							</ScrollableContainer>
-						</StyledLargePromotionStack>
-						<StyledRightStack gap={2}>
-							<MiniPromotion title={"Shop quality Farmed oils"} width={"inherit"} type={{
-								name: 'grid',
-								spacing: 2,
-								column: 2
-							}} items={items.slice(0,2)} bgColor={theme.palette.menuBackground.main}/>
-							<MiniPromotion title={"Get Free gift on this products"} width={"inherit"} type={{
-								name: 'grid',
-								spacing: 2,
-								column: 2
-							}} items={items.slice(0,6)} bgColor={theme.palette.customGrey.main} dynamicClass />
-						</StyledRightStack>
-					</ProductPromotionGrid>
-				</ProductPromotionContainer>
-				<StyledViewMoreStack alignItems={'center'} >
-					<StyledButton variant="outlined" color="inherit" size="small" >VIEW MORE PRODUCTS</StyledButton>
-				</StyledViewMoreStack>
-			</ProductCategoryStack>
-		</StyledStack>
+								<MiniPromotion title={"Amazing Deals on Staples"} width={"inherit"} type={{
+									name: 'grid',
+									spacing: 2,
+									column: 2
+								}} items={items.slice(0,2)} bgColor={theme.palette.menuBackground.main} />
+							</StyledLeftStack>
+							<StyledLargePromotionStack borderRadius={3} overflow={'hidden'}>
+								<ScrollableContainer orientation="horizontal" float fullContent>
+									{
+										["","",""].map((image, index) => (
+											<CustomPromotionStack key={index}>
+												<ProductAvatar src={image} variant="rounded"/>
+												<LargePromotionShopNow>
+													Shop Now
+												</LargePromotionShopNow> 
+											</CustomPromotionStack>
+										))
+									}
+								</ScrollableContainer>
+							</StyledLargePromotionStack>
+							<StyledRightStack gap={2}>
+								<MiniPromotion title={"Shop quality Farmed oils"} width={"inherit"} type={{
+									name: 'grid',
+									spacing: 2,
+									column: 2
+								}} items={items.slice(0,2)} bgColor={theme.palette.menuBackground.main}/>
+								<MiniPromotion title={"Get Free gift on this products"} width={"inherit"} type={{
+									name: 'grid',
+									spacing: 2,
+									column: 2
+								}} items={items.slice(0,6)} bgColor={theme.palette.customGrey.main} dynamicClass />
+							</StyledRightStack>
+						</ProductPromotionGrid>
+					</ProductPromotionContainer>
+					<StyledViewMoreStack alignItems={'center'} >
+						<StyledButton variant="outlined" color="inherit" size="small" >VIEW MORE PRODUCTS</StyledButton>
+					</StyledViewMoreStack>
+				</ProductCategoryStack>
+			</StyledStack>
+		</StyledStackContent>
 	);
 }
+
+const StyledStackContent = styled(Stack)(({ theme }) => ({
+	// paddingTop: theme.spacing(17),
+	paddingTop: theme.spacing(15),
+	[theme.breakpoints.down(1346)] : {
+		paddingTop: theme.spacing(16.4),
+	},
+	[theme.breakpoints.down(1300)] : {
+		paddingTop: theme.spacing(19.4),
+	},
+	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)] : {
+		paddingTop: theme.spacing(23.5)
+	},
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)] : {
+		paddingTop: theme.spacing(22)
+	},
+	[theme.breakpoints.down(955)] : {
+		paddingTop: theme.spacing(24)
+	},
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)] : {
+		paddingTop: theme.spacing(26)
+	},
+}));
 
 const StyledStack = styled('div')(({ theme }) => ({
 	flexDirection: 'row',
@@ -176,9 +201,9 @@ const ProductItemGrid = styled('div')(({ theme }) => ({
 		gridTemplateColumns: "repeat(2,minmax(155px, 220px))",
 	},
 	[theme.breakpoints.down(447)] : {
-		columnGap: theme.spacing(0),
+		columnGap: theme.spacing(1),
 		justifyContent: 'space-around',
-		gridTemplateColumns: "repeat(2, 150px)",
+		gridTemplateColumns: "repeat(2, minmax(150px, auto))",
 	}
 }));
 

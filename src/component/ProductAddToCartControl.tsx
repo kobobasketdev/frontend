@@ -21,7 +21,7 @@ const Effect = keyframes`
 	}
 `;
 
-export default function ProductAddToCartControl({ item }: { item: TItem }) {
+export default function ProductAddToCartControl({ item, fullWidth=false }: { item: TItem, fullWidth?: boolean }) {
 	const [count, setCount] = useState(1);
 	const dispatch = useAppDispatch();
 	
@@ -41,7 +41,7 @@ export default function ProductAddToCartControl({ item }: { item: TItem }) {
 	};
 	
 	return (
-		<StyledStack direction={'row'} alignItems={'center'}  gap={1} width={'fit-content'}>
+		<StyledStack direction={'row'} alignItems={'center'}  gap={1} width={fullWidth ? 1 : 'fit-content'}>
 			<Stack direction={'row'} alignItems={'center'}>
 				<IconButton onClick={handleQuantity(-1)} disabled={count === 1} size="small">
 					<Remove />
@@ -53,15 +53,26 @@ export default function ProductAddToCartControl({ item }: { item: TItem }) {
 					<Add />
 				</IconButton>
 			</Stack>
-			<AddToCartButton size="small" onClick={handleAddToCart()}>
-				<SvgIcon viewBox="0 -2 14 14" id="mobile-svg">
-					<ProductAddToCartSvg />
-				</SvgIcon>
-				<ProductAddToCartSvg />
-				<span>
-					Add to Cart
-				</span>
-			</AddToCartButton>
+			{
+				fullWidth ? <FullWidthAddToCart fullWidth onClick={handleAddToCart()}>
+					<SvgIcon viewBox="0 -2 14 14">
+						<ProductAddToCartSvg />
+					</SvgIcon>
+					<span>
+						Add to Cart
+					</span>
+				</FullWidthAddToCart> 
+					: <AddToCartButton size="small" onClick={handleAddToCart()}>
+						<SvgIcon viewBox="0 -2 14 14" id="mobile-svg">
+							<ProductAddToCartSvg />
+						</SvgIcon>
+						<ProductAddToCartSvg />
+						<span>
+							Add to Cart
+						</span>
+					</AddToCartButton>
+						
+			}
 		</StyledStack>
 	);
 };
@@ -87,6 +98,34 @@ const QuantityCountTypography = styled(Typography)(({ theme }) => ({
 	letterSpacing: '0.1px'
 }));
 
+const FullWidthAddToCart = styled(Button)(() => ({
+	backgroundColor: theme.palette.customBrown.main,
+	fontFamily: 'Roboto',
+	fontWeight: '500',
+	fontSize: '16px',
+	lineHeight: '13px',
+	letterSpacing: '0.46px',
+	padding: theme.spacing(1.2),
+	paddingLeft: theme.spacing(1.5),
+	paddingRight: theme.spacing(1.5),
+	borderRadius: '20px',
+	color: '#FFFFFF',
+	'& > #mobile-svg': {
+		display: 'none'
+	},
+	'& > span': {
+		marginLeft: theme.spacing()
+	},
+	'.MuiTouchRipple-root': {
+		transition: '.5s',
+	},
+	':hover': {
+		backgroundColor: theme.palette.customBrown.deeper,
+	},
+	':focus': {
+		animation: `${Effect} 500ms ${theme.transitions.easing.easeIn} `,
+	},
+}));
 const AddToCartButton = styled(Button)(({ theme }) => ({
 	backgroundColor: theme.palette.customBrown.main,
 	fontFamily: 'Roboto',

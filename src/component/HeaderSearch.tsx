@@ -94,7 +94,7 @@ const LanscapeMobileScreenUpward = styled(Box)(({ theme }) => ({
 	}
 }));
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
-	backgroundColor: theme.palette.primaryOrange.main,
+	backgroundColor: theme.palette.primaryGreen.main,
 	paddingTop: theme.spacing(1.2),
 	paddingLeft: theme.spacing(1.2),
 	':hover': {

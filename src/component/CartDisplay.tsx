@@ -43,7 +43,7 @@ export default function CartDisplay() {
 			<CustomCartContainer>
 				<Stack gap={1}>
 					<CartHeadingTypography fontFamily={'Alata'}>
-						Cart
+						CART
 					</CartHeadingTypography>
 					<CartSubheadTypography>
 						To offer affordable prices, Kobobasket requires a <span>{minimumWeight}kg</span> minimum order. 

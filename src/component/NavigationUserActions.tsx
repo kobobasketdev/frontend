@@ -6,13 +6,21 @@ import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
 import { openCart, selectCartItemsCount } from "#state-management/slices/cart.slice.ts";
 import { selectWishlistCount } from "#state-management/slices/wishlist.slice.ts";
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { useNavigate } from "@tanstack/react-router";
+import { RoutePath } from "#utils/route.ts";
 
 export default function NavigationUserActions() {
 	const dispatch = useAppDispatch();
+	const navigate = useNavigate();
 	const cartItemsCount = useAppSelector(selectCartItemsCount);
 	const wishlistItemsCount = useAppSelector(selectWishlistCount);
 	const handleOpenCart = () => () => {
 		dispatch(openCart());
+	};
+	const gotoWishlist = () => () => {
+		navigate({
+			to: RoutePath.WISHLIST
+		});
 	};
 	return(
 		<NavigationActionBox>
@@ -30,7 +38,7 @@ export default function NavigationUserActions() {
 				</CustomIconButton>
 			</span>
 			<span>
-				<IconButton>
+				<IconButton onClick={gotoWishlist()}>
 					<Badge color="warning" badgeContent={wishlistItemsCount} variant="dot">
 						<WishlistIcon />
 					</Badge>

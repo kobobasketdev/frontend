@@ -5,7 +5,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const activeMenuSlice = createSlice({
 	name: 'active-menu',
-	initialState: { activeMenu: 0, showMenu: false, showHeader: true },
+	initialState: { activeMenu: 0, showMenu: true, showHeader: true },
 	reducers: {
 		setActiveMenu: (state, action: PayloadAction<number>) => {
 			state.activeMenu = action.payload;

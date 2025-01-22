@@ -6,7 +6,7 @@ export default function Footer() {
 	const activeMenu = useAppSelector(selectActiveMenu);
 	return (
 		<StyledFooterStack width={1} alignSelf={'center'} $activeMenu={activeMenu}>
-			holl
+			
 		</StyledFooterStack>
 	);
 }

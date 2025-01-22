@@ -1,6 +1,6 @@
 import { IconButton, Stack, styled } from "@mui/material";
 import { ExpandLess, ExpandMore, ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { Dispatch, useEffect, useRef, useState, SetStateAction, MouseEvent } from "react";
+import { Dispatch, useEffect, useRef, useState, SetStateAction, MouseEvent, TouchEvent } from "react";
 import { TScrollNavigationMode, TScrollOrientation } from "./types";
 
 const processNavigationDisabled = ({
@@ -67,6 +67,7 @@ const setTranslatedValue = ({
 	if(shouldDisableTranslate) {
 		return '0px 0px';
 	}
+
 	if(translateValue.current > 0) {
 		translateValue.current = 30;
 	}
@@ -128,7 +129,7 @@ export default function ScrollableContainer({
 	const [shouldDisableTopNavigation, setShouldDisableTopNavigation] =  useState(true);
 	const [shouldDisableBottomNavigation, setShouldDisableBottomNavigation] =  useState(true);
 	const [isFloatHovered, setIsFloatHover] = useState<boolean>(false);
-	const isMouseDown = useRef<boolean>(false);
+	const isUserActionDown = useRef<boolean>(false);
 	const mouseDownPosition = useRef<IClientPointer>({ x: 0, y: 0 });
 	const translateValue = useRef<number>(0);
 	const movePosition = useRef<IClientPointer>({ x: 0, y: 0 });
@@ -174,7 +175,7 @@ export default function ScrollableContainer({
 	}, [orientation, fullContent]);
 
 	const handleScrollBy = (navDirection: number, scrollValue?: number ) => {
-		isMouseDown.current = false;
+		isUserActionDown.current = false;
 
 		if(!scrollContainerRef.current || !outterContainerRef.current) {
 			return;
@@ -198,31 +199,62 @@ export default function ScrollableContainer({
 		);
 	};
 
-	const handleScrollerPan = (e: MouseEvent<HTMLDivElement | MouseEvent>) => {
-		e.preventDefault();
+	const computePan = () => {
+		const defaultScrollDistance = 30;
+
+		const yMovement = movePosition.current.y - mouseDownPosition.current.y > 0 ? defaultScrollDistance : -defaultScrollDistance;
+		const xMovement = movePosition.current.x - mouseDownPosition.current.x > 0 ? defaultScrollDistance : -defaultScrollDistance;
+		const movement = orientation === 'vertical' ? yMovement : xMovement;
+		translateValue.current += movement;
+		return getBoundary(outterContainerRef, scrollContainerRef, orientation);
+
+	};
+	const handleScrollerPan = (event: MouseEvent<HTMLDivElement | MouseEvent>) => {
+		event.preventDefault();
+
 		if(!scrollContainerRef.current || !outterContainerRef.current) {
 			return;
 		}
-		if( !isMouseDown.current ) {
+		if( !isUserActionDown.current ) {
 			return;
 		}
-
-		movePosition.current = { x: e.clientX, y: e.clientY };
+		movePosition.current = { x: event.clientX, y: event.clientY };
 		
-		const movement = orientation === 'vertical' ? movePosition.current.y - mouseDownPosition.current.y : movePosition.current.x - mouseDownPosition.current.x;
-		translateValue.current += movement;
-
-		const { boundary, shouldDisableTranslate } = getBoundary(outterContainerRef, scrollContainerRef, orientation);
+		const { boundary, shouldDisableTranslate } = computePan();
 		scrollContainerRef.current.style.translate = setTranslatedValue({ translateValue, boundary, shouldDisableTranslate, orientation });
+
 	};
 
-	const handleMouseDown = (e: MouseEvent<HTMLDivElement | MouseEvent>) => {
-		mouseDownPosition.current = { x: e.clientX, y: e.clientY };
-		isMouseDown.current = true;
+	const handleTouchPan = (event: TouchEvent<HTMLDivElement>) => {
+		if(!scrollContainerRef.current || !outterContainerRef.current) {
+			return;
+		}
+		if( !isUserActionDown.current ) {
+			return;
+		}
+		
+		movePosition.current = { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY };
+		
+
+		const { boundary, shouldDisableTranslate } = computePan();
+		scrollContainerRef.current.style.translate = setTranslatedValue({ translateValue, boundary, shouldDisableTranslate, orientation });
+
+	};
+
+	const handleUserActionDown = (e: MouseEvent<HTMLDivElement | MouseEvent> | TouchEvent<HTMLDivElement>) => {
+		if(e.type === 'mousedown') {
+			const event = (e as MouseEvent<HTMLDivElement | MouseEvent>);
+			mouseDownPosition.current = { x: event.clientX, y: event.clientY };
+		}
+		else {
+			const event = (e as TouchEvent<HTMLDivElement>);
+			mouseDownPosition.current = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+		}
+		isUserActionDown.current = true;
 	};
 
 	const handleResetMouse = () => () => {
-		isMouseDown.current = false;
+		isUserActionDown.current = false;
 		if(!scrollContainerRef.current || !outterContainerRef.current) {
 			return;
 		}
@@ -273,10 +305,14 @@ export default function ScrollableContainer({
 				}
 				<OutterContainer className="outter-scroller"
 					ref={outterContainerRef}
-					onMouseDown={(e) => handleMouseDown(e)}
+					onMouseDown={(e) => handleUserActionDown(e)}
 					onMouseUp={handleResetMouse()}
 					onMouseLeave={handleResetMouse()}
-					onMouseMove={(e) => handleScrollerPan(e)}>
+					onMouseMove={(e) => handleScrollerPan(e)}
+					onTouchStart={(e) => handleUserActionDown(e)}
+					onTouchMove={(e) => handleTouchPan(e)}
+					onTouchEnd={handleResetMouse()}
+				>
 					<InnerContainer 
 						id='scrollable-container' 
 						role="scrollbar" 
@@ -335,7 +371,7 @@ const OutterContainer = styled('div')({
 	overflow: 'hidden',
 	width: '100%',
 	height: 'inherit',
-	touchAction: 'pan-y, pan-x'
+	touchAction: 'unset'
 });
 
 const InnerContainer = styled(Stack, {
