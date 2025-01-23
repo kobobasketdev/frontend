@@ -82,7 +82,7 @@ const CustomSpan = styled('span')(({ theme }) => ({
 	lineHeight: '100%',
 	letterSpacing: '0.17px',
 	paddingLeft: theme.spacing(.5),
-	color: theme.palette.customBrown.deeper,
+	color: theme.palette.primaryGreen.main,
 	gap: theme.spacing(.5),
 	' > *': {
 		textAlign: 'left'

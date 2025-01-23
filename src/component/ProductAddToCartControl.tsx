@@ -78,7 +78,7 @@ export default function ProductAddToCartControl({ item, fullWidth=false }: { ite
 };
 
 const StyledStack = styled(Stack)(({ theme })=>({
-	border: '1px solid rgba(109, 76, 65, 0.2)',
+	border: `1px solid ${theme.palette.primaryGreen.disabled}`,
 	borderRadius: '16px',
 	padding: theme.spacing(0.4),
 	paddingLeft: theme.spacing(1),
@@ -99,7 +99,7 @@ const QuantityCountTypography = styled(Typography)(({ theme }) => ({
 }));
 
 const FullWidthAddToCart = styled(Button)(() => ({
-	backgroundColor: theme.palette.customBrown.main,
+	backgroundColor: theme.palette.primaryYellow.main,
 	fontFamily: 'Roboto',
 	fontWeight: '500',
 	fontSize: '16px',
@@ -109,7 +109,8 @@ const FullWidthAddToCart = styled(Button)(() => ({
 	paddingLeft: theme.spacing(1.5),
 	paddingRight: theme.spacing(1.5),
 	borderRadius: '20px',
-	color: '#FFFFFF',
+	color: theme.palette.primaryBlack.moreDeeper,
+
 	'& > #mobile-svg': {
 		display: 'none'
 	},
@@ -119,15 +120,12 @@ const FullWidthAddToCart = styled(Button)(() => ({
 	'.MuiTouchRipple-root': {
 		transition: '.5s',
 	},
-	':hover': {
-		backgroundColor: theme.palette.customBrown.deeper,
-	},
 	':focus': {
 		animation: `${Effect} 500ms ${theme.transitions.easing.easeIn} `,
 	},
 }));
 const AddToCartButton = styled(Button)(({ theme }) => ({
-	backgroundColor: theme.palette.customBrown.main,
+	backgroundColor: theme.palette.primaryYellow.main,
 	fontFamily: 'Roboto',
 	fontWeight: '500',
 	fontSize: '12px',
@@ -138,7 +136,7 @@ const AddToCartButton = styled(Button)(({ theme }) => ({
 	paddingLeft: theme.spacing(1.5),
 	paddingRight: theme.spacing(1.5),
 	borderRadius: '16px',
-	color: '#FFFFFF',
+	color: theme.palette.primaryBlack.moreDeeper,
 	'& > #mobile-svg': {
 		display: 'none'
 	},
@@ -147,9 +145,6 @@ const AddToCartButton = styled(Button)(({ theme }) => ({
 	},
 	'.MuiTouchRipple-root': {
 		transition: '.5s',
-	},
-	':hover': {
-		backgroundColor: theme.palette.customBrown.deeper,
 	},
 	':focus': {
 		animation: `${Effect} 500ms ${theme.transitions.easing.easeIn} `,

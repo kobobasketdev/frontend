@@ -8,7 +8,8 @@ declare module '@mui/material/styles' {
 		customBrown: Palette['primary'];
 		customGrey: Palette['primary'];
 		scrollNavColor: Palette['primary'],
-		primaryGreen: Palette['primary']
+		primaryGreen: Palette['primary'],
+		primaryYellow: Palette['primary']
 	}
 
 	interface PaletteOptions {
@@ -18,7 +19,8 @@ declare module '@mui/material/styles' {
 		customBrown?: PaletteOptions['primary'];
 		customGrey?: PaletteOptions['primary'];
 		scrollNavColor?: PaletteOptions['primary'],
-		primaryGreen?: PaletteOptions['primary']
+		primaryGreen?: PaletteOptions['primary'],
+		primaryYellow?: PaletteOptions['primary']
 	}
 }
 
@@ -44,7 +46,11 @@ export const theme = createTheme({
 		primaryGreen: {
 			main: '#003D28',
 			lightshade: '#F6FFEF',
+			light: '#E7FFD6',
 			disabled: 'rgba(91, 85, 0, 0.24)'
+		},
+		primaryYellow: {
+			main: '#F4E832'
 		},
 		primaryBlack: {
 			main: '#222222',
@@ -59,7 +65,8 @@ export const theme = createTheme({
 		primaryOrange: {
 			main: '#F74C25',
 			lightshade: '#FFA689',
-			deeper: '#D24120'
+			deeper: '#D24120',
+			light: '#FF5D00'
 		},
 		customBrown: {
 			main: '#5D4037',

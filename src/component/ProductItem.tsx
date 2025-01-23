@@ -3,7 +3,6 @@ import { ProductAvatar, ProductPromotionChip, WishLishIconButton } from "./Commo
 import { IProductItemProps, TItem } from "./types";
 import ScrollableContainer from "./ScrollableContainer";
 import GrommetWishListSvg from "./svg/GrommetWishlistSvg";
-import { theme } from "#customtheme.ts";
 import { useEffect, useState } from "react";
 import ProductAddToCartControl from "./ProductAddToCartControl";
 import ProductInfo from "./ProductInfo";
@@ -78,7 +77,7 @@ export default function ProductItem({
 						{
 							!disableWishlisting && 
 							<WishLishIconButton onClick={handleAddToWishlist(item)}>
-								<GrommetWishListSvg $isFilled={isWishListItem || item.isWishListItem} $fillColor={theme.palette.primaryOrange.main}/>
+								<GrommetWishListSvg $isFilled={isWishListItem || item.isWishListItem} />
 							</WishLishIconButton>
 
 						}

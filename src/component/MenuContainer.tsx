@@ -123,27 +123,12 @@ export default function MenuContainer({ contentViewArea = '45px' }: { contentVie
 													<Grid >
 														<FilterItem title={"Ijebu White Garri"} />
 													</Grid>
-													<Grid >
-														<FilterItem title={"Ofada Rice"}  />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Dried Panla fish"}  />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Orijin Bitter"} />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Dried Panla fish"}  />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Orijin Bitter"} />
-													</Grid>
 												</Grid>
 											</Stack>
 											<Box pl={1}>
-												<Button variant="contained">
+												<SeeMoreButton variant="contained">
 													See More
-												</Button>
+												</SeeMoreButton>
 											</Box>
 										</Stack>
 									</Paper>
@@ -159,6 +144,10 @@ export default function MenuContainer({ contentViewArea = '45px' }: { contentVie
 	);
 }
 
+const SeeMoreButton = styled(Button)(({ theme }) => ({
+	backgroundColor: theme.palette.primaryYellow.main,
+	color: theme.palette.primaryBlack.moreDeeper
+}));
 const StyledPopper = styled(Popper)(({ theme }) => ({
 	zIndex: theme.zIndex.appBar,
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
@@ -209,18 +198,18 @@ const MenuButton = styled(Button, {
 	fontFamily: 'Alata',
 	fontSize: '24px',
 	lineHeight: '133.4%',
-	color: $isActive ? 'white' : $isDeals ? theme.palette.primaryOrange.main : theme.palette.primaryBlack.main,
-	...($isActive && { backgroundColor: theme.palette.primaryOrange.main }),
+	color: $isActive ? theme.palette.primaryBlack.moreDeeper : $isDeals ? theme.palette.primaryOrange.main : theme.palette.primaryBlack.main,
+	...($isActive && { backgroundColor: theme.palette.primaryYellow.main }),
 	':hover': {
-		color: 'white',
-		backgroundColor: theme.palette.primaryOrange.lightshade
+		color: theme.palette.primaryBlack.moreDeeper,
+		backgroundColor: theme.palette.action.hover
 	},
 	':focus': {
-		color: 'white',
-		backgroundColor: theme.palette.primaryOrange.main
+		color: theme.palette.primaryBlack.moreDeeper,
+		backgroundColor: theme.palette.primaryYellow.main
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		backgroundColor: $isActive ? theme.palette.primaryOrange.main: 'white',
+		backgroundColor: $isActive ? theme.palette.primaryYellow.main: 'white',
 		borderRadius: '12px',
 		padding: '4px 8px',
 	},

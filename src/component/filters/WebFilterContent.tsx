@@ -92,7 +92,7 @@ const ProductFilterListItem = styled(ListItem)(({ theme }) => ({
 const ProductFilterListItemButton = styled(ListItemButton, {
 	shouldForwardProp: prop => prop !== '$isActive'
 })<{ $isActive: boolean }>(({ theme, $isActive }) => ({
-	backgroundColor: $isActive ? theme.palette.menuBackground.main : 'inherit',
+	backgroundColor: $isActive ? theme.palette.primaryGreen.light : 'inherit',
 	fontWeight: $isActive ? '600' : '400',
 	fontFamily: 'Roboto',
 	fontSize: '14px',

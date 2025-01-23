@@ -181,7 +181,7 @@ export const ProductSavingTypography = styled(Typography)(({ theme }) => ({
 }));
 
 export const ProductPromotionChip = styled(Chip)(({ theme })=> ({
-	backgroundColor: theme.palette.primaryOrange.main,
+	backgroundColor: theme.palette.primaryOrange.light,
 	fontFamily: 'Roboto',
 	fontWeight: '500',
 	fontSize: '11px',
@@ -229,7 +229,7 @@ export const ContentStack = styled(Stack)(() => ({
 }));
 
 export const ShopTypography = styled(Typography)(({ theme }) => ({
-	color: theme.palette.primaryBlack.main,
+	color: theme.palette.primaryGreen.main,
 	fontFamily: 'Alata',
 	fontWeight: '400',
 	fontSize: '30px',
@@ -240,7 +240,7 @@ export const ShopTypography = styled(Typography)(({ theme }) => ({
 }));
 
 export const ShopTypographyLight = styled(Typography)(({ theme }) => ({
-	color: theme.palette.primaryBlack.main,
+	color: theme.palette.primaryGreen.main,
 	fontFamily: 'Roboto',
 	fontWeight: '400',
 	fontSize: '18px',

@@ -42,7 +42,7 @@ export default function FilterProduct() {
 }
 
 const FilterButton = styled(Button)(({ theme }) => ({
-	color: theme.palette.primaryBlack.lightshade,
+	color: theme.palette.primaryGreen.main,
 	textTransform: 'inherit',
 	'& p': {
 		display: 'inline',
@@ -50,8 +50,12 @@ const FilterButton = styled(Button)(({ theme }) => ({
 		fontSize: '16px',
 		letterSpacing: '0.15px',
 		paddingLeft: theme.spacing(1),
+		color: theme.palette.primaryGreen.main,
 	},
-	border: `1px solid ${theme.palette.primaryOrange.main}`,
+	'& svg': {
+		color: theme.palette.primaryGreen.main,
+	},
+	border: `1px solid ${theme.palette.primaryGreen.main}`,
 	borderRadius: theme.shape.borderRadius * 2,
 	width: 'auto',
 	padding: `${theme.spacing(.3)} ${theme.spacing(1)}` ,

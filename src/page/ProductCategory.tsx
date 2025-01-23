@@ -5,7 +5,7 @@ import ProductSpecificFilter from "#component/ProductSpecificFilter.tsx";
 import ScrollableContainer from "#component/ScrollableContainer.tsx";
 import { SMALL_SCREEN_MAX_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, DESKTOP_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { theme } from "#customtheme.ts";
-import { items } from "#testData.ts";
+import { items as itemsStub } from "#testData.ts";
 import { Button, Stack, styled } from "@mui/material";
 
 export default function ProductCategory() {
@@ -20,7 +20,7 @@ export default function ProductCategory() {
 							{Array(24).fill('Item').map((arrayItem, index) => (
 								<ProductItem 
 									key={index}
-									item={{ ...items[0], productId: index, name: arrayItem+" "+index , promotion: { 
+									item={{ ...itemsStub[0], productId: index, name: arrayItem+" "+index , promotion: { 
 										promoName: "Valentine's Deals", 
 										promoPrice: 10 
 									} }} 
@@ -40,13 +40,13 @@ export default function ProductCategory() {
 									name: 'grid',
 									spacing: 2,
 									column: 2
-								}} items={items.slice(0,6)} bgColor={theme.palette.customGrey.main} isCircularImage dynamicClass/>
+								}} items={itemsStub.slice(0,6)} bgColor={theme.palette.customGrey.main} isCircularImage dynamicClass/>
 
 								<MiniPromotion title={"Amazing Deals on Staples"} width={"inherit"} type={{
 									name: 'grid',
 									spacing: 2,
 									column: 2
-								}} items={items.slice(0,2)} bgColor={theme.palette.menuBackground.main} />
+								}} items={itemsStub.slice(0,2)} bgColor={theme.palette.menuBackground.main} />
 							</StyledLeftStack>
 							<StyledLargePromotionStack borderRadius={3} overflow={'hidden'}>
 								<ScrollableContainer orientation="horizontal" float fullContent>
@@ -67,12 +67,12 @@ export default function ProductCategory() {
 									name: 'grid',
 									spacing: 2,
 									column: 2
-								}} items={items.slice(0,2)} bgColor={theme.palette.menuBackground.main}/>
+								}} items={itemsStub.slice(0,2)} bgColor={theme.palette.menuBackground.main}/>
 								<MiniPromotion title={"Get Free gift on this products"} width={"inherit"} type={{
 									name: 'grid',
 									spacing: 2,
 									column: 2
-								}} items={items.slice(0,6)} bgColor={theme.palette.customGrey.main} dynamicClass />
+								}} items={itemsStub.slice(0,6)} bgColor={theme.palette.customGrey.main} dynamicClass />
 							</StyledRightStack>
 						</ProductPromotionGrid>
 					</ProductPromotionContainer>

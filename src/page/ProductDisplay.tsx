@@ -16,7 +16,7 @@ import ProductDisplayDetail from "#component/ProductDisplayDetail.tsx";
 import ShareProductContainer from "#component/ShareProductContainer.tsx";
 import ProductAddToCartControl from "#component/ProductAddToCartControl.tsx";
 import MiniPromotion from "#component/MiniPromotion.tsx";
-import { items } from "#testData.ts";
+import { items as itemsStub } from "#testData.ts";
 import ProductItem from "#component/ProductItem.tsx";
 import { useSnackbar } from "notistack";
 import _ from "lodash";
@@ -86,7 +86,7 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 						</ScrollableContainer>
 						<StyledSpan>
 							<WishLishIconButton onClick={handleAddToWishlist(item)}>
-								<GrommetWishListSvg $isFilled={isWishListItem} $fillColor={theme.palette.primaryOrange.main}/>
+								<GrommetWishListSvg $isFilled={isWishListItem} />
 							</WishLishIconButton>
 						</StyledSpan>
 					</CustomProductBox>
@@ -152,14 +152,14 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 						spacing: 2,
 						size: { height: '100px', width: '100px' },
 						scollBy: 210,
-					}} items={items} bgColor={theme.palette.customGrey.main} showPrice height="200px"/>
+					}} items={itemsStub} bgColor={theme.palette.customGrey.main} showPrice height="200px"/>
 			
 					<MiniPromotion title={"Similar products"} width={"inherit"} type={{
 						name: 'scroll',
 						spacing: 2,
 						size: { height: '100px', width: '100px' },
 						scollBy: 210,
-					}} items={items} bgColor={theme.palette.menuBackground.main} showPrice  height="200px"/>
+					}} items={itemsStub} bgColor={theme.palette.menuBackground.main} showPrice  height="200px"/>
 				</MiniPromotionGrid>
 			</ContentStack>
 			<ContentStack mt={8}>
@@ -173,7 +173,7 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 						{Array(24).fill('Item').map((arrayItem, index) => (
 							<ProductItem 
 								key={index}
-								item={{ ...items[0], productId: index, name: arrayItem+" "+index , promotion: { 
+								item={{ ...itemsStub[0], productId: index, name: arrayItem+" "+index , promotion: { 
 									promoName: "Valentine's Deals", 
 									promoPrice: 10 
 								} }} 

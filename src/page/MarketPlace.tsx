@@ -1,13 +1,23 @@
 import MiniPromotion from "#component/MiniPromotion.tsx";
 import { Button, Stack, styled } from "@mui/material";
 //TODO Get Item data as items
-import { items } from "#testData.ts";
+import { items as itemsStub } from "#testData.ts";
 import { theme } from "#customtheme.ts"; 
 import { CUSTOM_893_WIDTH, DESKTOP_SCREEN_MAX_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import ProductItem from "#component/ProductItem.tsx";
 import { ContentStack, MiniPromotionGrid, ProductAvatar, ShopTypography, ShopTypographyLight } from "#component/CommonViews.tsx";
 import ScrollableContainer from "#component/ScrollableContainer.tsx";
 
+function generateRandomPromotion() {
+	const shouldGenerate = Math.floor(Math.random() * 100);
+	if(shouldGenerate % 2 == 0) {
+		return { promotion: { 
+			promoName: "Valentine's Deals", 
+			promoPrice: 10 
+		} };
+	} 
+	return {};
+}
 export default function MarketPlace() {
 	
 	return (
@@ -23,14 +33,14 @@ export default function MarketPlace() {
 								spacing: 2,
 								size: { height: '100px', width: '100px' },
 								scollBy: 210,
-							}} items={items} bgColor={theme.palette.customGrey.main} showPrice height="200px"/>
+							}} items={itemsStub} bgColor={theme.palette.primaryGreen.lightshade!} showPrice height="200px"/>
 
 							<MiniPromotion title={"Frequently bought snacks"} width={"inherit"} type={{
 								name: 'scroll',
 								spacing: 2,
 								size: { height: '100px', width: '100px' },
 								scollBy: 210,
-							}} items={items} bgColor={theme.palette.menuBackground.main} showPrice  height="200px"/>
+							}} items={itemsStub} bgColor={theme.palette.menuBackground.main} showPrice  height="200px"/>
 						</MiniPromotionGrid>
 					</ContentStack>
 					<ContentStack>
@@ -47,10 +57,7 @@ export default function MarketPlace() {
 								{Array(24).fill('Item').map((arrayItem, index) => (
 									<ProductItem 
 										key={index}
-										item={{ ...items[0], productId: index, name: arrayItem+" "+index , promotion: { 
-											promoName: "Valentine's Deals", 
-											promoPrice: 10 
-										} }} 
+										item={{ ...itemsStub[0], productId: index, name: arrayItem+" "+index , ...generateRandomPromotion() }} 
 										showPrice={true} 
 										isCircularImage={false}
 										fullDetails
@@ -68,13 +75,13 @@ export default function MarketPlace() {
 									name: 'grid',
 									spacing: 2,
 									column: 2
-								}} items={items.slice(0,6)} bgColor={theme.palette.customGrey.main} isCircularImage dynamicClass/>
+								}} items={itemsStub.slice(0,6)} bgColor={theme.palette.customGrey.main} isCircularImage dynamicClass/>
 
 								<MiniPromotion title={"Amazing Deals on Staples"} width={"inherit"} type={{
 									name: 'grid',
 									spacing: 2,
 									column: 2
-								}} items={items.slice(0,2)} bgColor={theme.palette.menuBackground.main} />
+								}} items={itemsStub.slice(0,2)} bgColor={theme.palette.menuBackground.main} />
 							</StyledLeftStack>
 							<StyledLargePromotionStack borderRadius={3} overflow={'hidden'}>
 								<ScrollableContainer orientation="horizontal" float fullContent>
@@ -95,12 +102,12 @@ export default function MarketPlace() {
 									name: 'grid',
 									spacing: 2,
 									column: 2
-								}} items={items.slice(0,2)} bgColor={theme.palette.menuBackground.main}/>
+								}} items={itemsStub.slice(0,2)} bgColor={theme.palette.menuBackground.main}/>
 								<MiniPromotion title={"Get Free gift on this products"} width={"inherit"} type={{
 									name: 'grid',
 									spacing: 2,
 									column: 2
-								}} items={items.slice(0,6)} bgColor={theme.palette.customGrey.main} dynamicClass />
+								}} items={itemsStub.slice(0,6)} bgColor={theme.palette.customGrey.main} dynamicClass />
 							</StyledRightStack>
 						</ProductPromotionGrid>
 					</ProductPromotionContainer>
@@ -110,7 +117,7 @@ export default function MarketPlace() {
 								{Array(24).fill('Item').map((arrayItem, index) => (
 									<ProductItem 
 										key={index}
-										item={{ ...items[0], name: arrayItem+" "+index }} 
+										item={{ ...itemsStub[0], name: arrayItem+" "+index }} 
 										showPrice={true} 
 										isCircularImage={false}
 										fullDetails

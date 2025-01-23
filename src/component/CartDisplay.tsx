@@ -121,15 +121,12 @@ const StyledCheckoutCard = styled(Card)(({ theme }) => ({
 const CheckoutButton= styled(Button, {
 	shouldForwardProp: prop => prop !== '$disabledButton'
 })<{ $disabledButton: boolean }>(({ theme, $disabledButton }) => ({
-	backgroundColor: !$disabledButton ? theme.palette.primaryOrange.main : theme.palette.primaryOrange.lightshade,
+	backgroundColor: $disabledButton ? theme.palette.action.disabled : theme.palette.primaryYellow.main,
 	borderRadius: '15px',
 	textTransform: 'inherit',
-	color: 'white',
+	color: theme.palette.primaryBlack.moreDeeper,
 	fontFamily: 'Roboto',
 	fontSize: '13px',
-	':disabled': {
-		color: 'white'
-	}
 }));
 
 const CartTotalHeadingTypography = styled(Typography)(({ theme }) => ({

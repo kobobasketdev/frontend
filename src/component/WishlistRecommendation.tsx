@@ -1,6 +1,6 @@
 import { Stack, styled } from "@mui/material";
 import ScrollableContainer from "./ScrollableContainer";
-import { items } from "#testData.ts";
+import { items as itemsStub } from "#testData.ts";
 import ProductItem from "./ProductItem";
 import { MEDIUM_SCREEN_MAX_WIDTH } from "#constants.tsx";
 
@@ -10,7 +10,7 @@ export default function WishlistRecommendation(){
 			<ScrollableContainer orientation="horizontal" float>
 				<Stack direction={'row'} gap={2}>
 					{
-						items.map((item, index) => (
+						itemsStub.map((item, index) => (
 							<CustomProductContainer  key={index}>
 								<ProductItem 
 									item={item} 

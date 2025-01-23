@@ -9,7 +9,7 @@ import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WI
 import { theme } from "#customtheme.ts";
 import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
 import { removeFromWishlist, selectWishlistItems } from "#state-management/slices/wishlist.slice.ts";
-import { items } from "#testData.ts";
+import { items as itemsStub } from "#testData.ts";
 import { RoutePath } from "#utils/route.ts";
 import { ChevronRight } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, Stack, styled, SvgIcon, Typography } from "@mui/material";
@@ -98,7 +98,7 @@ export default function WishlistDisplay() {
 												/>
 												<WishlistCustomFloatingSpan>
 													<WishLishIconButton onClick={handleRemoveFromWishlist(wishlistItem[wishItem].productId)}>
-														<GrommetWishListSvg $isFilled={true} $fillColor={theme.palette.primaryOrange.main}/>
+														<GrommetWishListSvg $isFilled={true} />
 													</WishLishIconButton>
 												</WishlistCustomFloatingSpan>
 											</CustomWishlistContainer>
@@ -120,7 +120,7 @@ export default function WishlistDisplay() {
 						spacing: 2,
 						size: { height: '100px', width: '100px' },
 						scollBy: 210,
-					}} items={items} bgColor={theme.palette.menuBackground.main} showPrice  height="200px"/>
+					}} items={itemsStub} bgColor={theme.palette.menuBackground.main} showPrice  height="200px"/>
 				</Stack>
 			</Stack>
 			<Dialog open={openDialog}>

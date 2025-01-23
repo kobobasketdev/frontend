@@ -139,10 +139,10 @@ const StyledTypographySubhead = styled(Typography)({
 });
 
 const SelectedCurrencyListItem = styled(ListItem)(({ theme }) => ({
-	backgroundColor: theme.palette.menuBackground.main,
+	backgroundColor: theme.palette.action.hover,
 	paddingTop: theme.spacing(1.5),
 	paddingBottom: theme.spacing(1.5),
-	border: `1px solid ${theme.palette.primaryOrange.main}`,
+	border: `1px solid ${theme.palette.primaryGreen.main}`,
 	borderRadius: theme.shape.borderRadius * 8
 }));
 

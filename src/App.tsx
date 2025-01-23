@@ -29,18 +29,29 @@ function App() {
 		<>
 			<CssBaseline />
 			<Header open={isCartOpen} />
-			<Main open={isCartOpen} >
-				<Outlet />
-				<Stack>
-					<Footer />
-				</Stack>
+			<Main open={isCartOpen}>
+				<CustomDivWrapper>
+					<div style={{ flexGrow: 1 }}>
+						<Outlet />
+					</div>
+					<Stack>
+						<Footer />
+					</Stack>
+				</CustomDivWrapper>
 			</Main>
 			<DrawerComponent isCartOpen={isCartOpen} handleDrawerClose={handleDrawerClose}/>
 		</>
 	);
 }
 
-
+const CustomDivWrapper = styled('div')(({ theme }) => ({
+	display: 'flex', 
+	flexDirection: 'column',
+	minHeight: '100vmin',
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		minHeight: '100vmax'
+	}
+}));
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
 	open?: boolean;

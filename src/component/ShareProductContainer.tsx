@@ -2,7 +2,6 @@ import { Stack, styled, Typography } from "@mui/material";
 import millify from 'millify';
 import pluralize from 'pluralize';
 import GrommetWishListSvg from "./svg/GrommetWishlistSvg";
-import { theme } from "#customtheme.ts";
 import { IosShare } from '@mui/icons-material';
 import { CustomIconButton, CustomSpan } from "./CommonViews";
 
@@ -32,7 +31,7 @@ export default function ShareProductContainer({
 			</StyledSoldText>
 			<Stack direction={'row'} gap={3}>
 				<CustomIconButton onClick={() => handleLikeAction()}>
-					<GrommetWishListSvg $isFilled={isWishListItem} $fillColor={theme.palette.primaryOrange.main}/>
+					<GrommetWishListSvg $isFilled={isWishListItem} />
 					<CustomSpan>
 						{millify(likeCount, {
 							units: ['', 'k', 'm', 'b'],
