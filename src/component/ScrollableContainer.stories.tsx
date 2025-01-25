@@ -10,7 +10,7 @@ const meta: Meta<typeof ScrollableContainer>= {
 			defaultViewport: DEFAULT_VIEWPORT
 		}
 	},
-	decorators: (Story) => (<Stack bgcolor={'red'} width={1} height={'300px'} border={'1px solid black'}><Story/></Stack>),
+	decorators: (Story) => (<Stack width={1} height={'300px'} border={'1px solid black'}><Story/></Stack>),
 	args: {
 		showNavigation: true,
 		children: <>
@@ -19,13 +19,13 @@ const meta: Meta<typeof ScrollableContainer>= {
 			hello there<br/><hr/>
 			hello there<br/><hr/>
 			hello there<br/><hr/>
+			4. hello there<br/><hr/>
 			hello there<br/><hr/>
 			hello there<br/><hr/>
 			hello there<br/><hr/>
 			hello there<br/><hr/>
 			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
+			6. hello there<br/><hr/>
 			hello there<br/><hr/>
 			hello there<br/><hr/>
 			hello there<br/><hr/>
@@ -165,28 +165,47 @@ export const SMALLMOBILE_FLOAT_NAVIGATION: Story = {
 	args: { showNavigation: false, float: true }
 };
 
-// const items = [
-// 	<div style={{ display: 'inline-flex', backgroundColor: 'pink', border: '1px solid blue' }} key={1}>
-// 		<button>1</button> <button>2</button> <button>3</button> 
-// 		{/* <button>6</button> <button>7</button>
-// <button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button> */}
-// 	</div>,
-// 	<div style={{ display: 'inline-flex', backgroundColor: 'black', border: '1px solid orange' }} key={2} >
-// 		<button>1</button> <button>2</button> <button>3</button> 
-// 		<button>6</button> 
-// 		{/* <button>7</button>
-// <button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button> */}
-// 	</div>
-// ]; 
-const picItems = [ 
-	{ key: 1, src: '', alt: 'Picture 1', variant: 'rounded' }, 
-	{ key: 2, src: '', alt: 'Picture 2', variant: 'rounded' }
-];
+const items = [
+	<div style={{ display: 'inline-flex', backgroundColor: 'pink', border: '1px solid blue' }} key={1}>
+		<button>1</button> <button>2</button> <button>3</button> 
+		<button>6</button> <button>7</button>
+		<button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button>
+	</div>,
+	<div style={{ display: 'inline-flex', backgroundColor: 'black', border: '1px solid orange' }} key={2} >
+		<button>1</button> <button>2</button> <button>3</button> 
+		<button>6</button> 
+		<button>7</button>
+		<button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button>
+	</div>,
+	<div style={{ display: 'inline-flex', backgroundColor: 'black', border: '1px solid orange' }} key={3} >
+		<button>1</button> <button>2</button> <button>3</button> 
+		<button>6</button> 
+		<button>7</button>
+		<button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button>
+	</div>,
+	<div style={{ display: 'inline-flex', backgroundColor: 'black', border: '1px solid orange' }} key={4} >
+		<button>1</button> <button>2</button> <button>3</button> 
+		<button>6</button> 
+		<button>7</button>
+		<button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button>
+	</div>,
+	<div style={{ display: 'inline-flex', backgroundColor: 'black', border: '1px solid pink' }} key={5} >
+		<button>1</button> <button>2</button> <button>3</button> 
+		<button>6</button> 
+		<button>7</button>
+		<button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button>
+	</div>
+	
+]; 
+// const picItems = [ 
+// 	{ key: 1, src: '', alt: 'Picture 1', variant: 'rounded' }, 
+// 	{ key: 2, src: '', alt: 'Picture 2', variant: 'rounded' }
+// ];
 const HORIZONTAL: IScrollableContainer = {
-	children: picItems.map(item => (<div key={item.key} style={{ backgroundColor: 'pink' }}>
-		<Avatar  src={item.src} alt={item.alt} variant={'rounded'} />
-	</div>)),
-	// children: items,
+	// children: picItems.map(item => (<div key={item.key} style={{ backgroundColor: 'pink' }}>
+	// 	<Avatar  src={item.src} alt={item.alt} variant={'rounded'} />
+	// </div>)),
+	children: items,
 	orientation: 'horizontal',
 	showNavigation: false
 };

@@ -1,7 +1,7 @@
 import { ClickAwayListener, List, ListItem, ListItemButton, Paper, Popper, styled } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
 import { useState, MouseEvent } from "react";
-import { CategorySelection } from ".";
+import { CategorySelection } from "./types";
 import { NavigationHeaderButton } from "./NavigationHeaderButton";
 
 export default function SearchDropdown() {
@@ -13,7 +13,7 @@ export default function SearchDropdown() {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	//TODO: Get category list from query
 	const categories = [
-		{ id: 1, name: 'All ategories' }, 
+		{ id: 1, name: 'All categories' }, 
 		{ id: 2, name: 'Staples' },
 		{ id: 3, name:  'Oils' }, 
 		{ id: 4, name: 'Flour' }, 
@@ -50,7 +50,7 @@ export default function SearchDropdown() {
 			>
 				{selection.name}
 			</NavigationHeaderButton>
-			<StyledPopper id={id} open={open} anchorEl={anchorEl} placement="bottom-end">
+			<StyledPopper id={id} open={open} anchorEl={anchorEl} placement="bottom-start">
 				<ClickAwayListener onClickAway={handleClickAway}>
 					<Paper elevation={2}>
 						<StyledList>

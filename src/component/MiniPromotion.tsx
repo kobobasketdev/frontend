@@ -1,8 +1,10 @@
 import { Stack, styled, Typography } from "@mui/material";
-import { TAvatarSizing, TItem, TMiniGrid, TMiniPromotionProps } from ".";
+import { TAvatarSizing, TItem, TMiniGrid, TMiniPromotionProps } from "./types";
 import ScrollableContainer from "./ScrollableContainer";
 import { NORMAL_PHONE_BREAKPOINT } from "#constants.tsx";
 import { ProductAvatar as MiniPromotionAvatar, ProductPriceTypography as MiniPromotionPriceTypography } from "./CommonViews";
+import { useAppSelector } from "#state-management/hooks.ts";
+import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
 
 export default function MiniPromotion({ 
 	title, 
@@ -39,7 +41,7 @@ export default function MiniPromotion({
 	}
 	return (
 		<Stack width={1} height={height || 'inherit'} bgcolor={bgColor} borderRadius={2} pt={2} gap={1}>
-			<MiniPromotionTypography pl={2}>
+			<MiniPromotionTypography pl={2} pr={2}>
 				{title}
 			</MiniPromotionTypography>
 			{promoContent}
@@ -95,19 +97,22 @@ const PromotionContent = ({
 	isCircularImage: boolean,
 	size?: TAvatarSizing,
 }) => {
-	const currency = 'CAD $';
+	const { code, symbol } = useAppSelector(selectDeliverLocation);
+	const price = item.promotion?.promoPrice || item.price;
 	return (
 		<Stack gap={1.5}>
-			<MiniPromotionAvatar 
-				src={item.images[0] || ''} 
-				alt={item.name}
-				variant={isCircularImage ? 'circular' : 'rounded'} 
-				className={dynamicClass ? 'dynamic-avatar' : ''}
-				$size={size}
-			/>
+			<Stack borderRadius={3} overflow={'hidden'}>
+				<MiniPromotionAvatar 
+					src={item.images[0] || ''} 
+					alt={item.name}
+					variant={isCircularImage ? 'circular' : 'rounded'} 
+					className={dynamicClass ? 'dynamic-avatar' : ''}
+					$size={size}
+				/>
+			</Stack>
 			{
 				showPrice && 
-				<MiniPromotionPriceTypography $fontSize="18px" $isPromotion $fontWeight="700">{currency}{item.promotion?.promoPrice || item.price}</MiniPromotionPriceTypography>
+				<MiniPromotionPriceTypography $fontSize="18px" $isPromotion $fontWeight="700">{code} {symbol}{price}</MiniPromotionPriceTypography>
 			}
 		</Stack>
 	);

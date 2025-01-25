@@ -1,18 +1,30 @@
 import { Box, IconButton, List, ListItem, ListItemButton, Modal, Stack, styled, Typography } from "@mui/material";
 import { HighlightOff } from '@mui/icons-material';
-import { CurrencySelection } from ".";
 import ScrollableContainer from "./ScrollableContainer";
+import { TCountryCurrency } from "#state-management/slices/currency.slice.ts";
+import * as _ from 'lodash';
+import { IDeliveryState } from "#state-management/slices/delivery.slice.ts";
 
-export default function CurrencyList({ currencyList, selection, open, isLocationBased, handleChooseSelection, handleClose }: 
+const extractCountriesCurrency = (countriesCurrency: TCountryCurrency, selectedCountry: string) => {
+	const countries = Object.keys(countriesCurrency);
+	const extractedCountriesCurrency: IDeliveryState[] = [];
+	countries.forEach(country => {
+		if(country !== selectedCountry) {
+			extractedCountriesCurrency.push({ country: country, ...countriesCurrency[country] });
+		}
+	});
+	return extractedCountriesCurrency;
+};
+export default function CurrencyList({ countriesCurrency, selection, open, isLocationBased, handleChooseSelection, handleClose }: 
 { 
-	currencyList: CurrencySelection[], 
-	selection: CurrencySelection,
+	countriesCurrency: TCountryCurrency, 
+	selection: IDeliveryState,
 	open: boolean,
 	isLocationBased: boolean,
-	handleChooseSelection: (args: CurrencySelection) => void,
+	handleChooseSelection: (args: IDeliveryState) => void,
 	handleClose: () => void
 }) {
-
+	const parsedCountriesWithCurrency = extractCountriesCurrency(countriesCurrency, selection.country);
 	return (
 		<Modal
 			open={open}
@@ -45,7 +57,7 @@ export default function CurrencyList({ currencyList, selection, open, isLocation
 									<Stack direction={'row'} gap={1} justifyContent={'space-between'} width={1}>
 										<Stack gap={1} justifyContent={'space-between'}>
 											<SelectedTypographyHead fontSize={'1px'}>
-												{selection.country}
+												{_.upperFirst(selection.country)}
 											</SelectedTypographyHead>
 											<SelectedTypographySubhead>
 												Your order will be charged in
@@ -53,30 +65,30 @@ export default function CurrencyList({ currencyList, selection, open, isLocation
 										</Stack>
 										<Stack gap={1} width={1/3}>
 											<SelectedTypographyHead>
-												{selection.name}
+												{_.upperFirst(selection.name)}
 											</SelectedTypographyHead>
 											<SelectedTypographySubhead>
-												{selection.currency}
+												{selection.code} {selection.symbol}
 											</SelectedTypographySubhead>
 										</Stack>
 									</Stack>
 								</SelectedCurrencyListItem>
-								{currencyList.filter(currency => currency.id !== selection.id).map(({ id, name, country, currency }) => (
-									<StyledListItem key={id} disablePadding >
-										<ListItemButton disabled={selection.id === id} onClick={() => handleChooseSelection({ id, name, country, currency })}
+								{parsedCountriesWithCurrency.map(({ code, country, name, symbol }) => (
+									<StyledListItem key={country} disablePadding >
+										<ListItemButton disabled={selection.country === country} onClick={() => handleChooseSelection({ country, name, code, symbol })}
 											aria-label={`choose ${name}`}>
 											<Stack direction={'row'} gap={1} width={'100%'} justifyContent={'space-between'}>
 												<Box>
 													<ListTypography>
-														{country}
+														{_.upperFirst(country)}
 													</ListTypography>
 												</Box>
 												<SideStyledBox>
 													<ListTypography>
-														{name}
+														{_.upperFirst(name)}
 													</ListTypography>
 													<LsitTypographyLight>
-														{currency}
+														{code} {symbol}
 													</LsitTypographyLight>
 												</SideStyledBox>
 											</Stack>
@@ -97,7 +109,7 @@ const StyledModelcontent = styled(Stack)(({ theme }) => ({
 	borderRadius: theme.shape.borderRadius,
 	padding: theme.spacing(2),
 	[theme.breakpoints.between('xs', 'sm')]: {
-		width: '380px',
+		width: '95%',
 	}
 }));
 
@@ -116,7 +128,7 @@ const StyledTypographyHead = styled(Typography)({
 });
 
 const StyledDeliveryList = styled(List)(() => ({
-	backgroundColor:'orange'
+	
 }));
 
 const StyledTypographySubhead = styled(Typography)({
@@ -127,10 +139,10 @@ const StyledTypographySubhead = styled(Typography)({
 });
 
 const SelectedCurrencyListItem = styled(ListItem)(({ theme }) => ({
-	backgroundColor: theme.palette.menuBackground.main,
+	backgroundColor: theme.palette.action.hover,
 	paddingTop: theme.spacing(1.5),
 	paddingBottom: theme.spacing(1.5),
-	border: `1px solid ${theme.palette.primaryOrange.main}`,
+	border: `1px solid ${theme.palette.primaryGreen.main}`,
 	borderRadius: theme.shape.borderRadius * 8
 }));
 

@@ -1,9 +1,12 @@
 import { Remove, Add } from "@mui/icons-material";
-import { Stack, IconButton, styled, Typography, Button, keyframes } from "@mui/material";
+import { Stack, IconButton, styled, Typography, Button, keyframes, SvgIcon } from "@mui/material";
 import ProductAddToCartSvg from "./svg/ProductAddToCartSvg";
 import { useState } from "react";
-import { NORMAL_PHONE_BREAKPOINT } from "#constants.tsx";
+import { MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { theme } from '../customtheme';
+import { addItemToCart, openCart } from "#state-management/slices/cart.slice.ts";
+import { TItem } from "./types";
+import { useAppDispatch } from "#state-management/hooks.ts";
 
 const Effect = keyframes`
 	0% {
@@ -18,8 +21,10 @@ const Effect = keyframes`
 	}
 `;
 
-export default function ProductAddToCartControl() {
+export default function ProductAddToCartControl({ item, fullWidth=false }: { item: TItem, fullWidth?: boolean }) {
 	const [count, setCount] = useState(1);
+	const dispatch = useAppDispatch();
+	
     
 	const handleQuantity = (value: number) => () => {
 		const newCount = count + value;
@@ -30,11 +35,13 @@ export default function ProductAddToCartControl() {
 	};
 
 	const handleAddToCart = () => () => {
+		dispatch(addItemToCart({ item, quantity: count }));
+		dispatch(openCart());
 		setCount(1);
 	};
 	
 	return (
-		<StyledStack direction={'row'} alignItems={'center'}  gap={1} width={'fit-content'}>
+		<StyledStack direction={'row'} alignItems={'center'}  gap={1} width={fullWidth ? 1 : 'fit-content'}>
 			<Stack direction={'row'} alignItems={'center'}>
 				<IconButton onClick={handleQuantity(-1)} disabled={count === 1} size="small">
 					<Remove />
@@ -46,28 +53,39 @@ export default function ProductAddToCartControl() {
 					<Add />
 				</IconButton>
 			</Stack>
-			<AddToCartButton startIcon={<ProductAddToCartSvg />} size="small" onClick={handleAddToCart()}>
-				Add to Cart
-			</AddToCartButton>
+			{
+				fullWidth ? <FullWidthAddToCart fullWidth onClick={handleAddToCart()}>
+					<SvgIcon viewBox="0 -2 14 14">
+						<ProductAddToCartSvg />
+					</SvgIcon>
+					<span>
+						Add to Cart
+					</span>
+				</FullWidthAddToCart> 
+					: <AddToCartButton size="small" onClick={handleAddToCart()}>
+						<SvgIcon viewBox="0 -2 14 14" id="mobile-svg">
+							<ProductAddToCartSvg />
+						</SvgIcon>
+						<ProductAddToCartSvg />
+						<span>
+							Add to Cart
+						</span>
+					</AddToCartButton>
+						
+			}
 		</StyledStack>
 	);
 };
 
 const StyledStack = styled(Stack)(({ theme })=>({
-	border: '1px solid rgba(109, 76, 65, 0.2)',
+	border: `1px solid ${theme.palette.primaryGreen.disabled}`,
 	borderRadius: '16px',
 	padding: theme.spacing(0.4),
 	paddingLeft: theme.spacing(1),
 	paddingRight: theme.spacing(.5),
-	[theme.breakpoints.between('xs', NORMAL_PHONE_BREAKPOINT)] : {
+	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)] : {
 		paddingLeft: theme.spacing(0),
 		paddingRight: theme.spacing(.5),
-	},
-	[theme.breakpoints.down(466)]: {
-		paddingLeft: theme.spacing(.5),
-		flexDirection: 'column',
-		width: '100%',
-		alignItems: 'unset'
 	},
 }));
 
@@ -80,8 +98,34 @@ const QuantityCountTypography = styled(Typography)(({ theme }) => ({
 	letterSpacing: '0.1px'
 }));
 
+const FullWidthAddToCart = styled(Button)(() => ({
+	backgroundColor: theme.palette.primaryYellow.main,
+	fontFamily: 'Roboto',
+	fontWeight: '500',
+	fontSize: '16px',
+	lineHeight: '13px',
+	letterSpacing: '0.46px',
+	padding: theme.spacing(1.2),
+	paddingLeft: theme.spacing(1.5),
+	paddingRight: theme.spacing(1.5),
+	borderRadius: '20px',
+	color: theme.palette.primaryBlack.moreDeeper,
+
+	'& > #mobile-svg': {
+		display: 'none'
+	},
+	'& > span': {
+		marginLeft: theme.spacing()
+	},
+	'.MuiTouchRipple-root': {
+		transition: '.5s',
+	},
+	':focus': {
+		animation: `${Effect} 500ms ${theme.transitions.easing.easeIn} `,
+	},
+}));
 const AddToCartButton = styled(Button)(({ theme }) => ({
-	backgroundColor: theme.palette.customBrown.main,
+	backgroundColor: theme.palette.primaryYellow.main,
 	fontFamily: 'Roboto',
 	fontWeight: '500',
 	fontSize: '12px',
@@ -92,14 +136,29 @@ const AddToCartButton = styled(Button)(({ theme }) => ({
 	paddingLeft: theme.spacing(1.5),
 	paddingRight: theme.spacing(1.5),
 	borderRadius: '16px',
-	color: '#FFFFFF',
+	color: theme.palette.primaryBlack.moreDeeper,
+	'& > #mobile-svg': {
+		display: 'none'
+	},
+	'& > span': {
+		marginLeft: theme.spacing()
+	},
 	'.MuiTouchRipple-root': {
 		transition: '.5s',
 	},
-	':hover': {
-		backgroundColor: theme.palette.customBrown.deeper,
-	},
 	':focus': {
 		animation: `${Effect} 500ms ${theme.transitions.easing.easeIn} `,
+	},
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]:{
+		borderRadius: '28px',
+		'& > #mobile-svg': {
+			display: 'inline'
+		},
+		'& > svg:not(#mobile-svg)': {
+			display: 'none'
+		},
+		'& > span': {
+			display: 'none'
+		}
 	}
 }));

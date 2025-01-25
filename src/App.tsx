@@ -1,75 +1,56 @@
-import { CssBaseline, Drawer, IconButton, Stack, styled } from '@mui/material';
+import { CssBaseline, Stack, styled } from '@mui/material';
 import Header from '#component/Header.tsx';
-import MarketPlace from '#page/MarketPlace.tsx';
 import Footer from '#page/Footer.tsx';
-import { drawerWidth, NORMAL_PHONE_BREAKPOINT, SMALLDESKTOP_BREAKPOINT } from '#constants.tsx';
-import { theme } from '#customtheme.ts';
-import { ChevronLeft, ChevronRight, } from '@mui/icons-material';
-import { useState } from 'react';
-import CartDisplay from '#component/CartDisplay.tsx';
+import { drawerWidth, TABLET_SCREEN_MAX_WIDTH } from '#constants.tsx';
+import { useAppDispatch, useAppSelector } from '#state-management/hooks.ts';
+import { closeCart, selectCartVisibile } from '#state-management/slices/cart.slice.ts';
+import { getWindowWidth } from './utils';
+import { Outlet } from '@tanstack/react-router';
+import DrawerComponent from '#component/DrawerComponent.tsx';
+import { useCallback, useEffect } from 'react';
+
 
 function App() {
+	const isCartOpen = useAppSelector(selectCartVisibile);
+	const dispatch = useAppDispatch();
+
+	const handleDrawerClose = useCallback(() => {
+		dispatch(closeCart());
+	}, [dispatch]);
+
+	useEffect(() => {
+		addEventListener('resize', handleDrawerClose);
+		return () => {
+			removeEventListener('resize', handleDrawerClose);
+		};
+	}, [handleDrawerClose]);
 	
-	const [open, setOpen] = useState(true);
-
-	const handleDrawerOpen = () => {
-		setOpen(true);
-	};
-
-	const handleDrawerClose = () => {
-		setOpen(false);
-	};
-
 	return (
 		<>
 			<CssBaseline />
-			<Header open={open} />
-			<Main open={open}>
-				<StyledStackContent >
-					<MarketPlace />
-				</StyledStackContent>
-				<Footer />
+			<Header open={isCartOpen} />
+			<Main open={isCartOpen}>
+				<CustomDivWrapper>
+					<div style={{ flexGrow: 1 }}>
+						<Outlet />
+					</div>
+					<Stack>
+						<Footer />
+					</Stack>
+				</CustomDivWrapper>
 			</Main>
-			<Drawer
-				sx={{
-					width: drawerWidth,
-					flexShrink: 0,
-					'& .MuiDrawer-paper': {
-						width: drawerWidth,
-					},
-				}}
-				variant="persistent"
-				anchor="right"
-				open={open}
-			>
-				<DrawerHeader>
-					<IconButton onClick={handleDrawerClose}>
-						{theme.direction === 'rtl' ? <ChevronLeft /> : <ChevronRight />}
-					</IconButton>
-				</DrawerHeader>
-				<CartDisplay />
-			</Drawer>
-			
+			<DrawerComponent isCartOpen={isCartOpen} handleDrawerClose={handleDrawerClose}/>
 		</>
 	);
 }
 
-const StyledStackContent = styled(Stack)(({ theme }) => ({
-	paddingTop: theme.spacing(19.3),
-	[theme.breakpoints.between('xs', SMALLDESKTOP_BREAKPOINT)] : {
-		paddingTop: theme.spacing(26)
-	},
-	[theme.breakpoints.between('xs', NORMAL_PHONE_BREAKPOINT)] : {
-		paddingTop: theme.spacing(32)
-	},
-}));
-const DrawerHeader = styled('div')(({ theme }) => ({
-	display: 'flex',
-	alignItems: 'center',
-	padding: theme.spacing(0, 1),
-	// necessary for content to be below app bar
-	...theme.mixins.toolbar,
-	justifyContent: 'flex-start',
+const CustomDivWrapper = styled('div')(({ theme }) => ({
+	display: 'flex', 
+	flexDirection: 'column',
+	minHeight: '100vmin',
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		minHeight: '100vmax'
+	}
 }));
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
@@ -97,15 +78,11 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
 					easing: theme.transitions.easing.easeOut,
 					duration: theme.transitions.duration.enteringScreen,
 				}),
-				marginRight: drawerWidth,
+				marginRight: getWindowWidth() > TABLET_SCREEN_MAX_WIDTH ? drawerWidth : '0px',
 			},
 		},
 	],
 }));
   
-const ContentBodyStack= styled('main')({
-	position: 'relative',
-	width: 'auto',
-	backgroundColor: 'red'
-});
+
 export default App;

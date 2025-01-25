@@ -19,7 +19,7 @@ export default function CartProgressbar({ cartWeight = 7 }: { cartWeight: number
 			<StyledCartProgressBar variant="determinate" value={value}/>
 			<CustomSpan $value={value === 0 ? 0.5 : value}>
 				<StyledCartFilledIcon fontSize="small" viewBox="-3 -4 18 18" id="moving-cart">
-					<ProductAddToCartSvg strokeWidth={"2"} />
+					<ProductAddToCartSvg strokeWidth={"2"} color="white"/>
 				</StyledCartFilledIcon>
 				<CartWeightTypography>
 					{fixedWeight}kg

@@ -1,31 +1,34 @@
 import { Remove, Add } from "@mui/icons-material";
 import { Button, IconButton, Stack, styled, Typography } from "@mui/material";
-import { useState } from "react";
 import RemoveItemSvg from "./svg/RemoveItemSvg";
+import { removeItemFromCart, updateCartItem } from "#state-management/slices/cart.slice.ts";
+import { useAppDispatch } from "#state-management/hooks.ts";
 
-export default function CartItemControl() {
-	const [count, setCount] = useState(1);
+export default function CartItemControl({ quantity, productId }: { quantity: number, productId: number }) {
+	const displayQuantity = quantity;
+	const dispatch = useAppDispatch();
+	
     
 	const handleQuantity = (value: number) => () => {
-		const newCount = count + value;
+		const newCount = displayQuantity + value;
 		if(newCount < 1) {
 			return;
 		}
-		setCount(newCount);
+		dispatch(updateCartItem({ productId, quantity: newCount }));
 	};
 
 	const handleRemoveFromCart = () => () => {
-		setCount(1);
+		dispatch(removeItemFromCart({ productId }));
 	};
 	
 	return (
 		<Stack direction={'row'} alignItems={'center'}  gap={1} width={'fit-content'}>
 			<ControlStack direction={'row'} alignItems={'center'} gap={.5}>
-				<IconButton onClick={handleQuantity(-1)} disabled={count === 1} size="small">
+				<IconButton onClick={handleQuantity(-1)} disabled={displayQuantity === 1} size="small">
 					<Remove />
 				</IconButton>
 				<QuantityCountTypography>
-					{count}
+					{displayQuantity}
 				</QuantityCountTypography>
 				<IconButton onClick={handleQuantity(1)} size="small">
 					<Add />
