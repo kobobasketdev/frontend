@@ -109,7 +109,7 @@ export default function WishlistDisplay() {
 						</ContentStack>
 					)
 			}
-			<Stack gap={2} p={1} pl={2} pr={2} mt={6}>
+			<Stack gap={2} p={1} pl={1} pr={1} mt={6}>
 				<ShopTypography>
 					Best-sellers in the last 24 hours
 				</ShopTypography>
