@@ -1,12 +1,12 @@
 import { Meta, StoryObj } from "@storybook/react";
 import CartItem from "./CartItem";
 import { DEFAULT_VIEWPORT } from "@storybook/addon-viewport";
-import { items } from "#testData.ts";
+import { items as itemsStub } from "#testData.ts";
 
 const meta: Meta<typeof CartItem> = {
 	component: CartItem,
 	args: {
-		item: items[0]
+		item: itemsStub[0]
 	},
 	decorators: (Story) => (<div style={{ width: '500px' }}>
 		<Story />

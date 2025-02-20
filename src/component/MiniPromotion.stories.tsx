@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
 import MiniPromotion from "./MiniPromotion";
-import { TMiniGrid, TMiniScroll } from ".";
+import { TMiniGrid, TMiniScroll } from "./types";
 import { DEFAULT_VIEWPORT } from "@storybook/addon-viewport";
 
 const meta: Meta<typeof MiniPromotion> = {

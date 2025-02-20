@@ -2,67 +2,96 @@ import { minimumWeight } from "#constants.tsx";
 import { Button, Card, Divider, List, ListItem, Stack, styled, Typography } from "@mui/material";
 import CartProgressbar from "./CartProgressbar";
 import CartItem from "./CartItem";
-import { items } from "#testData.ts";
-import ScrollableContainer from "./ScrollableContainer";
+import { useAppSelector } from "#state-management/hooks.ts";
+import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
+import { selectCartItems, TCartItems, TCartMap } from "#state-management/slices/cart.slice.ts";
+
+const weightMap: { [x: string]: number } = {
+	'kg': 1,
+	'g': 1000,
+	'lb': 2.205
+};
+
+const getCartWeight = (cartItems: TCartItems[]) => {
+	return cartItems.reduce((acc, cartItem) => (
+		{
+			weight: acc.weight + (((cartItem.item.variations[cartItem.variant].weight.value)/weightMap[cartItem.item.variations[cartItem.variant].weight.measurement])*cartItem.quantity),
+			total: acc.total + ((cartItem.item.variations[cartItem.variant].promotion?.promoPrice || cartItem.item.variations[cartItem.variant].price)*cartItem.quantity)
+		}
+	), { weight: 0, total: 0 });
+};
+
+const getCartItems = (cartItemsMap: TCartMap) => {
+	const cartKeys = Object.keys(cartItemsMap);
+	const cartItems = [];
+	for(const key of cartKeys) {
+		cartItems.push(cartItemsMap[key]);
+	}
+	return cartItems;
+};
 
 export default function CartDisplay() {
-	const cartWeight = 10;
-	const itemCount = 4;
-	const cartTotalAmount = 40;
-	const currency = 'CAD';
-	const currencySymbol = '$';
-	const isDisabled = cartWeight < minimumWeight;
+	const deliveryLocation = useAppSelector(selectDeliverLocation);
+	const cartItemsMap = useAppSelector(selectCartItems);
+	const cartItems = getCartItems(cartItemsMap);
+	const cartInfo = getCartWeight(cartItems);
+	
+	const isDisabled = cartInfo.weight < minimumWeight;
+
 	return (
-		<Stack gap={2} p={1} pl={2} height={'100%'}>
-			<Stack gap={1}>
-				<CartHeadingTypography fontFamily={'Alata'}>
-					Cart
-				</CartHeadingTypography>
-				<CartSubheadTypography>
-					To offer affordable prices, Kobobasket requires a <span>{minimumWeight}kg</span> minimum order. 
-				</CartSubheadTypography>
-			</Stack>
-			<Stack>
-				<CheckoutButton disabled={isDisabled} $disabledButton={isDisabled}>
-					Checkout {itemCount} item
-				</CheckoutButton>
-			</Stack>
-			<Stack width={1} flexGrow={1} >
-				<ScrollableContainer showNavigation>
-					<Stack>
-						<StyledCheckoutCard>
-							<Stack gap={2} >
-								<Stack gap={1.5} alignItems={'center'}>
-									<CartTotalHeadingTypography>
-										Subtotal of products
-									</CartTotalHeadingTypography>
-									<CartTotalbodyTypography>
-										{currencySymbol}{cartTotalAmount} {currency}
-									</CartTotalbodyTypography>
-								</Stack>
-								<Divider/>
-								<CartProgressbar cartWeight={cartWeight}/>
-							</Stack>
-						</StyledCheckoutCard>
-						<List>
-							{items.slice(0, 5).map((item, index) => (
-								<CartListItem key={index}>
-									<CartItem item={item} />
-								</CartListItem>
-							))}
-						</List>
+		<Stack overflow={'hidden'} position={'relative'} height={1}>
+			<CustomCartContainer>
+				<Stack gap={1}>
+					<CartHeadingTypography fontFamily={'Alata'}>
+						CART
+					</CartHeadingTypography>
+					<CartSubheadTypography>
+						To offer affordable prices, Kobobasket requires a <span>{minimumWeight}kg</span> minimum order. 
+					</CartSubheadTypography>
+				</Stack>
+				<Stack>
+					<CheckoutButton disabled={isDisabled} $disabledButton={isDisabled}>
+						Checkout {cartItems.length} item
+					</CheckoutButton>
+				</Stack>
+				<StyledCheckoutCard sx={{ minHeight: 160 }}>
+					<Stack gap={2}>
+						<Stack gap={1.5} alignItems={'center'}>
+							<CartTotalHeadingTypography textAlign={'center'}>
+								Subtotal of products
+							</CartTotalHeadingTypography>
+							<CartTotalbodyTypography>
+								{deliveryLocation.symbol}{cartInfo.total} {deliveryLocation.code}
+							</CartTotalbodyTypography>
+						</Stack>
+						<Divider/>
+						<CartProgressbar cartWeight={cartInfo.weight}/>
 					</Stack>
-				</ScrollableContainer>
-			</Stack>
-			
-			{/* <Stack gap={1}>
-				<CheckoutButton disabled={isDisabled} $disabledButton={isDisabled}>
-					Checkout {itemCount} item
-				</CheckoutButton>
-			</Stack> */}
+				</StyledCheckoutCard>
+				<List>
+					{cartItems.slice(0, 5).map((cartItem, index) => (
+						<CartListItem key={index}>
+							<CartItem item={cartItem.item} variant={cartItem.variant} quantity={cartItem.quantity}/>
+						</CartListItem>
+					))}
+				</List>
+			</CustomCartContainer>
 		</Stack>
 	);
 }
+
+const CustomCartContainer = styled('div')(({ theme }) => ({
+	// position: 'absolute', 
+	height: '100%',
+	overflowY: 'auto', 
+	left: '0px',
+	top: '0px',
+	display: 'flex',
+	scrollbarWidth: 'thin',
+	flexDirection: 'column',
+	gap: theme.spacing(2),
+	padding: `0px  ${theme.spacing()}`
+}));
 
 const CartHeadingTypography = styled(Typography)(({ theme }) => ({
 	color: theme.palette.primaryBlack.main,
@@ -83,8 +112,7 @@ const CartSubheadTypography = styled(Typography)(({ theme }) => ({
 }));
 
 const StyledCheckoutCard = styled(Card)(({ theme }) => ({
-	padding: theme.spacing(3),
-	paddingBottom: theme.spacing(5),
+	padding: theme.spacing(2),
 	border: '1px solid rgba(106, 106, 106, 0.04)',
 	boxShadow: '0px 1px 8.8px -1px rgba(0, 0, 0, 0.1)',
 	borderRadius: '4px',
@@ -93,20 +121,18 @@ const StyledCheckoutCard = styled(Card)(({ theme }) => ({
 const CheckoutButton= styled(Button, {
 	shouldForwardProp: prop => prop !== '$disabledButton'
 })<{ $disabledButton: boolean }>(({ theme, $disabledButton }) => ({
-	backgroundColor: !$disabledButton ? theme.palette.primaryOrange.main : theme.palette.primaryOrange.lightshade,
+	backgroundColor: $disabledButton ? theme.palette.action.disabled : theme.palette.primaryYellow.main,
 	borderRadius: '15px',
 	textTransform: 'inherit',
-	color: 'white',
+	color: theme.palette.primaryBlack.moreDeeper,
 	fontFamily: 'Roboto',
 	fontSize: '13px',
-	':disabled': {
-		color: 'white'
-	}
 }));
 
 const CartTotalHeadingTypography = styled(Typography)(({ theme }) => ({
 	color: theme.palette.primaryBlack.lightshade,
 	fontFamily: 'Roboto',
+	width: '100%',
 	fontWeight: '400',
 	fontSize: '14px',
 	lineHeight: '100%',

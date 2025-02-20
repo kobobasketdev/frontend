@@ -1,41 +1,35 @@
 import { Stack, styled, Typography } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
 import { useState,  } from "react";
-import { CurrencySelection } from ".";
 import CurrencyList from "./CurrencyList";
 import { NavigationHeaderButton } from "./NavigationHeaderButton";
 import LocationSvg from "./svg/LocationSvg";
+import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
+import { IDeliveryState, selectDeliverLocation, setDeliveryLocation } from "#state-management/slices/delivery.slice.ts";
+import { selectAllSupportedCurrency, TCountryCurrency, ICurrency } from "#state-management/slices/currency.slice.ts";
+import _ from "lodash";
+import { MEDIUM_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 
-const LOCATIONID = 1;
+const LOCATIONID = 'canada';
 
 export default function DeliverySelection({ locationIcon, disableCurrency }: { locationIcon?: boolean, disableCurrency?: boolean }) {
 	const [open, setOpen] = useState(false);
-	const [selection, setSelection] = useState<CurrencySelection>({
-		id: 1,
-		name: 'Canadian Dollar',
-		currency: 'CAD $',
-		country: 'Canada'
-	});
+	const deliveryLocation = useAppSelector(selectDeliverLocation);
+	const dispatch = useAppDispatch();
+	const supportedDeliveryLocation = useAppSelector(selectAllSupportedCurrency);
 
 	const isClientInAfrica = false;
-	const nairaCurrency = { id: 5, name: 'Naira', currency: 'NGN ₦', country: 'Nigeria' };
+	const nairaCurrency: ICurrency = { name: 'Naira', symbol: 'NGN ₦', code: 'NGN' };
 
-	let currencyList: CurrencySelection[];
-	//TODO: Get currency and location list from query
-	const foreignCurrencyList: CurrencySelection[] = [
-		{ id: 1, name: 'Canadian Dollar', currency: 'CAD $', country: 'Canada' }, 
-		{ id: 2, name: 'United States Dollar', currency: 'USD $', country: 'United States' }, 
-		{ id: 3, name: 'Pounds Sterling', currency: 'GBP £', country: 'United Kingdom' }, 
-		{ id: 4, name: 'Euro', currency: 'EUR €', country: 'Germany' }
-	];
+	let countriesCurrency: TCountryCurrency;
 
-	const isLocationBased = LOCATIONID === selection.id;
+	const isLocationBased = LOCATIONID === deliveryLocation.country;
 
 	if(isClientInAfrica) {
-		currencyList = [nairaCurrency];
+		countriesCurrency = { nigeria: nairaCurrency };
 	}
 	else {
-		currencyList = [...foreignCurrencyList];
+		countriesCurrency = supportedDeliveryLocation;
 	}
 
 	const handleChangeCurrency = () => {
@@ -46,36 +40,34 @@ export default function DeliverySelection({ locationIcon, disableCurrency }: { l
 		setOpen(false);
 	};
 
-	const handleChooseSelection = (userSelection: CurrencySelection) => {
-		setSelection({ ... userSelection });
+	const handleChooseSelection = (userSelection: IDeliveryState) => {
+		dispatch(setDeliveryLocation(userSelection));
 		handleClose();
 	};
       
 	return (
 		<>
-			<Stack width={'fit-content'}>
+			<StyledStack width={'fit-content'}>
 				<NavigationHeaderButton 
 					$fontWeight="600"
 					aria-label="change product category"  
 					onClick={handleChangeCurrency}
 					variant="text"
 					startIcon={locationIcon && <span><LocationSvg width={18} height={18} /></span>}
-					endIcon={
-						<ExpandMore />
-					}
 				>
-					Delivering to {selection.country}
+					Delivering to {_.upperFirst(deliveryLocation.country)} 
+					<ExpandMore sx={{ marginTop: '-4px' }}/>
 				</NavigationHeaderButton>
 				{ 
 					!disableCurrency && <StyledTypography pl={1} mt={'-10px'}>
-						Currency: {selection.currency}
+						Currency: {deliveryLocation.code} {deliveryLocation.symbol}
 					</StyledTypography>
 				}
-			</Stack>
+			</StyledStack>
 			<CurrencyList 
 				open={open} 
-				currencyList={currencyList}
-				selection={selection}
+				countriesCurrency={countriesCurrency}
+				selection={deliveryLocation}
 				isLocationBased={isLocationBased}
 				handleClose={handleClose} 
 				handleChooseSelection={handleChooseSelection}
@@ -84,7 +76,14 @@ export default function DeliverySelection({ locationIcon, disableCurrency }: { l
 	);
 }
 
-
+const StyledStack = styled(Stack)(({ theme }) => ({
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		paddingTop: theme.spacing(1)
+	},
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+		paddingTop: theme.spacing(0)
+	}
+}));
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
 	color: theme.palette.primaryBlack.lightshade,
@@ -93,6 +92,6 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
 	letterSpacing: '0.17px',
 	fontSize: '14px',
 	[theme.breakpoints.between('xs', 'sm')]: {
-		fontSize: '12px'
+		fontSize: '12px',
 	}
 }));

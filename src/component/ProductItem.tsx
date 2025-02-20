@@ -1,16 +1,21 @@
-import { IconButton, Stack, styled } from "@mui/material";
-import { ProductAvatar, ProductLocationPriceSpan, ProductLocationPriceTypography, ProductNameTypography, ProductPriceTypography, ProductPromotionChip, ProductSavingTypography, ProductWeightTypography } from "./CommonViews";
-import { IProductItemProps } from ".";
+import { Alert, Button, IconButton, Stack, styled } from "@mui/material";
+import { ProductAvatar, ProductPromotionChip, WishLishIconButton } from "./CommonViews";
+import { IProductItemProps, TItem } from "./types";
 import ScrollableContainer from "./ScrollableContainer";
 import GrommetWishListSvg from "./svg/GrommetWishlistSvg";
-import { theme } from "#customtheme.ts";
 import { useEffect, useState } from "react";
 import ProductAddToCartControl from "./ProductAddToCartControl";
+import ProductInfo, { getProductPromotion } from "./ProductInfo";
+import { MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { useAppDispatch } from "#state-management/hooks.ts";
+import { addToWishlist, removeFromWishlist } from "#state-management/slices/wishlist.slice.ts";
+import { RoutePath } from "#utils/route.ts";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { setShowMenu } from "#state-management/slices/active-menu.slice.ts";
+import { Check, IosShare } from "@mui/icons-material";
+import { useSnackbar } from "notistack";
 
-const getSavedPercent = (price: number, locationPrice: number) => {
-	// return (Math.round((Math.abs(price - locationPrice)/locationPrice)*100));
-	return Math.abs(price - locationPrice);
-};
+
 export default function ProductItem({ 
 	item, 
 	showPrice, 
@@ -18,99 +23,166 @@ export default function ProductItem({
 	fullDetails,
 	fontSize,
 	fontWeight,
+	showShareProduct = false,
+	disableProductSlider = false,
+	disableWishlisting = false
 }: IProductItemProps) {
-	const currency = 'CAD $';
+	const navigate = useNavigate();
+	const { enqueueSnackbar } = useSnackbar();
+	const dispatch = useAppDispatch();
 	const [isWishListItem, setIsWishListItem] = useState<boolean>(false);
+	const itemPromotion = getProductPromotion(item);
 
 	useEffect(() => {
 		setIsWishListItem(item.isWishListItem);
 	},[item.isWishListItem]);
 
-	const handleAddToWishlist = () => () => {
+	const handleAddToWishlist = (item: TItem) => () => {
+		if(isWishListItem) {
+			dispatch(removeFromWishlist(""+item.productId));
+		}
+		else {
+			dispatch(addToWishlist(item));
+		}
 		const newWishListStatus = !isWishListItem;
 		setIsWishListItem(newWishListStatus);
-		//TODO send wishlist update to server
 	};
 
-	const price = item.promotion?.promoPrice || item.price;
+	const handleGotoProductDetails = (itemId: number) => () => {
+		dispatch(setShowMenu(false));
+		navigate({
+			to: RoutePath.PRODUCT_DISPLAY,
+			params:{ details: itemId+"" }
+		});
+	};
+
+	const handleCopyToClipBoard = (itemId: number) => () => {
+		navigator.clipboard.writeText(location.origin+"/products/"+itemId);
+	
+		enqueueSnackbar(<Alert icon={<Check fontSize="inherit" />} severity="success">
+			Product link copied to clipboard
+		</Alert>, {
+			anchorOrigin: { horizontal: 'right', vertical: 'top' },
+			style: { backgroundColor: 'rgb(237, 247, 237)', padding: '0px 0px',  }
+		});
+	};
+
 	return (
-		<Stack gap={2.5} position={'relative'}>
+		<Stack gap={1} position={'relative'}>
 			{
 				fullDetails && (
-					<ProductPromotionWishlistStack $hasPromotion={Boolean(item.promotion)}>
+					<ProductPromotionWishlistStack $hasPromotion={Boolean(itemPromotion)} $disableWishlisting={disableWishlisting}>
 						{
-							item.promotion && <ProductPromotionChip label={item.promotion.promoName} size="small"/>
+							itemPromotion && <ProductPromotionChip label={itemPromotion} size="small"/>
 						}
-						<WishLishIconButton onClick={handleAddToWishlist()}>
-							<GrommetWishListSvg $isFilled={isWishListItem} $fillColor={theme.palette.primaryOrange.main}/>
-						</WishLishIconButton>
+						{
+							!disableWishlisting && 
+							<WishLishIconButton onClick={handleAddToWishlist(item)}>
+								<GrommetWishListSvg $isFilled={isWishListItem || item.isWishListItem} />
+							</WishLishIconButton>
+
+						}
 					</ProductPromotionWishlistStack>
 				)
 			}
 			<Stack gap={1}>
-				<Stack>
-					<ScrollableContainer orientation="horizontal" float height="200px">
+				<Stack borderRadius={3} overflow={'hidden'} position={'relative'}>
+					<Link to={RoutePath.PRODUCT_DISPLAY} params={ { details: item.productId+"" } }>
 						{
-							item.images.map((image, index) => (
-								<Stack key={index}>
+							disableProductSlider ? (
+								<Stack>
 									<ProductAvatar 
-										key={index}
-										src={image || ''} 
+										src={item.images[0] || ''} 
 										alt={item.name}
 										variant={isCircularImage ? 'circular' : 'rounded'} 
 									/>
 								</Stack>
-							))
+							) : (
+								<ScrollableContainer orientation="horizontal" float fullContent>
+									{
+										item.images.map((image, index) => (
+											<Stack key={index}>
+												<ProductAvatar 
+													key={index}
+													src={image || ''} 
+													alt={item.name}
+													variant={isCircularImage ? 'circular' : 'rounded'} 
+												/>
+											</Stack>
+										))
+									}
+								</ScrollableContainer>
+							)
 						}
-					</ScrollableContainer>
+					
+						{
+							showShareProduct && 
+							<CustomFloatingSpan>
+								<ProductShareCustomIconButton onClick={handleCopyToClipBoard(item.productId)}>
+									<IosShare />
+									<ProductShareCustomSpan >
+																								
+										Share
+									</ProductShareCustomSpan>
+								</ProductShareCustomIconButton>
+							</CustomFloatingSpan>
+						}
+					</Link>
 				</Stack>
-			
-				{
-					fullDetails && (
-						<Stack>
-							<ProductNameTypography>
-								{item.name}
-							</ProductNameTypography>
-							<ProductWeightTypography>
-								{item.weight}
-							</ProductWeightTypography>
-							<Stack direction={'row'} alignItems={'center'} gap={1} pt={1}>
-								<ProductLocationPriceTypography>
-									African store near you {' '}
-									<ProductLocationPriceSpan >
-										{currency}{item.locationPrice}
-									</ProductLocationPriceSpan>
-								</ProductLocationPriceTypography>
-							</Stack>
-						</Stack>
-					)
-				}
+				<StyledProductButton disableRipple onClick={handleGotoProductDetails(item.productId)}>
+					<ProductInfo item={item} showPrice={showPrice} fullDetails={fullDetails} fontSize={fontSize} fontWeight={fontWeight} />
+				</StyledProductButton>
 			</Stack>
 			{
-				showPrice && 
-					<Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
-						<ProductPriceTypography $isPromotion={Boolean(item.promotion)} $fontSize={fontSize} $fontWeight={fontWeight}>
-							{currency}{price}
-						</ProductPriceTypography>
-						{
-							fullDetails && 
-							<ProductSavingTypography>
-								save CAD ${getSavedPercent(price, item.locationPrice)}
-							</ProductSavingTypography>
-						}
-					</Stack>
-			}
-			{
-				fullDetails && <ProductAddToCartControl />
+				fullDetails && <ProductAddToCartControl item={item} choosenVariant={0}/>
 			}
 
 		</Stack>
 	);
 }
 
+const CustomFloatingSpan = styled('span')({
+	position: 'absolute',
+	bottom: '6px',
+	right: '6px'
+});
+
+const ProductShareCustomIconButton = styled(IconButton)(({ theme }) => ({
+	boxSizing: 'border-box',
+	backgroundColor: 'rgba(255, 255, 255, 0.82)',
+	boxShadow: '0px 2px 11.4px rgba(0, 0, 0, 0.1)',
+	fontWeight: 'normal',
+	borderRadius: '30px',
+	fontFamily: 'Roboto',
+	color: 'black',
+	paddingLeft: '15px',
+	paddingRight: '15px',
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+		'& svg': {
+			height: '20px',
+		}
+	}
+}));
+
+const ProductShareCustomSpan = styled('span')(({ theme }) => ({
+	display: 'inline-flex',
+	marginLeft: theme.spacing(.5),
+	fontSize: '1rem',
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+		fontSize: '14px'
+	}
+}));
+
+const StyledProductButton = styled(Button)({
+	textAlign: 'left',
+	textTransform: 'unset',
+	':hover': {
+		backgroundColor: 'transparent'
+	}
+});
 const ProductPromotionWishlistStack = styled(Stack,{
-	shouldForwardProp: prop => prop !== '$hasPromotion'
-})<{ $hasPromotion: boolean }>(({ theme, $hasPromotion })=>({
+	shouldForwardProp: prop => !['$hasPromotion', '$disableWishlisting'].includes(prop as string)
+})<{ $hasPromotion: boolean, $disableWishlisting: boolean }>(({ theme, $hasPromotion, $disableWishlisting })=>({
 	position: 'absolute',
 	width: '100%',
 	top: '0px',
@@ -118,9 +190,11 @@ const ProductPromotionWishlistStack = styled(Stack,{
 	padding: theme.spacing(1),
 	flexDirection: 'row',
 	justifyContent: $hasPromotion ? 'space-between' : 'right',
-	alignItems: 'center'
+	alignItems: 'center',
+	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)] : {
+		padding: theme.spacing(0.3),
+		top: $disableWishlisting ? '5px' : '0px',
+
+	}
 }));
 
-const WishLishIconButton = styled(IconButton)(({ theme }) => ({
-	paddingRight: theme.spacing(1.5)
-}));
