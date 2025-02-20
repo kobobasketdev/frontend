@@ -42,7 +42,7 @@ button {
 }
 button:focus,
 button:focus-visible {
-  outline: 0px auto -webkit-focus-ring-color;
+  outline: none;
 }
 
 @media (prefers-color-scheme: light) {

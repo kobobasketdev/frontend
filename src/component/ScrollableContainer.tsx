@@ -2,6 +2,7 @@ import { IconButton, Stack, styled } from "@mui/material";
 import { ExpandLess, ExpandMore, ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { Dispatch, useEffect, useRef, useState, SetStateAction, MouseEvent, TouchEvent } from "react";
 import { TScrollNavigationMode, TScrollOrientation } from "./types";
+import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 
 const processNavigationDisabled = ({
 	setShouldDisableTopNavigation,
@@ -17,7 +18,7 @@ const processNavigationDisabled = ({
 	setShouldDisableTopNavigation(translateValue >= 0);
 	setShouldDisableBottomNavigation(translateValue <= boundary);
 };
-const getBoundary = (outterRef: React.MutableRefObject<HTMLDivElement | null>, scrollerRef:  React.MutableRefObject<HTMLDivElement | null>, orientation: TScrollOrientation) => {
+const getBoundary = (outterRef: React.RefObject<HTMLDivElement | null>, scrollerRef:  React.RefObject<HTMLDivElement | null>, orientation: TScrollOrientation) => {
 	
 	const boundaryValues = orientation === 'vertical' ? 
 		{ outterSize: outterRef.current!.clientHeight, scrollerSize: scrollerRef.current!.clientHeight }
@@ -33,7 +34,7 @@ const resetScroller = ({
 	shouldDisableTranslate,
 	orientation
 }: {
-	translateValue: React.MutableRefObject<number>, 
+	translateValue: React.RefObject<number>, 
 	boundary: number,
 	shouldDisableTranslate: boolean,
 	orientation: TScrollOrientation
@@ -53,13 +54,17 @@ const resetScroller = ({
 	return orientation === 'vertical' ? `0px ${translateValue.current}px` : `${translateValue.current}px 0px`;
 };
 
+const isPastBoundary = (translateValue: number, boundary: number) => {
+	return (translateValue > 0 || (boundary < 0 && translateValue < boundary));
+};
+
 const setTranslatedValue = ({
 	translateValue, 
 	boundary, 
 	shouldDisableTranslate,
 	orientation
 }: {
-	translateValue: React.MutableRefObject<number>, 
+	translateValue: React.RefObject<number>, 
 	boundary: number,
 	shouldDisableTranslate: boolean,
 	orientation: TScrollOrientation
@@ -85,12 +90,14 @@ const horizontalArrangeContents = ({
 	outterContainerWidth: number, nodeChildren: HTMLCollection, orientation: TScrollOrientation, fullContent: boolean
 }) => {
 	if(orientation === 'vertical' || !fullContent) {
-		return;
+		return 0;
 	}
 
 	for(const node of nodeChildren) {
 		(node as HTMLElement).style.width = `${outterContainerWidth}px`;
 	}
+
+	return nodeChildren.length;
 };
 
 enum SCROLL_NAVIGATION_ID_ENUM {
@@ -105,7 +112,8 @@ export interface IScrollableContainer {
 	float?: boolean,
 	height?: string,
 	width?: string,
-	children: React.ReactElement<unknown>[] | React.ReactElement<unknown>
+	children: React.ReactElement<unknown>[] | React.ReactElement<unknown>,
+	indicator?: 'dot' | 'numbered' | 'thumbnail'
 }
 
 export interface IClientPointer {
@@ -122,6 +130,7 @@ export default function ScrollableContainer({
 	height,
 	width,
 	float = false,
+	indicator = 'dot'
 }: IScrollableContainer) {
 
 	const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -129,22 +138,26 @@ export default function ScrollableContainer({
 	const [shouldDisableTopNavigation, setShouldDisableTopNavigation] =  useState(true);
 	const [shouldDisableBottomNavigation, setShouldDisableBottomNavigation] =  useState(true);
 	const [isFloatHovered, setIsFloatHover] = useState<boolean>(false);
+	const indicatorCountRef = useRef<number>(0);
 	const isUserActionDown = useRef<boolean>(false);
 	const mouseDownPosition = useRef<IClientPointer>({ x: 0, y: 0 });
 	const translateValue = useRef<number>(0);
 	const movePosition = useRef<IClientPointer>({ x: 0, y: 0 });
 	const direction = orientation === 'vertical' ? 'column'  : 'row' ;
+	const defaultMove = 10;
 
 	useEffect(() => {
 		if(!scrollContainerRef.current || !outterContainerRef.current) {
 			return;
 		}
-		horizontalArrangeContents({ 
+
+		indicatorCountRef.current = horizontalArrangeContents({ 
 			fullContent,
 			outterContainerWidth: outterContainerRef.current.clientWidth, 
 			nodeChildren: scrollContainerRef.current.children, 
 			orientation 
 		});
+		
 		const { boundary } = getBoundary(outterContainerRef, scrollContainerRef, orientation);
 			
 		processNavigationDisabled(
@@ -199,14 +212,22 @@ export default function ScrollableContainer({
 		);
 	};
 
-	const computePan = () => {
-		const defaultScrollDistance = 30;
+	const computePan = (panDistance: number, shouldCompute = true) => {
+		const defaultScrollDistance =  panDistance;
 
 		const yMovement = movePosition.current.y - mouseDownPosition.current.y > 0 ? defaultScrollDistance : -defaultScrollDistance;
 		const xMovement = movePosition.current.x - mouseDownPosition.current.x > 0 ? defaultScrollDistance : -defaultScrollDistance;
 		const movement = orientation === 'vertical' ? yMovement : xMovement;
-		translateValue.current += movement;
-		return getBoundary(outterContainerRef, scrollContainerRef, orientation);
+		const { boundary, shouldDisableTranslate } = getBoundary(outterContainerRef, scrollContainerRef, orientation);
+		let isOverBoundary = false;
+
+		if(shouldCompute) {
+			translateValue.current += movement;
+		}
+		else {
+			isOverBoundary = isPastBoundary(translateValue.current + movement,  boundary);
+		}
+		return { boundary, shouldDisableTranslate, isOverBoundary };
 
 	};
 	const handleScrollerPan = (event: MouseEvent<HTMLDivElement | MouseEvent>) => {
@@ -219,8 +240,8 @@ export default function ScrollableContainer({
 			return;
 		}
 		movePosition.current = { x: event.clientX, y: event.clientY };
-		
-		const { boundary, shouldDisableTranslate } = computePan();
+		const panDistance = orientation === 'horizontal' && fullContent ? outterContainerRef.current.clientWidth : 100;
+		const { boundary, shouldDisableTranslate } = computePan(panDistance);
 		scrollContainerRef.current.style.translate = setTranslatedValue({ translateValue, boundary, shouldDisableTranslate, orientation });
 
 	};
@@ -234,14 +255,40 @@ export default function ScrollableContainer({
 		}
 		
 		movePosition.current = { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY };
-		
 
-		const { boundary, shouldDisableTranslate } = computePan();
-		scrollContainerRef.current.style.translate = setTranslatedValue({ translateValue, boundary, shouldDisableTranslate, orientation });
+		const { boundary, shouldDisableTranslate, isOverBoundary } = computePan(defaultMove, false);
+		if(isOverBoundary) {
+			computePan(defaultMove);
+			scrollContainerRef.current.style.translate = setTranslatedValue({ translateValue, boundary, shouldDisableTranslate, orientation });
+		}
 
 	};
 
+	const handleResetTouch = () => {
+		if(!scrollContainerRef.current || !outterContainerRef.current) {
+			return;
+		}
+
+		const panDistance = orientation === 'horizontal' && fullContent ? outterContainerRef.current.clientWidth : 200;
+
+		const { boundary, shouldDisableTranslate } = computePan(panDistance);
+		scrollContainerRef.current.style.translate = isPastBoundary(translateValue.current, boundary) ? 
+			resetScroller({ translateValue, boundary, shouldDisableTranslate, orientation })
+			: 
+			setTranslatedValue({ translateValue, boundary, shouldDisableTranslate, orientation });
+
+		processNavigationDisabled(
+			{ 
+				setShouldDisableTopNavigation,
+				setShouldDisableBottomNavigation,
+				translateValue: translateValue.current,
+				boundary
+			}
+		);
+	};
+
 	const handleUserActionDown = (e: MouseEvent<HTMLDivElement | MouseEvent> | TouchEvent<HTMLDivElement>) => {
+		isUserActionDown.current = false;
 		if(e.type === 'mousedown') {
 			const event = (e as MouseEvent<HTMLDivElement | MouseEvent>);
 			mouseDownPosition.current = { x: event.clientX, y: event.clientY };
@@ -290,6 +337,16 @@ export default function ScrollableContainer({
 				$orientation={orientation}
 			>
 				{
+					// scrollerIndicator.renderIndicator()
+					indicatorCountRef.current > 1 && <ScrollerIndicatorContainer >
+						{
+							Array(indicatorCountRef.current).fill('').map((_indicator, index) => (
+								<Indicator  id={'indicator-'+index} key={index}/>
+							))
+						}
+					</ScrollerIndicatorContainer>
+				}
+				{
 					(showNavigation || (isFloatHovered && float && !shouldDisableTopNavigation)) &&
 					<NavigationStack alignItems={'center'} justifyContent={'center'} $mode={{ float, id: SCROLL_NAVIGATION_ID_ENUM.PREV, orientation }} id="prev-nav">
 						<span>
@@ -311,7 +368,7 @@ export default function ScrollableContainer({
 					onMouseMove={(e) => handleScrollerPan(e)}
 					onTouchStart={(e) => handleUserActionDown(e)}
 					onTouchMove={(e) => handleTouchPan(e)}
-					onTouchEnd={handleResetMouse()}
+					onTouchEnd={() => handleResetTouch()}
 				>
 					<InnerContainer 
 						id='scrollable-container' 
@@ -321,6 +378,7 @@ export default function ScrollableContainer({
 					>
 						{children}
 					</InnerContainer>
+					
 				</OutterContainer>
 				{
 					(showNavigation || (isFloatHovered && float && !shouldDisableBottomNavigation)) && 
@@ -328,7 +386,6 @@ export default function ScrollableContainer({
 						<span>
 							<IconButton 
 								size="small"
-
 								disabled={shouldDisableBottomNavigation}
 								aria-controls="scrollable-container"
 								onClick={() => handleScrollBy(SCROLL_NAVIGATION_ID_ENUM.NEXT, scrollBy)}>
@@ -345,6 +402,24 @@ export default function ScrollableContainer({
 const StyledScrollerWrapper = styled('div')<{ height?: string, width?: string }>(({ height, width }) => ({
 	width: width || 'inherit',
 	height: height || '100%',
+}));
+
+const ScrollerIndicatorContainer = styled('div')(({ theme }) => ({
+	display: 'flex',
+	gap: theme.spacing(1),
+	position: 'absolute',
+	bottom: '12px', 
+	left: 0,
+	right: 0,
+	justifyContent: 'center',
+	zIndex: theme.zIndex.fab,
+}));
+
+const Indicator = styled('span')(({ theme }) => ({
+	width: '.6rem',
+	height: '.6rem',
+	borderRadius: '50%',
+	backgroundColor: theme.palette.grey[100],
 }));
 
 const ScrollableStackContainer = styled(Stack, {
@@ -371,7 +446,7 @@ const OutterContainer = styled('div')({
 	overflow: 'hidden',
 	width: '100%',
 	height: 'inherit',
-	touchAction: 'unset'
+	touchAction: 'initial'
 });
 
 const InnerContainer = styled(Stack, {

@@ -4,7 +4,7 @@ import RemoveItemSvg from "./svg/RemoveItemSvg";
 import { removeItemFromCart, updateCartItem } from "#state-management/slices/cart.slice.ts";
 import { useAppDispatch } from "#state-management/hooks.ts";
 
-export default function CartItemControl({ quantity, productId }: { quantity: number, productId: number }) {
+export default function CartItemControl({ productId, quantity, variant }: { variant: number, productId: number, quantity: number }) {
 	const displayQuantity = quantity;
 	const dispatch = useAppDispatch();
 	
@@ -14,11 +14,12 @@ export default function CartItemControl({ quantity, productId }: { quantity: num
 		if(newCount < 1) {
 			return;
 		}
-		dispatch(updateCartItem({ productId, quantity: newCount }));
+		
+		dispatch(updateCartItem({ productId_Variant: productId+'-'+variant, quantity: newCount }));
 	};
 
 	const handleRemoveFromCart = () => () => {
-		dispatch(removeItemFromCart({ productId }));
+		dispatch(removeItemFromCart({ productId_Variant: productId+'-'+variant }));
 	};
 	
 	return (

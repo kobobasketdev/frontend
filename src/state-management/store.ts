@@ -4,6 +4,7 @@ import deliveryReducer from "./slices/delivery.slice";
 import cartReducer from "./slices/cart.slice";
 import wishlistReducer from "./slices/wishlist.slice";
 import activeMenuReducer from './slices/active-menu.slice';
+import reviewReducer from './slices/review.slice';
 
 export const store = configureStore({
 	reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
 		delivery: deliveryReducer,
 		cart: cartReducer,
 		wishlist: wishlistReducer,
-		menu: activeMenuReducer
+		menu: activeMenuReducer,
+		review: reviewReducer
 	}
 });
 

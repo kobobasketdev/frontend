@@ -139,7 +139,8 @@ export default function WishlistDisplay() {
 }
 
 const CustomConfirmButton = styled(Button)(({ theme }) => ({
-	backgroundColor: theme.palette.primaryOrange.main,
+	backgroundColor: theme.palette.primaryYellow.main,
+	color: theme.palette.primaryBlack.moreDeeper,
 	textTransform: 'inherit'
 }));
 

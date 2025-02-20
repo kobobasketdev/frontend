@@ -1,12 +1,12 @@
 import { FilterList } from "@mui/icons-material";
-import { Stack, Chip, Button, Typography, styled, Checkbox, FormGroup, FormControlLabel, Divider, Box, Dialog, DialogContent } from "@mui/material";
+import { Stack, Chip, Button, Typography, styled, Divider, Box, Dialog, DialogContent } from "@mui/material";
 import _ from "lodash";
-import { DropDownView } from "./CommonViews";
 import { useAppSelector } from "#state-management/hooks.ts";
 import { selectActiveMenu, selectIsShowHeader } from "#state-management/slices/active-menu.slice.ts";
 import { menus } from "#state-management/utils/index.ts";
 import { useState } from "react";
 import { MEDIUM_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { CheckBoxFilters } from "./GeneralFilter";
 
 export default function ProductSpecificFilter() {
 	const isShowHeader = useAppSelector(selectIsShowHeader);
@@ -60,51 +60,18 @@ export default function ProductSpecificFilter() {
 			</Custom_Under_955_View>
 			<Custom_955_View>
 				<Divider />
-				<ProductFilters filtersGroup={filtersGroup} handleUpdateFilter={handleUpdateFilter} appliedFilters={appliedFilters}/>
+				<CheckBoxFilters filtersGroup={filtersGroup} handleUpdateFilter={handleUpdateFilter} appliedFilters={appliedFilters}/>
 			</Custom_955_View>
 			<Dialog open={openMobileFilter} onClose={handleCancel}>
 				<DialogContent sx={{ width: '300px', height: '500px' }}>
-					<ProductFilters filtersGroup={filtersGroup} handleUpdateFilter={handleUpdateFilter} appliedFilters={appliedFilters}/>
+					<CheckBoxFilters filtersGroup={filtersGroup} handleUpdateFilter={handleUpdateFilter} appliedFilters={appliedFilters}/>
 				</DialogContent>
 			</Dialog>
 		</ProductFilterStack>
 	);
 }
 
-const ProductFilters = ({ 
-	filtersGroup, 
-	appliedFilters,
-	handleUpdateFilter
-}: { 
-	filtersGroup: { [x:string]: string[] },
-	appliedFilters: Set<string>,
-	handleUpdateFilter: (args: string) => () => void
-}) => {
-	const filtersKey = Object.keys(filtersGroup);
 
-	return (
-		<Stack pb={2.5} pt={2.5} gap={2}>
-			{filtersKey.map((filterKey, index) => (
-				<DropDownView title={filterKey} key={index}>
-					<FormGroup>
-						{
-							filtersGroup[filterKey].map((weight, index) => 
-								<StyledFormControlLabel key={index} 
-									control={
-										<Checkbox size="small" 
-											onChange={handleUpdateFilter(weight)}
-											checked={appliedFilters.has(weight)}
-										/>} 
-									label={weight} 
-								/>
-							)
-						}
-					</FormGroup>
-				</DropDownView>
-			))}
-		</Stack>
-	);
-};
 const ProductFilterStack = styled(Stack, {
 	shouldForwardProp: prop => prop !== '$isShowHeader'
 })<{ $isShowHeader: boolean }>(({ theme, $isShowHeader }) => ({
@@ -183,15 +150,6 @@ const CategoryTitle = styled(Typography)(({ theme }) => ({
 	lineHeight: '133.4%',
 	textAlign: 'center',
 	letterSpacing: '1px',
-	color: theme.palette.primaryBlack.main,
+	color: theme.palette.primaryGreen.main,
 }));
 
-const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
-	'.MuiTypography-root': {
-		color: theme.palette.primaryBlack.main,
-		fontFamily: 'Roboto',
-		fontWeight: '400',
-		fontSize: '16px',
-		letterSpacing: '0.15px'
-	}
-}));

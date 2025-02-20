@@ -5,12 +5,12 @@ import ScrollableContainer from "./ScrollableContainer";
 import GrommetWishListSvg from "./svg/GrommetWishlistSvg";
 import { useEffect, useState } from "react";
 import ProductAddToCartControl from "./ProductAddToCartControl";
-import ProductInfo from "./ProductInfo";
+import ProductInfo, { getProductPromotion } from "./ProductInfo";
 import { MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { useAppDispatch } from "#state-management/hooks.ts";
 import { addToWishlist, removeFromWishlist } from "#state-management/slices/wishlist.slice.ts";
 import { RoutePath } from "#utils/route.ts";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { setShowMenu } from "#state-management/slices/active-menu.slice.ts";
 import { Check, IosShare } from "@mui/icons-material";
 import { useSnackbar } from "notistack";
@@ -31,6 +31,7 @@ export default function ProductItem({
 	const { enqueueSnackbar } = useSnackbar();
 	const dispatch = useAppDispatch();
 	const [isWishListItem, setIsWishListItem] = useState<boolean>(false);
+	const itemPromotion = getProductPromotion(item);
 
 	useEffect(() => {
 		setIsWishListItem(item.isWishListItem);
@@ -67,12 +68,12 @@ export default function ProductItem({
 	};
 
 	return (
-		<Stack gap={2.5} position={'relative'}>
+		<Stack gap={1} position={'relative'}>
 			{
 				fullDetails && (
-					<ProductPromotionWishlistStack $hasPromotion={Boolean(item.promotion)} $disableWishlisting={disableWishlisting}>
+					<ProductPromotionWishlistStack $hasPromotion={Boolean(itemPromotion)} $disableWishlisting={disableWishlisting}>
 						{
-							item.promotion && <ProductPromotionChip label={item.promotion.promoName} size="small"/>
+							itemPromotion && <ProductPromotionChip label={itemPromotion} size="small"/>
 						}
 						{
 							!disableWishlisting && 
@@ -86,52 +87,54 @@ export default function ProductItem({
 			}
 			<Stack gap={1}>
 				<Stack borderRadius={3} overflow={'hidden'} position={'relative'}>
-					{
-						disableProductSlider ? (
-							<Stack>
-								<ProductAvatar 
-									src={item.images[0] || ''} 
-									alt={item.name}
-									variant={isCircularImage ? 'circular' : 'rounded'} 
-								/>
-							</Stack>
-						) : (
-							<ScrollableContainer orientation="horizontal" float fullContent>
-								{
-									item.images.map((image, index) => (
-										<Stack key={index}>
-											<ProductAvatar 
-												key={index}
-												src={image || ''} 
-												alt={item.name}
-												variant={isCircularImage ? 'circular' : 'rounded'} 
-											/>
-										</Stack>
-									))
-								}
-							</ScrollableContainer>
-						)
-					}
+					<Link to={RoutePath.PRODUCT_DISPLAY} params={ { details: item.productId+"" } }>
+						{
+							disableProductSlider ? (
+								<Stack>
+									<ProductAvatar 
+										src={item.images[0] || ''} 
+										alt={item.name}
+										variant={isCircularImage ? 'circular' : 'rounded'} 
+									/>
+								</Stack>
+							) : (
+								<ScrollableContainer orientation="horizontal" float fullContent>
+									{
+										item.images.map((image, index) => (
+											<Stack key={index}>
+												<ProductAvatar 
+													key={index}
+													src={image || ''} 
+													alt={item.name}
+													variant={isCircularImage ? 'circular' : 'rounded'} 
+												/>
+											</Stack>
+										))
+									}
+								</ScrollableContainer>
+							)
+						}
 					
-					{
-						showShareProduct && 
-						<CustomFloatingSpan>
-							<ProductShareCustomIconButton onClick={handleCopyToClipBoard(item.productId)}>
-								<IosShare />
-								<ProductShareCustomSpan >
+						{
+							showShareProduct && 
+							<CustomFloatingSpan>
+								<ProductShareCustomIconButton onClick={handleCopyToClipBoard(item.productId)}>
+									<IosShare />
+									<ProductShareCustomSpan >
 																								
-									Share
-								</ProductShareCustomSpan>
-							</ProductShareCustomIconButton>
-						</CustomFloatingSpan>
-					}
+										Share
+									</ProductShareCustomSpan>
+								</ProductShareCustomIconButton>
+							</CustomFloatingSpan>
+						}
+					</Link>
 				</Stack>
 				<StyledProductButton disableRipple onClick={handleGotoProductDetails(item.productId)}>
 					<ProductInfo item={item} showPrice={showPrice} fullDetails={fullDetails} fontSize={fontSize} fontWeight={fontWeight} />
 				</StyledProductButton>
 			</Stack>
 			{
-				fullDetails && <ProductAddToCartControl item={item}/>
+				fullDetails && <ProductAddToCartControl item={item} choosenVariant={0}/>
 			}
 
 		</Stack>

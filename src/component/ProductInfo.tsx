@@ -8,6 +8,12 @@ const getSavedPercent = (price: number, locationPrice: number) => {
 	return Math.abs(price - locationPrice);
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
+export const getProductPromotion = (item: TItem) => {
+	const variantPromotion = item.variations.find(variant => Boolean(variant.promotion?.promoName));
+	return variantPromotion?.promotion?.promoName || item.promotion?.promoName;
+};
+
 export default function ProductInfo({ 
 	item,
 	fullDetails,
@@ -21,24 +27,32 @@ export default function ProductInfo({
 	fontSize?: string }) {
     
 	const { code, symbol } = useAppSelector(selectDeliverLocation);
-	const price = item.promotion?.promoPrice || item.price;
+	const price = item.variations[0].promotion?.promoPrice || item.variations[0].price || item.promotion?.promoPrice || item.price;
+	const itemPromotion = getProductPromotion(item);
+	const locationPrice = item.variations[0].locationPrice || item.locationPrice;
 
 	return (
-		<Stack gap={2.5}>
+		<Stack gap={1}>
 			{
 				fullDetails && 
-				<Stack>
+				<Stack gap={.2}>
 					<ProductNameTypography>
 						{item.name}
 					</ProductNameTypography>
-					<ProductWeightTypography>
-						{item.weight.value}{item.weight.measurement}
-					</ProductWeightTypography>
+					<Stack direction={'row'} gap={.5}>
+						{
+							item.variations.map((variation, index) => (
+								<ProductWeightTypography key={index}>
+									{variation.weight.value}{variation.weight.measurement}{index < item.variations.length - 1 && ','}
+								</ProductWeightTypography>
+							) )
+						}
+					</Stack>
 					<Stack direction={'row'} alignItems={'center'} gap={1} pt={1}>
 						<ProductLocationPriceTypography>
-							African store near you {' '}
+							Local market price near you {' '}
 							<ProductLocationPriceSpan >
-								{code} {symbol}{item.locationPrice}
+								{code} {symbol}{locationPrice}
 							</ProductLocationPriceSpan>
 						</ProductLocationPriceTypography>
 					</Stack>
@@ -48,13 +62,13 @@ export default function ProductInfo({
 			{
 				showPrice && 
 				<Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
-					<ProductPriceTypography $isPromotion={Boolean(item.promotion)} $fontSize={fontSize} $fontWeight={fontWeight}>
+					<ProductPriceTypography $isPromotion={Boolean(itemPromotion)} $fontSize={fontSize} $fontWeight={fontWeight}>
 						{code} {symbol}{price}
 					</ProductPriceTypography>
 					{
 						fullDetails && 
 						<ProductSavingTypography>
-							save {code} {symbol}{getSavedPercent(price, item.locationPrice)}
+							save {code} {symbol}{getSavedPercent(price, locationPrice)}
 						</ProductSavingTypography>
 					}
 				</Stack>

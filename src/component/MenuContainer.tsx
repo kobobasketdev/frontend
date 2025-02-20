@@ -211,6 +211,7 @@ const MenuButton = styled(Button, {
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		backgroundColor: $isActive ? theme.palette.primaryYellow.main: 'white',
 		borderRadius: '12px',
+		fontSize: '1rem',
 		padding: '4px 8px',
 	},
 

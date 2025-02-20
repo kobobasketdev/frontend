@@ -16,7 +16,7 @@ const ProductHeadingStack = styled(Stack, {
 	shouldForwardProp: prop => !['$isShowHeader', '$shouldHide'].includes(prop as string)
 })<{ $isShowHeader: boolean, $shouldHide: boolean }>(({ $isShowHeader, theme, $shouldHide }) => ({
 	paddingLeft: theme.spacing(),
-	paddingTop: theme.spacing(),
+	paddingTop: theme.spacing(.5),
 	width: '100%',
 	...($isShowHeader ? { position: 'relative', visibility: $shouldHide ? 'hidden' : 'visible' } : 
 		{ 

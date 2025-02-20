@@ -45,12 +45,14 @@ export const theme = createTheme({
 	palette: {
 		primaryGreen: {
 			main: '#003D28',
+			moreDeeper: '#367807',
 			lightshade: '#F6FFEF',
 			light: '#E7FFD6',
 			disabled: 'rgba(91, 85, 0, 0.24)'
 		},
 		primaryYellow: {
-			main: '#F4E832'
+			main: '#F4E832',
+			moreDeeper: '#FFB400'
 		},
 		primaryBlack: {
 			main: '#222222',
@@ -66,7 +68,7 @@ export const theme = createTheme({
 			main: '#F74C25',
 			lightshade: '#FFA689',
 			deeper: '#D24120',
-			light: '#FF5D00'
+			light: '#FF5D00',
 		},
 		customBrown: {
 			main: '#5D4037',

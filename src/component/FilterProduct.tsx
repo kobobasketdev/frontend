@@ -1,11 +1,10 @@
 import { Button, Drawer, IconButton, Stack, Typography, styled } from "@mui/material";
 import FilterSvg from "./svg/FilterSvg";
 import { useState } from "react";
-import { DESKTOP_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, } from "#constants.tsx";
+import { DESKTOP_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import {  HighlightOff } from "@mui/icons-material";
 import WebFilterContent from "./filters/WebFilterContent";
 import MobileFilterContent from "./filters/MobileFilterContent";
-
 export default function FilterProduct() {
 	const [open, setOpen] = useState(false);
 	const signedInUserName = 'Jessica';

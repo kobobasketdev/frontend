@@ -1,5 +1,5 @@
 import ProductDisplay from '#page/ProductDisplay.tsx';
-import { setActiveMenu, setShowMenu } from '#state-management/slices/active-menu.slice.ts';
+import { setActiveMenu, setIsShowheaderContainer, setShowMenu } from '#state-management/slices/active-menu.slice.ts';
 import { store } from '#state-management/store.ts';
 import { items as itemsStub } from '#testData.ts';
 import { RoutePath } from '#utils/route.ts';
@@ -14,6 +14,7 @@ export const Route = createFileRoute(RoutePath.PRODUCT_DISPLAY)({
 	beforeLoad: () => {
 		store.dispatch(setShowMenu(false));
 		store.dispatch(setActiveMenu(-1));
+		store.dispatch(setIsShowheaderContainer(true));
 		
 		scrollTo({
 			top: 0,

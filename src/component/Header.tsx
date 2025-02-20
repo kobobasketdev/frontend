@@ -8,8 +8,8 @@ import DeliverySelection from "./DeliverySelection";
 import { getWindowWidth } from "#utils/index.ts";
 import BrandLogoSvg from "./svg/BrandLogoSvg";
 import HambugerMenu from "./HambugerMenu";
-import { useAppDispatch } from "#state-management/hooks.ts";
-import { setShowHeader } from "#state-management/slices/active-menu.slice.ts";
+import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
+import { selectIsShowheaderContainer, setShowHeader } from "#state-management/slices/active-menu.slice.ts";
 import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { RoutePath } from "#utils/route.ts";
@@ -19,16 +19,25 @@ interface Props {
 	children: React.ReactElement<unknown>
 }
 function HideOnScroll({ children }: Props) {
+	const isShowHeaderContainer = useAppSelector(selectIsShowheaderContainer);
+
 	const dispatch = useAppDispatch();
 	const trigger = useScrollTrigger ({
-		target: window
+		target: window,
 	});
 	
-	useEffect(() => {
-		console.log(trigger);
-		dispatch(setShowHeader(!trigger));
 
-	}, [trigger, dispatch]);
+	useEffect(() => {
+		if(isShowHeaderContainer) {
+			dispatch(setShowHeader(!trigger));
+		}
+
+	}, [trigger, isShowHeaderContainer, dispatch]);
+
+	if(!isShowHeaderContainer) {
+		return <></>;
+	}
+	
 	
 	return(
 		<Slide appear={false} direction="down" in={!trigger}>

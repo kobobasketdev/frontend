@@ -15,8 +15,8 @@ const weightMap: { [x: string]: number } = {
 const getCartWeight = (cartItems: TCartItems[]) => {
 	return cartItems.reduce((acc, cartItem) => (
 		{
-			weight: acc.weight + (((cartItem.item.weight.value)/weightMap[cartItem.item.weight.measurement])*cartItem.quantity),
-			total: acc.total + ((cartItem.item.promotion?.promoPrice || cartItem.item.price)*cartItem.quantity)
+			weight: acc.weight + (((cartItem.item.variations[cartItem.variant].weight.value)/weightMap[cartItem.item.variations[cartItem.variant].weight.measurement])*cartItem.quantity),
+			total: acc.total + ((cartItem.item.variations[cartItem.variant].promotion?.promoPrice || cartItem.item.variations[cartItem.variant].price)*cartItem.quantity)
 		}
 	), { weight: 0, total: 0 });
 };
@@ -71,7 +71,7 @@ export default function CartDisplay() {
 				<List>
 					{cartItems.slice(0, 5).map((cartItem, index) => (
 						<CartListItem key={index}>
-							<CartItem item={cartItem.item} quantity={cartItem.quantity}/>
+							<CartItem item={cartItem.item} variant={cartItem.variant} quantity={cartItem.quantity}/>
 						</CartListItem>
 					))}
 				</List>

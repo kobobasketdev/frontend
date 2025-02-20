@@ -2,7 +2,7 @@ import { Remove, Add } from "@mui/icons-material";
 import { Stack, IconButton, styled, Typography, Button, keyframes, SvgIcon } from "@mui/material";
 import ProductAddToCartSvg from "./svg/ProductAddToCartSvg";
 import { useState } from "react";
-import { MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { MEDIUM_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { theme } from '../customtheme';
 import { addItemToCart, openCart } from "#state-management/slices/cart.slice.ts";
 import { TItem } from "./types";
@@ -21,7 +21,7 @@ const Effect = keyframes`
 	}
 `;
 
-export default function ProductAddToCartControl({ item, fullWidth=false }: { item: TItem, fullWidth?: boolean }) {
+export default function ProductAddToCartControl({ item, fullWidth=false, choosenVariant }: { item: TItem, fullWidth?: boolean, choosenVariant: number }) {
 	const [count, setCount] = useState(1);
 	const dispatch = useAppDispatch();
 	
@@ -35,22 +35,23 @@ export default function ProductAddToCartControl({ item, fullWidth=false }: { ite
 	};
 
 	const handleAddToCart = () => () => {
-		dispatch(addItemToCart({ item, quantity: count }));
+		const variant = choosenVariant;
+		dispatch(addItemToCart({ item, variant, quantity: count }));
 		dispatch(openCart());
 		setCount(1);
 	};
 	
 	return (
 		<StyledStack direction={'row'} alignItems={'center'}  gap={1} width={fullWidth ? 1 : 'fit-content'}>
-			<Stack direction={'row'} alignItems={'center'}>
+			<Stack direction={'row'} alignItems={'center'} gap={.5} flexGrow={1} justifyContent={'space-around'}>
 				<IconButton onClick={handleQuantity(-1)} disabled={count === 1} size="small">
-					<Remove />
+					<Remove fontSize="small"/>
 				</IconButton>
 				<QuantityCountTypography>
 					{count}
 				</QuantityCountTypography>
 				<IconButton onClick={handleQuantity(1)} size="small">
-					<Add />
+					<Add  fontSize="small"/>
 				</IconButton>
 			</Stack>
 			{
@@ -71,7 +72,6 @@ export default function ProductAddToCartControl({ item, fullWidth=false }: { ite
 							Add to Cart
 						</span>
 					</AddToCartButton>
-						
 			}
 		</StyledStack>
 	);
@@ -79,13 +79,15 @@ export default function ProductAddToCartControl({ item, fullWidth=false }: { ite
 
 const StyledStack = styled(Stack)(({ theme })=>({
 	border: `1px solid ${theme.palette.primaryGreen.disabled}`,
-	borderRadius: '16px',
+	borderRadius: '24px',
 	padding: theme.spacing(0.4),
 	paddingLeft: theme.spacing(1),
 	paddingRight: theme.spacing(.5),
-	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)] : {
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)] : {
 		paddingLeft: theme.spacing(0),
 		paddingRight: theme.spacing(.5),
+		justifyContent: 'space-between',
+		width: '100%'
 	},
 }));
 

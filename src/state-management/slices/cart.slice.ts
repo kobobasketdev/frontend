@@ -6,11 +6,12 @@ import { getFromLocalStorage, saveToLocalStorage } from "../utils";
 
 export type TCartItems = {
 	item: TItem,
+	variant: number,
 	quantity: number
 };
 
 export type TCartMap = {
-	[productId: string]: TCartItems
+	[productId_Variant: string]: TCartItems
 };
 
 type TCartState = {
@@ -19,11 +20,11 @@ type TCartState = {
 };
 
 type TRemoveItem = {
-	productId: number
+	productId_Variant: string
 };
 
 type TUpdateCardItem = {
-	productId: number,
+	productId_Variant: string,
 	quantity: number
 };
 
@@ -43,21 +44,22 @@ export const cartSlice = createSlice({
 			state.isOpen = true;
 		},
 		addItemToCart: (state, action: PayloadAction<TCartItems>) => {
-			const cartProductExist = state.cartItemsMap[action.payload.item.productId];
+			const cartId = `${action.payload.item.productId}-${action.payload.variant}`;
+			const cartProductExist = state.cartItemsMap[`${action.payload.item.productId}-${action.payload.variant}`];
 			if(!cartProductExist) {
-				state.cartItemsMap[action.payload.item.productId] = action.payload;
+				state.cartItemsMap[cartId] = action.payload;
 			}
 			else {
-				state.cartItemsMap[action.payload.item.productId].quantity += action.payload.quantity; 
+				state.cartItemsMap[cartId].quantity += action.payload.quantity; 
 			}
 			saveToLocalStorage('cart', state.cartItemsMap);
 		},
 		removeItemFromCart: (state, action: PayloadAction<TRemoveItem>) => {
-			delete state.cartItemsMap[action.payload.productId];
+			delete state.cartItemsMap[action.payload.productId_Variant];
 			saveToLocalStorage('cart', state.cartItemsMap);
 		},
 		updateCartItem: (state, action: PayloadAction<TUpdateCardItem>) => {
-			state.cartItemsMap[action.payload.productId].quantity = action.payload.quantity;
+			state.cartItemsMap[action.payload.productId_Variant].quantity = action.payload.quantity;
 			saveToLocalStorage('cart', state.cartItemsMap);
 		}
 	}

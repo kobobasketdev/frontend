@@ -2,46 +2,56 @@ import { TItem } from "#component/types/index.js";
 import { CUSTOM_893_WIDTH, DESKTOP_SCREEN_MAX_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { RoutePath } from "#utils/route.ts";
 import { Link } from "@tanstack/react-router";
-import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Stack, styled, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Divider, Stack, styled, Typography } from "@mui/material";
 import MiniNavigation from "#component/MiniNavigation.tsx";
-import { Check, ChevronRight, ExpandMore } from '@mui/icons-material';
+import { Check, ChevronRight, ExpandMore, IosShare } from '@mui/icons-material';
 import ScrollableContainer from "#component/ScrollableContainer.tsx";
-import { MiniPromotionGrid, ProductAvatar, ShopTypography, WishLishIconButton } from "#component/CommonViews.tsx";
-import GrommetWishListSvg from "#component/svg/GrommetWishlistSvg.tsx";
+import { CustomIconButton, CustomSpan, ProductAvatar, ShopTypography } from "#component/CommonViews.tsx";
 import { theme } from "#customtheme.ts";
-import { removeFromWishlist, addToWishlist } from "#state-management/slices/wishlist.slice.ts";
-import { useAppDispatch } from "#state-management/hooks.ts";
-import { useEffect, useState } from "react";
 import ProductDisplayDetail from "#component/ProductDisplayDetail.tsx";
-import ShareProductContainer from "#component/ShareProductContainer.tsx";
-import ProductAddToCartControl from "#component/ProductAddToCartControl.tsx";
-import MiniPromotion from "#component/MiniPromotion.tsx";
-import { items as itemsStub } from "#testData.ts";
+import { items as itemsStub, reviews as reviewsStub } from "#testData.ts";
 import ProductItem from "#component/ProductItem.tsx";
 import { useSnackbar } from "notistack";
 import _ from "lodash";
+import BoughtTogether from "#component/BoughtTogether.tsx";
+import RatingHeading from "#component/RatingHeading.tsx";
+import ReviewSection from "#component/ReviewSection.tsx";
+import { useEffect, useRef } from "react";
+
 
 export default function ProductDisplay({ item }: { item: TItem }) {
-	const dispatch = useAppDispatch();
 	const { enqueueSnackbar } = useSnackbar();
-	const [isWishListItem, setIsWishListItem] = useState<boolean>(false);
-	
-	useEffect(() => {
-		setIsWishListItem(item.isWishListItem);
-	},[]);
-		
-	const handleAddToWishlist = (item: TItem) => () => {
-		if(isWishListItem) {
-			dispatch(removeFromWishlist(""+item.productId));
-		}
-		else {
-			dispatch(addToWishlist(item));
-		}
-		const newWishListStatus = !isWishListItem;
-		setIsWishListItem(newWishListStatus);
-	};
+	const pictureProductRef = useRef<HTMLElement | null>(null);
+	const productDetailRef = useRef<HTMLDivElement | null>(null);
 
-	const handleCopyToClipBoard = (itemId: number) => () => {
+	useEffect(() => {
+		if(!pictureProductRef.current || !productDetailRef.current) {
+			return;
+		}
+		console.log(pictureProductRef.current!.clientWidth, productDetailRef.current!.offsetHeight);
+		const handleScroll = () => {
+			const clientHeight = productDetailRef.current!.scrollHeight;
+
+			if((clientHeight - scrollY) < 300) {
+				pictureProductRef.current!.classList.add('absolute');
+				pictureProductRef.current!.classList.remove('sticky');
+			}
+			else if(scrollY > 100 && scrollY < clientHeight) {
+				pictureProductRef.current!.classList.add('sticky');
+				pictureProductRef.current!.classList.remove('absolute');
+			}
+			else {
+				pictureProductRef.current!.classList.remove('sticky');
+				pictureProductRef.current!.classList.remove('absolute');
+			}
+		};
+
+		addEventListener('scroll', handleScroll);
+		return () => {
+			removeEventListener('scroll', handleScroll);
+		};
+	});
+	const handleCopyToClipBoard = (itemId?: number) => () => {
 		navigator.clipboard.writeText(location.origin+"/products/"+itemId);
 
 		enqueueSnackbar(<Alert icon={<Check fontSize="inherit" />} severity="success">
@@ -56,113 +66,111 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 		<StyledStackContent gap={2}>
 			<ContainerCollection gap={1}>
 				<MiniNavigation>
-					<StyledHeaderLink to={RoutePath.HOME}>
-						<Stack direction={'row'} alignItems={'center'}>
-							KOBOBASKET
-							<ChevronRight />
-						</Stack>
-					</StyledHeaderLink>
-					<Link to={RoutePath.CATEGORY} params={{ category: _.upperCase(item.category!) }}>
-						<StyledHeaderTypography textTransform={'uppercase'}>
-							{item.category}
-						</StyledHeaderTypography>
-					</Link>
+					<Stack direction={'row'} alignItems={'center'} width={1/2} minWidth={'300px'}>
+						<StyledHeaderLink to={RoutePath.HOME}>
+							<Stack direction={'row'} alignItems={'center'}>
+								HOME
+								<ChevronRight />
+							</Stack>
+						</StyledHeaderLink>
+						<Link to={RoutePath.CATEGORY} params={{ category: _.upperCase(item.category!) }}>
+							<StyledHeaderTypography textTransform={'uppercase'}>
+								{item.category}
+							</StyledHeaderTypography>
+						</Link>
+						<ChevronRight color="action" />
+						<Typography textTransform={'uppercase'} fontWeight={'500'} noWrap>
+							{item.name}
+						</Typography>
+						<WebShareSpan>
+							<WebShareButton onClick={() => handleCopyToClipBoard()}>
+								<IosShare fontSize="small" />
+								<CustomSpan >
+									Share
+								</CustomSpan>
+							</WebShareButton>
+						</WebShareSpan>
+					</Stack>
 				</MiniNavigation>
-				<StyledProductDetailStack gap={1}>
-					<CustomProductBox position={'relative'} >
-						<ScrollableContainer orientation="horizontal" float fullContent width="100%">
-							{
-								item.images.map((image, index) => (
-									<Stack key={index} width={1} height={1}>
-										<ProductAvatar 
-											key={index}
-											src={image || ''} 
-											alt={item.name}
-											variant={ 'rounded'} 
-										/>
-									</Stack>
-								))
-							}
-						</ScrollableContainer>
-						<StyledSpan>
-							<WishLishIconButton onClick={handleAddToWishlist(item)}>
-								<GrommetWishListSvg $isFilled={isWishListItem} />
-							</WishLishIconButton>
-						</StyledSpan>
-					</CustomProductBox>
+				<StyledProductDetailStack gap={1} >
+					<StyledPictureContainer ref={productDetailRef}>
+						<CustomProductBox ref={pictureProductRef}>
+							<ScrollableContainer orientation="horizontal" float fullContent width="100%" indicator="thumbnail">
+								{
+									item.images.map((image, index) => (
+										<Stack key={index} width={1} height={1}>
+											<ProductAvatar 
+												key={index}
+												src={image || ''} 
+												alt={item.name}
+												variant={ 'rounded'} 
+											/>
+										</Stack>
+									))
+								}
+							</ScrollableContainer>
+							<MobileShareStyledSpan>
+								<CustomIconButton onClick={() => handleCopyToClipBoard()}>
+									<IosShare fontSize="small" />
+									<CustomSpan >
+										Share
+									</CustomSpan>
+								</CustomIconButton>
+							</MobileShareStyledSpan>
+						</CustomProductBox>
+					</StyledPictureContainer>
 					<DetailsStack gap={1} >
 						<ProductDisplayDetail item={item} fontSize="24px" fontWeight="600" />
-						<StyledReversableStack gap={1}>
-							<ShareProductContainer 
-								soldQuantity={600} 
-								likeCount={3000} 
-								isWishListItem={isWishListItem} 
-								handleLikeAction={() => handleAddToWishlist(item)()}
-								handleCopyToClipBoard={() => handleCopyToClipBoard(item.productId)()}
-							/>
-							<Box p={1}>
-								<ProductAddToCartControl item={item} fullWidth/>
-							</Box>
-						</StyledReversableStack>
+						<Box pt={1}>
+							<CustomAccordion>
+								<AccordionSummary
+									expandIcon={<ExpandMore />}
+								>
+									<Typography variant="inherit" fontWeight={'bold'}>Product description</Typography>
+								</AccordionSummary>
+								<AccordionDetails>
+									<Typography>
+										{item.productDescription}
+									</Typography>
+								</AccordionDetails>
+							</CustomAccordion>
+							<CustomAccordion>
+								<AccordionSummary
+									expandIcon={<ExpandMore />}
+								>
+									<Typography variant="inherit" fontWeight={'bold'}>Delivery and shipping</Typography>
+								</AccordionSummary>
+								<AccordionDetails>
+									<Typography>
+										Lorem ipsum dolor sit amet consectetur. Laoreet tristique nibh sit donec mattis arcu tellus tincidunt ultricies. Neque aliquam molestie habitasse elit a. Elementum id urna placerat cursus eu at odio.
+									</Typography>
+								</AccordionDetails>
+							</CustomAccordion>
+							<CustomAccordion>
+								<AccordionSummary
+									expandIcon={<ExpandMore />}
+								>
+									<Typography variant="inherit" fontWeight={'bold'}>Security and privacy</Typography>
+								</AccordionSummary>
+								<AccordionDetails>
+									<Typography>
+										Lorem ipsum dolor sit amet consectetur. Laoreet tristique nibh sit donec mattis arcu tellus tincidunt ultricies. Neque aliquam molestie habitasse elit a. Elementum id urna placerat cursus eu at odio.
+									</Typography>
+								</AccordionDetails>
+							</CustomAccordion>
+						</Box>
+						<BoughtTogether boughtTogether={itemsStub.slice(0, 4)}/>
 					</DetailsStack>
 				</StyledProductDetailStack>
-				<Box>
-					<CustomAccordion>
-						<AccordionSummary
-							expandIcon={<ExpandMore />}
-						>
-							<Typography variant="inherit" fontWeight={'bold'}>Product description</Typography>
-						</AccordionSummary>
-						<AccordionDetails>
-							<Typography>
-								{item.productDescription}
-							</Typography>
-						</AccordionDetails>
-					</CustomAccordion>
-					<CustomAccordion>
-						<AccordionSummary
-							expandIcon={<ExpandMore />}
-						>
-							<Typography variant="inherit" fontWeight={'bold'}>Delivery and shipping</Typography>
-						</AccordionSummary>
-						<AccordionDetails>
-							<Typography>
-								Lorem ipsum dolor sit amet consectetur. Laoreet tristique nibh sit donec mattis arcu tellus tincidunt ultricies. Neque aliquam molestie habitasse elit a. Elementum id urna placerat cursus eu at odio.
-							</Typography>
-						</AccordionDetails>
-					</CustomAccordion>
-					<CustomAccordion>
-						<AccordionSummary
-							expandIcon={<ExpandMore />}
-						>
-							<Typography variant="inherit" fontWeight={'bold'}>Security and privacy</Typography>
-						</AccordionSummary>
-						<AccordionDetails>
-							<Typography>
-								Lorem ipsum dolor sit amet consectetur. Laoreet tristique nibh sit donec mattis arcu tellus tincidunt ultricies. Neque aliquam molestie habitasse elit a. Elementum id urna placerat cursus eu at odio.
-							</Typography>
-						</AccordionDetails>
-					</CustomAccordion>
-				</Box>
 			</ContainerCollection>
-			<ContentStack mt={4}>
-				<MiniPromotionGrid>
-					<MiniPromotion title={"Frequently bought together"} width={"inherit"} type={{
-						name: 'scroll',
-						spacing: 2,
-						size: { height: '100px', width: '100px' },
-						scollBy: 210,
-					}} items={itemsStub} bgColor={theme.palette.customGrey.main} showPrice height="200px"/>
-			
-					<MiniPromotion title={"Similar products"} width={"inherit"} type={{
-						name: 'scroll',
-						spacing: 2,
-						size: { height: '100px', width: '100px' },
-						scollBy: 210,
-					}} items={itemsStub} bgColor={theme.palette.menuBackground.main} showPrice  height="200px"/>
-				</MiniPromotionGrid>
-			</ContentStack>
-			<ContentStack mt={8}>
+			<ReviewContainer>
+				<Stack alignItems={'center'} p={2} pt={1} gap={3}>
+					<Divider orientation="horizontal" variant="fullWidth" sx={{ width: 1 }}/>
+					<RatingHeading heading="CUSTOMERS RATINGS AND REVIEWS" />
+				</Stack>
+				<ReviewSection reviews={reviewsStub} item={item}/>
+			</ReviewContainer>
+			<ContentStack mt={2}>
 				<Stack gap={2} >
 					<Stack gap={1}>
 						<ShopTypography>
@@ -191,6 +199,27 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 	);
 }
 
+
+const WebShareSpan = styled('span')(({ theme }) => ({
+	marginLeft: 'auto',
+	marginRight: theme.spacing(2),
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		display: 'none'
+	}
+}));
+
+const WebShareButton = styled(Button)(({ theme }) => ({
+	textTransform: 'inherit',
+	color: theme.palette.primaryBlack.main,
+	'& svg': {
+		paddingBottom: theme.spacing(.2)
+	},
+	'& > span': {
+		textDecoration: 'underline',
+		fontWeight: '400',
+	}
+}));
+
 const ContentStack = styled(Stack)(() => ({
 	alignItems: 'center',
 	width: '100%',
@@ -209,19 +238,36 @@ const CustomAccordion = styled(Accordion)(({ theme }) => ({
 		height: 'unset'
 	}
 }));
+const StyledPictureContainer = styled(Stack)(({ theme }) => ({
+	[theme.breakpoints.up(TABLET_SCREEN_MAX_WIDTH)]: {
+		position: "relative",
+		width: '50%',
+	}
+}));
 
 const CustomProductBox = styled(Box)(({ theme }) => ({
-	[theme.breakpoints.up(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		width: '50%',
-		backgroundColor: 'pink',
+	position: 'relative',
+	[theme.breakpoints.up(TABLET_SCREEN_MAX_WIDTH)]: {
+		'&.sticky': {
+			position: 'fixed',
+			top: '70px',
+			width: '485px',
+		},
+		'&.absolute': {
+			position: 'absolute',
+			top: 'unset',
+			width: '485px',
+			bottom: 0,
+		},
 		borderRadius: theme.shape.borderRadius * 3,
-		overflow: 'hidden'
+		overflow: 'hidden',
+		height: '400px'
 	}
 }));
 
 const DetailsStack = styled(Stack)(({ theme }) => ({
 	width: '50%',
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		width: '100%'
 	}
 }));
@@ -236,23 +282,28 @@ const ContainerCollection = styled(Stack)(({ theme }) => ({
 	}
 }));
 
-const StyledReversableStack = styled(Stack)(({ theme }) => ({
-	[theme.breakpoints.up(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		flexDirection: 'column-reverse',
-	},
-}));
-
 const StyledProductDetailStack = styled(Stack)(({ theme }) => ({
 	width: '100%',
-	[theme.breakpoints.up(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		flexDirection: 'row',
-		padding: theme.spacing(),
-		alignSelf: 'center',
-	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		flexDirection: 'column',
+	flexDirection: 'row',
+	padding: theme.spacing(),
+	alignSelf: 'center',
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		padding: theme.spacing(0),
 		maxWidth: '450px',
-		alignSelf: 'center',
+		flexDirection: 'column',
+	},
+	[theme.breakpoints.down(320)]: {
+		width: '100%'
+	}
+}));
+
+const ReviewContainer = styled(Stack)(({ theme }) => ({
+	width: '100%',
+	padding: theme.spacing(),
+	alignSelf: 'center',
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		padding: theme.spacing(0),
+		maxWidth: '450px',
 	},
 	[theme.breakpoints.down(320)]: {
 		width: '100%'
@@ -261,30 +312,34 @@ const StyledProductDetailStack = styled(Stack)(({ theme }) => ({
 
 const StyledHeaderLink = styled(Link)(({ theme }) => ({
 	fontFamily: 'Roboto',
-	fontWeight: '500',
+	fontWeight: '400',
 	lineHeight: '166%',
 	/* or 17px */
 	letterSpacing: '0.4px',
-	color: theme.palette.primaryBlack.disabled
+	color: theme.palette.primaryBlack.disabled,
+	textDecoration: 'underline'
+
 }));
 
-const StyledHeaderTypography = styled(Typography)(() => ({
+const StyledHeaderTypography = styled(Typography)(({ theme }) => ({
 	fontFamily: 'Roboto',
-	fontWeight: '500',
 	lineHeight: '133.4%',
-
-	color: '#090909'
+	color: theme.palette.primaryBlack.disabled,
+	textDecoration: 'underline'
 }));
 
-const StyledSpan = styled(Stack)(({ theme })=>({
+const MobileShareStyledSpan = styled(Stack)(({ theme })=>({
 	position: 'absolute',
-	bottom: '0px',
+	top: '10px',
 	right: '10px',
 	zIndex: theme.zIndex.fab,
 	padding: theme.spacing(1),
 	flexDirection: 'row',
 	alignItems: 'center',
 	justifyContent: 'right',
+	[theme.breakpoints.up(TABLET_SCREEN_MAX_WIDTH)]: {
+		display: 'none'
+	},
 	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)] : {
 		padding: theme.spacing(0.3)
 	}

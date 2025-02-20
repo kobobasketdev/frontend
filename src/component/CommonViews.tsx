@@ -168,10 +168,12 @@ export const ProductLocationPriceSpan = styled('span')(({ theme }) => ({
 	textDecoration: 'line-through' 
 }));
 
-export const ProductSavingTypography = styled(Typography)(({ theme }) => ({
+export const ProductSavingTypography = styled(Typography, {
+	shouldForwardProp: prop => prop !== '$fontWeight'
+})<{ $fontWeight?: string }>(({ theme, $fontWeight }) => ({
 	color: theme.palette.primaryOrange.main,
 	fontFamily: 'Roboto',
-	fontWeight: '400',
+	fontWeight: $fontWeight || '400',
 	fontSize: '14px',
 	lineHeight: '100%',
 	letterSpacing: '0.17px',
@@ -232,10 +234,11 @@ export const ShopTypography = styled(Typography)(({ theme }) => ({
 	color: theme.palette.primaryGreen.main,
 	fontFamily: 'Alata',
 	fontWeight: '400',
-	fontSize: '30px',
+	fontSize: '1.875rem',
 	lineHeight: '133.4%',
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		paddingLeft: theme.spacing()
+		paddingLeft: theme.spacing(),
+		fontSize: '1.575rem',
 	},
 }));
 
@@ -264,6 +267,13 @@ export const CustomIconButton = styled(IconButton)(() => ({
 	paddingRight: '15px',
 }));
 
+export const CustomLongWishlistButton = styled(Button)(({ theme }) => ({
+	backgroundColor: 'rgba(255, 255, 255, 0.82)',
+	boxShadow: '0px 2px 11.4px rgba(0, 0, 0, 0.1)',
+	borderRadius: theme.shape.borderRadius * 6,
+	color: theme.palette.primaryBlack.moreDeeper
+}));
+
 export const CustomSpan = styled('span')(({ theme }) => ({
 	display: 'inline-flex',
 	marginLeft: theme.spacing(.5),
@@ -272,4 +282,13 @@ export const CustomSpan = styled('span')(({ theme }) => ({
 
 export const WishLishIconButton = styled(IconButton)(({ theme }) => ({
 	paddingRight: theme.spacing(1.5)
+}));
+
+export const ViewMore = styled('span')(() => ({
+	display: 'inline-flex',
+	alignItems: 'end',
+	position: 'absolute',
+	height: '22px',
+	right: '-6px',
+	bottom: '-3px'
 }));
