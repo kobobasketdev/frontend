@@ -3,30 +3,41 @@ import { LinearProgress, linearProgressClasses, Stack, styled, Typography, SvgIc
 import CheckoutReadySvg from "./svg/CheckoutReadySvg";
 import ProductAddToCartSvg from "./svg/ProductAddToCartSvg";
 
-export default function CartProgressbar({ cartWeight = 7 }: { cartWeight: number }) {
-	const fixedWeight = parseFloat(cartWeight+'').toFixed(2);
-	const value = Math.min(((+fixedWeight/minimumWeight) * 100), 100);
+export default function CartProgressbar({
+	cartWeight = 7, showProgressWeight = false, showCartWeight = true
+}: {
+	cartWeight: number, showProgressWeight?: boolean, showCartWeight?: boolean
+}) {
+	const fixedWeight = parseFloat(cartWeight + '').toFixed(2);
+	const value = Math.min(((+fixedWeight / minimumWeight) * 100), 100);
 	return (
 		<Stack gap={2} position={'relative'}>
-			<Stack direction={'row'} justifyContent={'space-between'}>
-				<StaticProgressTextTypography>
-					0kg
-				</StaticProgressTextTypography>
-				<StaticProgressTextTypography>
-					Min {minimumWeight}kg
-				</StaticProgressTextTypography> 
-			</Stack>
-			<StyledCartProgressBar variant="determinate" value={value}/>
+			{
+				showProgressWeight &&
+				<Stack direction={'row'} justifyContent={'space-between'}>
+					<StaticProgressTextTypography>
+						0kg
+					</StaticProgressTextTypography>
+					<StaticProgressTextTypography>
+						Min {minimumWeight}kg
+					</StaticProgressTextTypography>
+				</Stack>
+			}
+
+			<StyledCartProgressBar variant="determinate" value={value} />
 			<CustomSpan $value={value === 0 ? 0.5 : value}>
 				<StyledCartFilledIcon fontSize="small" viewBox="-3 -4 18 18" id="moving-cart">
-					<ProductAddToCartSvg strokeWidth={"2"} color="white"/>
+					<ProductAddToCartSvg strokeWidth={"2"} color="white" />
 				</StyledCartFilledIcon>
-				<CartWeightTypography>
-					{fixedWeight}kg
-				</CartWeightTypography>
+				{
+					showCartWeight &&
+					<CartWeightTypography>
+						{fixedWeight}kg
+					</CartWeightTypography>
+				}
 			</CustomSpan>
 			<StyledCartGoIcon fontSize="large" $isReadyToGo={value === 100} viewBox="-2 -2 12 12">
-				<CheckoutReadySvg fillColor={value === 100 ? 'white' : ''}/>
+				<CheckoutReadySvg fillColor={value === 100 ? 'white' : ''} />
 			</StyledCartGoIcon>
 		</Stack>
 	);
@@ -62,7 +73,7 @@ const StaticProgressTextTypography = styled(Typography)(({ theme }) => ({
 const StyledCartGoIcon = styled(SvgIcon, {
 	shouldForwardProp: prop => prop !== '$isReadyToGo'
 })<{ $isReadyToGo?: boolean }>(({ theme, $isReadyToGo }) => ({
-	border: `2.5px solid ${$isReadyToGo ? 'white' : theme.palette.customGrey.lightshade}`, 
+	border: `2.5px solid ${$isReadyToGo ? 'white' : theme.palette.customGrey.lightshade}`,
 	borderRadius: theme.shape.borderRadius * 10,
 	background: $isReadyToGo ? 'linear-gradient(180deg, #F74C25 8.7%, #FFF700 165.22%)' : 'white',
 	position: 'absolute',
@@ -71,11 +82,11 @@ const StyledCartGoIcon = styled(SvgIcon, {
 }));
 
 const StyledCartFilledIcon = styled(SvgIcon)(({ theme }) => ({
-	border: `2.5px solid white`, 
+	border: `2.5px solid white`,
 	borderRadius: theme.shape.borderRadius * 10,
 	backgroundColor: 'white',
 	background: 'linear-gradient(180deg, #F74C25 8.7%, #FFF700 165.22%)',
-	
+
 }));
 
 const CustomSpan = styled('span')<{ $value: number }>(({ theme, $value }) => ({

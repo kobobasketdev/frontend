@@ -3,6 +3,7 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Avatar, Box, Button, Chip, IconButton, Link, Stack, styled, Typography } from "@mui/material";
 import { useState } from "react";
 import { TAvatarSizing } from "./types";
+import { Link as RouteLink } from '@tanstack/react-router';
 
 export const WebOnlyView = styled(Box)(({ theme }) => ({
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
@@ -49,13 +50,13 @@ export const DropDownView = ({ title, children }: { title: string, children: Rea
 	return (
 		<Stack>
 			<Stack width={'fit-content'}>
-				<StyledButton 
+				<StyledButton
 					onClick={handleIsOpen()}
-					aria-label={`${title} dropdown`}  
+					aria-label={`${title} dropdown`}
 					variant="text"
 					endIcon={
 						<>
-							{!isOpen ? <ExpandMore /> : <ExpandLess /> }
+							{!isOpen ? <ExpandMore /> : <ExpandLess />}
 						</>
 					}
 				>
@@ -63,7 +64,7 @@ export const DropDownView = ({ title, children }: { title: string, children: Rea
 				</StyledButton>
 			</Stack>
 			<Box pl={1} mt={0}>
-				{isOpen ? children : <span></span> }
+				{isOpen ? children : <span></span>}
 				{/* <TransitionGroup>
 				</TransitionGroup> */}
 			</Box>
@@ -71,7 +72,7 @@ export const DropDownView = ({ title, children }: { title: string, children: Rea
 	);
 };
 
-export const FilterItem = ({ title="", imageSrc = "", href="" }: { title?: string, imageSrc?: string, href?: string }) => {
+export const FilterItem = ({ title = "", imageSrc = "", href = "" }: { title?: string, imageSrc?: string, href?: string }) => {
 	return (
 		<FilterItemLink underline="none" href={href}>
 			<Stack alignItems={'center'} gap={1} >
@@ -86,8 +87,8 @@ export const FilterItem = ({ title="", imageSrc = "", href="" }: { title?: strin
 	);
 };
 
-const FilterItemLink = styled(Link)(({ theme }) =>({
-	'& p':{
+const FilterItemLink = styled(Link)(({ theme }) => ({
+	'& p': {
 		color: theme.palette.primaryBlack.main
 	}
 }));
@@ -109,6 +110,23 @@ export const ProductAvatar = styled(Avatar, {
 	width: $size?.width || '100%'
 }));
 
+export const CartButton = styled(Button)(({ theme }) => ({
+	borderColor: 'rgba(109, 76, 65, 0.2)',
+	borderRadius: theme.shape.borderRadius * 5,
+	textTransform: 'inherit',
+	color: theme.palette.primaryBlack.lightshade
+}));
+
+export const CheckoutButton = styled(Button, {
+	shouldForwardProp: prop => !['$disabledButton', '$isCurved'].includes(prop as string)
+})<{ $disabledButton?: boolean, $isCurved?: boolean }>(({ theme, $disabledButton, $isCurved = true }) => ({
+	backgroundColor: $disabledButton ? theme.palette.action.disabled : theme.palette.primaryYellow.main,
+	borderRadius: $isCurved ? theme.shape.borderRadius * 5 : theme.shape.borderRadius,
+	textTransform: 'inherit',
+	color: theme.palette.primaryBlack.moreDeeper,
+	fontFamily: 'Roboto',
+}));
+
 export const ProductPriceTypography = styled(Typography, {
 	shouldForwardProp: prop => !['$isPromotion', '$fontSize', '$fontWeight'].includes(prop as string)
 })<{ $isPromotion?: boolean, $fontSize?: string, $fontWeight?: string }>(({ theme, ...props }) => ({
@@ -121,6 +139,20 @@ export const ProductPriceTypography = styled(Typography, {
 	[theme.breakpoints.down(466)]: {
 		fontSize: props.$fontSize && `calc(${props.$fontSize} - 4px)` || '16px'
 	},
+}));
+
+export const WeightSpan = styled('span')(({ theme }) => ({
+	backgroundColor: theme.palette.primaryGreen.light,
+	padding: theme.spacing(),
+	borderRadius: theme.shape.borderRadius
+}));
+
+export const SigupWithGoogle = styled(Button)(({ theme }) => ({
+	background: '#FFFFFF',
+	border: '1px solid rgba(120, 120, 128, 0.2)',
+	boxShadow: '0px 2px 11.4px rgba(0, 0, 0, 0.1)',
+	textTransform: 'inherit',
+	color: theme.palette.primaryBlack.moreDeeper
 }));
 
 export const ProductNameTypography = styled(Typography, {
@@ -165,7 +197,7 @@ export const ProductLocationPriceSpan = styled('span')(({ theme }) => ({
 	fontWeight: 'bold',
 	lineHeight: '100%',
 	letterSpacing: '0.17px',
-	textDecoration: 'line-through' 
+	textDecoration: 'line-through'
 }));
 
 export const ProductSavingTypography = styled(Typography, {
@@ -182,7 +214,7 @@ export const ProductSavingTypography = styled(Typography, {
 	},
 }));
 
-export const ProductPromotionChip = styled(Chip)(({ theme })=> ({
+export const ProductPromotionChip = styled(Chip)(({ theme }) => ({
 	backgroundColor: theme.palette.primaryOrange.light,
 	fontFamily: 'Roboto',
 	fontWeight: '500',
@@ -252,7 +284,7 @@ export const ShopTypographyLight = styled(Typography)(({ theme }) => ({
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		paddingLeft: theme.spacing()
 	},
-	
+
 }));
 
 export const CustomIconButton = styled(IconButton)(() => ({
@@ -291,4 +323,14 @@ export const ViewMore = styled('span')(() => ({
 	height: '22px',
 	right: '-6px',
 	bottom: '-3px'
+}));
+
+export const StyledHeaderLink = styled(RouteLink)(({ theme }) => ({
+	fontFamily: 'Roboto',
+	fontWeight: '500',
+	lineHeight: '166%',
+	/* or 17px */
+	letterSpacing: '0.4px',
+	color: theme.palette.primaryBlack.disabled,
+	textDecoration: 'underline'
 }));

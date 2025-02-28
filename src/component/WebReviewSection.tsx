@@ -7,24 +7,53 @@ import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import WebReviewContainer from "./WebReviewContainer";
 import { useAppDispatch } from "#state-management/hooks.ts";
 import { setIsOpenWebReview } from "#state-management/slices/review.slice.ts";
+import { RadioFilters } from "./GeneralFilter";
 
 export default function WebReviewSection({ item, reviews }: { item: TItem, reviews: TReview[] }) {
 	const dispatch = useAppDispatch();
 	const handleShowWebReview = () => {
 		dispatch(setIsOpenWebReview(true));
 	};
+
+	const handleSortBy = (value: string) => {
+		console.log('sorting', value);
+	};
+
+	const handleFilterBy = (value: string) => {
+		console.log('filtering', value);
+	};
 	return (
 		<>
 			<WebReviewStack gap={2}>
 				<Stack direction={'row'} gap={2} justifyContent={'space-between'}>
 					<Box minWidth={'300px'} pl={.5}>
-						<ReviewBanner item={item} align="left"/>
+						<ReviewBanner item={item} align="left" />
+						<RadioFilters
+							title="Filter by"
+							handleUpdateFilter={handleFilterBy}
+							filterOptions={[
+								{ label: '5 Star', value: 5 },
+								{ label: '4 Star', value: 4 },
+								{ label: '3 Star', value: 3 },
+								{ label: '2 Star', value: 2 },
+								{ label: '1 Star', value: 1 }
+							]} />
+						<RadioFilters
+							title="Sort by"
+							handleUpdateFilter={handleSortBy}
+							filterOptions={[
+								{ label: 'Most Recent', value: 'date' },
+								{ label: 'Highest rated', value: 'high-rate' },
+								{ label: 'Lowest rated', value: 'low-rate' },
+								{ label: 'Most helpful', value: 'helpful' },
+								{ label: 'Pictures', value: 'pictures' }
+							]} />
 					</Box>
 					<Stack p={1} width={'780px'} gap={2} flexWrap={'wrap'} direction={'row'} justifyContent={'space-between'} mr={'auto'} ml={'auto'}>
 						{
 							reviews.slice(0, Math.min(4, reviews.length)).map((review, index) => (
 								<Box key={index} width={'312px'}>
-									<ReviewContent reviewer={review} productId={item.productId+''} isWebView />
+									<ReviewContent reviewer={review} productId={item.productId + ''} isWebView />
 								</Box>
 							))
 						}
@@ -32,7 +61,7 @@ export default function WebReviewSection({ item, reviews }: { item: TItem, revie
 				</Stack>
 				<Stack direction={'row'} justifyContent={'center'} p={1} pt={1.5}>
 					{
-						reviews.length > 0 && 
+						reviews.length > 0 &&
 						<Button sx={{
 							color: theme.palette.primaryBlack.moreDeeper,
 							border: `1px solid ${theme.palette.primaryBlack.moreDeeper}`,
@@ -44,7 +73,7 @@ export default function WebReviewSection({ item, reviews }: { item: TItem, revie
 					}
 				</Stack>
 			</WebReviewStack>
-			<WebReviewContainer reviews={reviews} item={item}/>
+			<WebReviewContainer reviews={reviews} item={item} />
 		</>
 	);
 }

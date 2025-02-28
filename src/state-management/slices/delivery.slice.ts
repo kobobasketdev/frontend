@@ -8,7 +8,9 @@ export interface IDeliveryState extends ICurrency {
 };
 const initialDeliveryState: IDeliveryState = {
 	country: 'canada',
-	name: 'Canadian Dollar', code: 'CAD', symbol: '$'
+	name: 'Canadian Dollar', 
+	code: 'CAD', 
+	symbol: '$'
 };
 
 export const deliverySlice = createSlice({

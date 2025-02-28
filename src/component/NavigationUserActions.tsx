@@ -2,30 +2,38 @@ import { Badge, Box, IconButton, styled } from "@mui/material";
 import CartSvg from "./svg/CartSvg";
 import ProfileSvg from "./svg/ProfileSvg";
 import WishlistIcon from "./svg/WishlistSvg";
-import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
-import { openCart, selectCartItemsCount } from "#state-management/slices/cart.slice.ts";
+import { useAppSelector } from "#state-management/hooks.ts";
+import { selectCartItemsCount } from "#state-management/slices/cart.slice.ts";
 import { selectWishlistCount } from "#state-management/slices/wishlist.slice.ts";
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { useNavigate } from "@tanstack/react-router";
 import { RoutePath } from "#utils/route.ts";
 
 export default function NavigationUserActions() {
-	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const cartItemsCount = useAppSelector(selectCartItemsCount);
 	const wishlistItemsCount = useAppSelector(selectWishlistCount);
-	const handleOpenCart = () => () => {
-		dispatch(openCart());
-	};
-	const gotoWishlist = () => () => {
+	const handleNavigation = (action: string) => () => {
+		let route;
+		switch (action) {
+			case 'login':
+				route = RoutePath.SIGNUP;
+				break;
+			case 'wishlist':
+				route = RoutePath.WISHLIST;
+				break;
+			default:
+				route = RoutePath.CART;
+		}
 		navigate({
-			to: RoutePath.WISHLIST
+			to: route
 		});
 	};
-	return(
+
+	return (
 		<NavigationActionBox>
 			<span>
-				<CustomIconButton>
+				<CustomIconButton onClick={handleNavigation('login')}>
 					<ProfileSvg />
 					<CustomSpan>
 						<span>
@@ -38,14 +46,14 @@ export default function NavigationUserActions() {
 				</CustomIconButton>
 			</span>
 			<span>
-				<IconButton onClick={gotoWishlist()}>
+				<IconButton onClick={handleNavigation('wishlist')}>
 					<Badge color="warning" badgeContent={wishlistItemsCount} variant="dot">
 						<WishlistIcon />
 					</Badge>
 				</IconButton>
 			</span>
 			<span>
-				<IconButton onClick={handleOpenCart()}>
+				<IconButton onClick={handleNavigation('cart')}>
 					<Badge badgeContent={cartItemsCount} color="warning">
 						<CartSvg />
 					</Badge>
@@ -63,14 +71,14 @@ const NavigationActionBox = styled(Box)(({ theme }) => ({
 	gap: theme.spacing(.2)
 }));
 
-const CustomIconButton= styled(IconButton)(({ theme }) => ({
+const CustomIconButton = styled(IconButton)(({ theme }) => ({
 	':hover': {
 		backgroundColor: 'transparent',
 		[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 			backgroundColor: 'rgba(0, 0, 0, 0.04)'
 		}
 	}
-	
+
 }));
 const CustomSpan = styled('span')(({ theme }) => ({
 	display: 'inline-flex',

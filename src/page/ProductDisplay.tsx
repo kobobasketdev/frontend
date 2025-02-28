@@ -6,7 +6,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Divi
 import MiniNavigation from "#component/MiniNavigation.tsx";
 import { Check, ChevronRight, ExpandMore, IosShare } from '@mui/icons-material';
 import ScrollableContainer from "#component/ScrollableContainer.tsx";
-import { CustomIconButton, CustomSpan, ProductAvatar, ShopTypography } from "#component/CommonViews.tsx";
+import { CustomIconButton, CustomSpan, ProductAvatar, ShopTypography, StyledHeaderLink } from "#component/CommonViews.tsx";
 import { theme } from "#customtheme.ts";
 import ProductDisplayDetail from "#component/ProductDisplayDetail.tsx";
 import { items as itemsStub, reviews as reviewsStub } from "#testData.ts";
@@ -25,18 +25,18 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 	const productDetailRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
-		if(!pictureProductRef.current || !productDetailRef.current) {
+		if (!pictureProductRef.current || !productDetailRef.current) {
 			return;
 		}
 		console.log(pictureProductRef.current!.clientWidth, productDetailRef.current!.offsetHeight);
 		const handleScroll = () => {
 			const clientHeight = productDetailRef.current!.scrollHeight;
 
-			if((clientHeight - scrollY) < 300) {
+			if ((clientHeight - scrollY) < 300) {
 				pictureProductRef.current!.classList.add('absolute');
 				pictureProductRef.current!.classList.remove('sticky');
 			}
-			else if(scrollY > 100 && scrollY < clientHeight) {
+			else if (scrollY > 100 && scrollY < clientHeight) {
 				pictureProductRef.current!.classList.add('sticky');
 				pictureProductRef.current!.classList.remove('absolute');
 			}
@@ -52,21 +52,21 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 		};
 	});
 	const handleCopyToClipBoard = (itemId?: number) => () => {
-		navigator.clipboard.writeText(location.origin+"/products/"+itemId);
+		navigator.clipboard.writeText(location.origin + "/products/" + itemId);
 
 		enqueueSnackbar(<Alert icon={<Check fontSize="inherit" />} severity="success">
 			Product link copied to clipboard
 		</Alert>, {
 			anchorOrigin: { horizontal: 'right', vertical: 'top' },
-			style: { backgroundColor: 'rgb(237, 247, 237)', padding: '0px 0px',  }
+			style: { backgroundColor: 'rgb(237, 247, 237)', padding: '0px 0px', }
 		});
 	};
-		
+
 	return (
 		<StyledStackContent gap={2}>
-			<ContainerCollection gap={1}>
-				<MiniNavigation>
-					<Stack direction={'row'} alignItems={'center'} width={1/2} minWidth={'300px'}>
+			<MiniNavigation>
+				<ProductDisplayNavHeader>
+					<Stack direction={'row'} alignItems={'center'} width={1 / 2} minWidth={'300px'}>
 						<StyledHeaderLink to={RoutePath.HOME}>
 							<Stack direction={'row'} alignItems={'center'}>
 								HOME
@@ -91,19 +91,22 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 							</WebShareButton>
 						</WebShareSpan>
 					</Stack>
-				</MiniNavigation>
+				</ProductDisplayNavHeader>
+			</MiniNavigation>
+
+			<ContainerCollection gap={1}>
 				<StyledProductDetailStack gap={1} >
 					<StyledPictureContainer ref={productDetailRef}>
 						<CustomProductBox ref={pictureProductRef}>
-							<ScrollableContainer orientation="horizontal" float fullContent width="100%" indicator="thumbnail">
+							<ScrollableContainer orientation="horizontal" float fullContent width="100%" indicator="thumbnail" thumbnails={item.images}>
 								{
 									item.images.map((image, index) => (
 										<Stack key={index} width={1} height={1}>
-											<ProductAvatar 
+											<ProductAvatar
 												key={index}
-												src={image || ''} 
+												src={image || ''}
 												alt={item.name}
-												variant={ 'rounded'} 
+												variant={'rounded'}
 											/>
 										</Stack>
 									))
@@ -159,16 +162,16 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 								</AccordionDetails>
 							</CustomAccordion>
 						</Box>
-						<BoughtTogether boughtTogether={itemsStub.slice(0, 4)}/>
+						<BoughtTogether boughtTogether={itemsStub.slice(0, 4)} />
 					</DetailsStack>
 				</StyledProductDetailStack>
 			</ContainerCollection>
 			<ReviewContainer>
 				<Stack alignItems={'center'} p={2} pt={1} gap={3}>
-					<Divider orientation="horizontal" variant="fullWidth" sx={{ width: 1 }}/>
+					<Divider orientation="horizontal" variant="fullWidth" sx={{ width: 1 }} />
 					<RatingHeading heading="CUSTOMERS RATINGS AND REVIEWS" />
 				</Stack>
-				<ReviewSection reviews={reviewsStub} item={item}/>
+				<ReviewSection reviews={reviewsStub} item={item} />
 			</ReviewContainer>
 			<ContentStack mt={2}>
 				<Stack gap={2} >
@@ -179,13 +182,15 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 					</Stack>
 					<ProductItemGrid>
 						{Array(24).fill('Item').map((arrayItem, index) => (
-							<ProductItem 
+							<ProductItem
 								key={index}
-								item={{ ...itemsStub[0], productId: index, name: arrayItem+" "+index , promotion: { 
-									promoName: "Valentine's Deals", 
-									promoPrice: 10 
-								} }} 
-								showPrice={true} 
+								item={{
+									...itemsStub[0], productId: index, name: arrayItem + " " + index, promotion: {
+										promoName: "Valentine's Deals",
+										promoPrice: 10
+									}
+								}}
+								showPrice={true}
 								isCircularImage={false}
 								fullDetails
 								fontSize="24px"
@@ -225,7 +230,7 @@ const ContentStack = styled(Stack)(() => ({
 	width: '100%',
 	marginLeft: 'auto',
 	marginRight: 'auto',
-	[theme.breakpoints.down(447)] : {
+	[theme.breakpoints.down(447)]: {
 		alignItems: 'unset'
 	}
 }));
@@ -259,8 +264,7 @@ const CustomProductBox = styled(Box)(({ theme }) => ({
 			width: '485px',
 			bottom: 0,
 		},
-		borderRadius: theme.shape.borderRadius * 3,
-		overflow: 'hidden',
+
 		height: '400px'
 	}
 }));
@@ -272,6 +276,17 @@ const DetailsStack = styled(Stack)(({ theme }) => ({
 	}
 }));
 
+const ProductDisplayNavHeader = styled(Box)(({ theme }) => ({
+	width: '100%',
+	maxWidth: '1160px',
+	margin: '0 auto',
+	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
+		maxWidth: '1000px',
+		justifyContent: 'center',
+		alignItems: 'center',
+		alignSelf: 'center'
+	}
+}));
 const ContainerCollection = styled(Stack)(({ theme }) => ({
 	width: '100%',
 	[theme.breakpoints.up(MEDIUM_SCREEN_MAX_WIDTH)]: {
@@ -310,25 +325,17 @@ const ReviewContainer = styled(Stack)(({ theme }) => ({
 	}
 }));
 
-const StyledHeaderLink = styled(Link)(({ theme }) => ({
+const StyledHeaderTypography = styled(Typography)(({ theme }) => ({
 	fontFamily: 'Roboto',
-	fontWeight: '400',
+	fontWeight: '500',
 	lineHeight: '166%',
 	/* or 17px */
 	letterSpacing: '0.4px',
 	color: theme.palette.primaryBlack.disabled,
 	textDecoration: 'underline'
-
 }));
 
-const StyledHeaderTypography = styled(Typography)(({ theme }) => ({
-	fontFamily: 'Roboto',
-	lineHeight: '133.4%',
-	color: theme.palette.primaryBlack.disabled,
-	textDecoration: 'underline'
-}));
-
-const MobileShareStyledSpan = styled(Stack)(({ theme })=>({
+const MobileShareStyledSpan = styled(Stack)(({ theme }) => ({
 	position: 'absolute',
 	top: '10px',
 	right: '10px',
@@ -340,7 +347,7 @@ const MobileShareStyledSpan = styled(Stack)(({ theme })=>({
 	[theme.breakpoints.up(TABLET_SCREEN_MAX_WIDTH)]: {
 		display: 'none'
 	},
-	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)] : {
+	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
 		padding: theme.spacing(0.3)
 	}
 }));
@@ -348,13 +355,13 @@ const MobileShareStyledSpan = styled(Stack)(({ theme })=>({
 const StyledStackContent = styled(Stack)(({ theme }) => ({
 	// paddingTop: theme.spacing(17),
 	paddingTop: theme.spacing(17),
-	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)] : {
+	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
 		paddingTop: theme.spacing(23.7)
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		paddingTop: theme.spacing(16.7)
 	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)] : {
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
 		paddingTop: theme.spacing(23)
 	},
 }));
@@ -392,7 +399,7 @@ const ProductItemGrid = styled('div')(({ theme }) => ({
 		padding: `0px ${theme.spacing(.3)}`,
 		gridTemplateColumns: "repeat(2,minmax(155px, 220px))",
 	},
-	[theme.breakpoints.down(447)] : {
+	[theme.breakpoints.down(447)]: {
 		columnGap: theme.spacing(1),
 		justifyContent: 'space-around',
 		gridTemplateColumns: "repeat(2, minmax(150px, auto))",

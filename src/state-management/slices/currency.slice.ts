@@ -21,11 +21,11 @@ type TUpdateCurrency = {
 	currency: ICurrency
 };
 
-const initialCurrencyState: TCurrencyState = {
+export const initialCurrencyState: TCurrencyState = {
 	currencies: {
 		"canada": { name: 'Canadian Dollar', code: 'CAD', symbol: '$' },
 		"united states": { name: 'United States Dollar', code: 'USD', symbol: '$' },
-		"united Kingdom": { name: 'Pounds Sterling', code: 'GBP', symbol: '£' },
+		"united kingdom": { name: 'Pounds Sterling', code: 'GBP', symbol: '£' },
 		"germany": { name: 'Euro', code: 'EUR', symbol: '€' },
 		"china": { name: 'Chinese Yuan', code: 'CNY', symbol: '¥' },
 		"france": { name: 'Euro', code: 'EUR', symbol: '€' },

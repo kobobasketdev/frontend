@@ -1,4 +1,4 @@
-import { ShopTypography, WishLishIconButton } from "#component/CommonViews.tsx";
+import { ShopTypography, StyledHeaderLink, WishLishIconButton } from "#component/CommonViews.tsx";
 import MiniNavigation from "#component/MiniNavigation.tsx";
 import MiniPromotion from "#component/MiniPromotion.tsx";
 import ProductItem from "#component/ProductItem.tsx";
@@ -13,7 +13,6 @@ import { items as itemsStub } from "#testData.ts";
 import { RoutePath } from "#utils/route.ts";
 import { ChevronRight } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, Stack, styled, SvgIcon, Typography } from "@mui/material";
-import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 export default function WishlistDisplay() {
@@ -24,19 +23,19 @@ export default function WishlistDisplay() {
 	const dispatch = useAppDispatch();
 
 	const handleRemoveFromWishlist = (itemId: number) => () => {
-		if(!firstRemoveId) {
-			setFirstRemoveId(itemId+"");
+		if (!firstRemoveId) {
+			setFirstRemoveId(itemId + "");
 			setOpenDialog(true);
 			return;
 		}
-		dispatch(removeFromWishlist(itemId+""));
+		dispatch(removeFromWishlist(itemId + ""));
 	};
 
 	const handleOk = () => {
 		dispatch(removeFromWishlist(firstRemoveId));
 		setOpenDialog(false);
 	};
-    
+
 	const handleCancel = () => {
 		setFirstRemoveId('');
 		setOpenDialog(false);
@@ -58,7 +57,7 @@ export default function WishlistDisplay() {
 				</MiniNavigation>
 			</ContainerCollection>
 			{
-				wishlistArray.length === 0 ? 
+				wishlistArray.length === 0 ?
 					(
 						<>
 							<EmptyStateTextStack gap={1}>
@@ -85,9 +84,9 @@ export default function WishlistDisplay() {
 									{
 										wishlistArray.map((wishItem, index) => (
 											<CustomWishlistContainer key={index}>
-												<ProductItem 
-													item={wishlistItem[wishItem]} 
-													showPrice={true} 
+												<ProductItem
+													item={wishlistItem[wishItem]}
+													showPrice={true}
 													disableWishlisting
 													disableProductSlider
 													showShareProduct={true}
@@ -113,14 +112,14 @@ export default function WishlistDisplay() {
 				<ShopTypography>
 					Best-sellers in the last 24 hours
 				</ShopTypography>
-				<WishlistRecommendation /> 
+				<WishlistRecommendation />
 				<Stack mt={6}>
 					<MiniPromotion title={"Kobo Specials Promo"} width={"inherit"} type={{
 						name: 'scroll',
 						spacing: 2,
 						size: { height: '100px', width: '100px' },
 						scollBy: 210,
-					}} items={itemsStub} bgColor={theme.palette.menuBackground.main} showPrice  height="200px"/>
+					}} items={itemsStub} bgColor={theme.palette.menuBackground.main} showPrice height="200px" />
 				</Stack>
 			</Stack>
 			<Dialog open={openDialog}>
@@ -163,7 +162,7 @@ const ContentStack = styled(Stack)(({ theme }) => ({
 	width: '100%',
 	marginLeft: 'auto',
 	marginRight: 'auto',
-	[theme.breakpoints.down(447)] : {
+	[theme.breakpoints.down(447)]: {
 		alignItems: 'unset'
 	}
 }));
@@ -172,14 +171,14 @@ const EmptyStateTextStack = styled(Stack)(({ theme }) => ({
 	paddingLeft: theme.spacing(4),
 	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
 		paddingTop: theme.spacing(),
-	} ,
+	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		paddingTop: 'unset',
 		paddingLeft: theme.spacing(2.5)
-	}, 
+	},
 	[theme.breakpoints.down(600)]: {
 		paddingLeft: theme.spacing(.5)
-	} 
+	}
 }));
 const CustomSvgIcon = styled(SvgIcon)(({ theme }) => ({
 	width: '100%',
@@ -187,15 +186,6 @@ const CustomSvgIcon = styled(SvgIcon)(({ theme }) => ({
 	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
 		height: '300px'
 	}
-}));
-
-const StyledHeaderLink = styled(Link)(({ theme }) => ({
-	fontFamily: 'Roboto',
-	fontWeight: '500',
-	lineHeight: '166%',
-	/* or 17px */
-	letterSpacing: '0.4px',
-	color: theme.palette.primaryBlack.disabled
 }));
 
 const StyledHeaderTypography = styled(Typography)(() => ({
@@ -209,13 +199,13 @@ const StyledHeaderTypography = styled(Typography)(() => ({
 const StyledStackContent = styled(Stack)(({ theme }) => ({
 	// paddingTop: theme.spacing(17),
 	paddingTop: theme.spacing(11),
-	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)] : {
+	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
 		paddingTop: theme.spacing(17.7)
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		paddingTop: theme.spacing(12)
 	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)] : {
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
 		paddingTop: theme.spacing(16)
 	},
 }));
@@ -263,7 +253,7 @@ const ProductItemGrid = styled('div')(({ theme }) => ({
 		padding: `0px ${theme.spacing(.3)}`,
 		gridTemplateColumns: "repeat(2,minmax(155px, 220px))",
 	},
-	[theme.breakpoints.down(447)] : {
+	[theme.breakpoints.down(447)]: {
 		columnGap: theme.spacing(1),
 		justifyContent: 'space-around',
 		gridTemplateColumns: "repeat(2, minmax(150px, auto))",

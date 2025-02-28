@@ -16,7 +16,9 @@ export type TCartMap = {
 
 type TCartState = {
 	isOpen: boolean,
-	cartItemsMap: TCartMap
+	cartItemsMap: TCartMap,
+	guestEmail: string,
+	showCheckoutSignIn: boolean
 };
 
 type TRemoveItem = {
@@ -30,7 +32,9 @@ type TUpdateCardItem = {
 
 const initialCartState: TCartState = {
 	isOpen: false,
-	cartItemsMap: getFromLocalStorage('cart') as TCartMap
+	cartItemsMap: getFromLocalStorage('cart') as TCartMap,
+	guestEmail: '',
+	showCheckoutSignIn: false
 };
 
 export const cartSlice = createSlice({
@@ -61,12 +65,21 @@ export const cartSlice = createSlice({
 		updateCartItem: (state, action: PayloadAction<TUpdateCardItem>) => {
 			state.cartItemsMap[action.payload.productId_Variant].quantity = action.payload.quantity;
 			saveToLocalStorage('cart', state.cartItemsMap);
+		},
+		setCheckoutEmail: (state, action: PayloadAction<string>) => {
+			state.guestEmail = action.payload;
+		},
+		updateShowCheckoutSignin: (state, action: PayloadAction<boolean>) => {
+			state.showCheckoutSignIn = action.payload;
 		}
 	}
 });
 
 export default cartSlice.reducer;
-export const { openCart, closeCart, addItemToCart, removeItemFromCart, updateCartItem } = cartSlice.actions;
+export const { openCart, closeCart, 
+	addItemToCart, removeItemFromCart, 
+	updateCartItem, setCheckoutEmail,
+	updateShowCheckoutSignin } = cartSlice.actions;
 
 export const selectCartVisibile = createSelector(
 	[(state: RootState) => state.cart],
@@ -81,4 +94,14 @@ export const selectCartItems = createSelector(
 export const selectCartItemsCount = createSelector(
 	[ (state: RootState) => state.cart.cartItemsMap],
 	(cartItems) => Object.keys(cartItems).length
+);
+
+export const selectCheckoutEmail = createSelector(
+	[(state: RootState) => state.cart],
+	(cart) => cart.guestEmail
+);
+
+export const selectToCheckoutSignin = createSelector(
+	[(state: RootState) => state.cart],
+	(cart) => cart.showCheckoutSignIn
 );

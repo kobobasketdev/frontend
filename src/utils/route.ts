@@ -4,5 +4,9 @@ export const RoutePath = {
 	PRODUCT_DISPLAY: '/products/$details',
 	WISHLIST: '/wishlist',
 	INTERNAL_MOBILEREVIEW: '/products_/review/$details',
-	MOBILEREVIEW: '/products/review/$details'
+	MOBILEREVIEW: '/products/review/$details',
+	CART: '/cart',
+	CHECKOUT: '/checkout',
+	LOGIN: '/login',
+	SIGNUP: '/signup'
 } as const;
