@@ -99,13 +99,13 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 
 		if (stripeClientSecret?.id) {
 			value = {
-				url: 'http://10.0.0.92:3000/update-payment-intent',
+				url: env.VITE_URL_ENDPOINT + '/v1/update-payment-intent',
 				method: 'put'
 			};
 		}
 		else {
 			value = {
-				url: 'http://10.0.0.92:3000/create-payment-intent',
+				url: env.VITE_URL_ENDPOINT + '/v1/create-payment-intent',
 				method: 'post'
 			};
 		}

@@ -1,4 +1,4 @@
-import { ContentStack, ShopTypography } from "#component/CommonViews.tsx";
+import { ContentStack, CustomProfileGrid, ShopTypography } from "#component/CommonViews.tsx";
 import HeaderSearch from "#component/HeaderSearch.tsx";
 import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH, SMALL_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { RoutePath } from "#utils/route.ts";
@@ -32,32 +32,34 @@ export default function Buyagain() {
 								}} />
 							</TopStack>
 						</NavStack>
-						<Stack bgcolor={'white'}>
-							<ContentStack mt={2} >
-								<Stack gap={2} >
-									<Stack gap={1}>
-										<ShopTypography>
-											Products You recently purchased
-										</ShopTypography>
+						<CustomProfileGrid>
+							<Stack bgcolor={'white'}>
+								<ContentStack mt={2} >
+									<Stack gap={2} >
+										<Stack gap={1}>
+											<ShopTypography>
+												Products You recently purchased
+											</ShopTypography>
+										</Stack>
+										<ProductItemGrid>
+											{
+												Array(10).fill('Item').map((item, index) => (
+													<ProductItem
+														key={index}
+														item={{ ...itemsStub[0], name: item + " " + index, images: [] }}
+														showPrice={true}
+														isCircularImage={false}
+														fullDetails
+														fontSize="24px"
+														fontWeight="600"
+													/>
+												))
+											}
+										</ProductItemGrid>
 									</Stack>
-									<ProductItemGrid>
-										{
-											Array(10).fill('Item').map((item, index) => (
-												<ProductItem
-													key={index}
-													item={{ ...itemsStub[0], name: item + " " + index, images: [''] }}
-													showPrice={true}
-													isCircularImage={false}
-													fullDetails
-													fontSize="24px"
-													fontWeight="600"
-												/>
-											))
-										}
-									</ProductItemGrid>
-								</Stack>
-							</ContentStack>
-						</Stack>
+								</ContentStack>
+							</Stack>
+						</CustomProfileGrid>
 					</PageContainerStack>
 				</StyledStack>
 			</StyledStackContent>

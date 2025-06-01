@@ -1,3 +1,4 @@
+import { CustomProfileGrid } from "#component/CommonViews.tsx";
 import ProfileHeading from "#component/ProfileHeading.tsx";
 import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH } from "#constants.tsx";
 import { RoutePath } from "#utils/route.ts";
@@ -25,7 +26,9 @@ export default function HelpCenter() {
 								Need help with something, We're here to help with all your Questions.
 							</Typography>
 						</NavStack>
-						<HelpCenterContent />
+						<CustomProfileGrid>
+							<HelpCenterContent />
+						</CustomProfileGrid>
 					</PageContainerStack>
 				</StyledStack>
 			</StyledStackContent>

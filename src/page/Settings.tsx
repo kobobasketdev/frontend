@@ -1,4 +1,4 @@
-import { CheckoutButton } from "#component/CommonViews.tsx";
+import { CheckoutButton, CustomProfileGrid } from "#component/CommonViews.tsx";
 import { ContactDetails } from "#component/ContactDetails.tsx";
 import ProfileHeading from "#component/ProfileHeading.tsx";
 import ShippingAddress from "#component/ShippingAddress.tsx";
@@ -32,53 +32,55 @@ export default function Settings() {
 								SETTINGS
 							</Typography>
 						</NavStack>
-						<StyledGrid>
-							<OuterContainerStack>
-								<StyledAccordion disableGutters>
-									<AccordionSummary
-										expandIcon={<ArrowForwardIos />}
-										aria-controls="country-content"
-										id="country-header"
-									>
-										<Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} width={1} maxWidth={'400px'}>
-											<Stack gap={1}>
-												<Typography fontWeight={'500'}>
-													Country
-												</Typography>
-												<Typography color="rgba(0, 0, 0, 0.6)" fontSize={'13px'}>
-													Countries KoboBasket currently delivers to
-												</Typography>
+						<CustomProfileGrid>
+							<StyledGrid>
+								<OuterContainerStack>
+									<StyledAccordion disableGutters>
+										<AccordionSummary
+											expandIcon={<ArrowForwardIos />}
+											aria-controls="country-content"
+											id="country-header"
+										>
+											<Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} width={1} maxWidth={'400px'}>
+												<Stack gap={1}>
+													<Typography fontWeight={'500'}>
+														Country
+													</Typography>
+													<Typography color="rgba(0, 0, 0, 0.6)" fontSize={'13px'}>
+														Countries KoboBasket currently delivers to
+													</Typography>
+												</Stack>
 											</Stack>
-										</Stack>
-									</AccordionSummary>
-									<AccordionDetails>
-										<List disablePadding>
-											{
-												supportedCountries.map(({ country }) => (<ListItem disableGutters key={country}>
-													<ListItemIcon>
-														<Place color="disabled" />
-													</ListItemIcon>
-													{upperFirst(country)}
-												</ListItem>))
-											}
-										</List>
-									</AccordionDetails>
-								</StyledAccordion>
-							</OuterContainerStack>
-							<OuterContainerStack>
-								<ContainerSection gap={1.5}>
-									<Typography fontWeight={'500'}>
-										Contact Details
-									</Typography>
-									<ContactDetails />
-								</ContainerSection>
-							</OuterContainerStack>
-							<OuterContainerStack>
-								<ContainerSection gap={1}>
-									<ShippingAddress />
-								</ContainerSection>
-							</OuterContainerStack>
-						</StyledGrid>
+										</AccordionSummary>
+										<AccordionDetails>
+											<List disablePadding>
+												{
+													supportedCountries.map(({ country }) => (<ListItem disableGutters key={country}>
+														<ListItemIcon>
+															<Place color="disabled" />
+														</ListItemIcon>
+														{upperFirst(country)}
+													</ListItem>))
+												}
+											</List>
+										</AccordionDetails>
+									</StyledAccordion>
+								</OuterContainerStack>
+								<OuterContainerStack>
+									<ContainerSection gap={1.5}>
+										<Typography fontWeight={'500'}>
+											Contact Details
+										</Typography>
+										<ContactDetails />
+									</ContainerSection>
+								</OuterContainerStack>
+								<OuterContainerStack>
+									<ContainerSection gap={1}>
+										<ShippingAddress />
+									</ContainerSection>
+								</OuterContainerStack>
+							</StyledGrid>
+						</CustomProfileGrid>
 					</PageContainerStack>
 				</StyledStack>
 				<ContainerSection direction={'row'} justifyContent={'center'}>

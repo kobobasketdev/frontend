@@ -1,4 +1,4 @@
-import { ContentStack, ShopTypography } from "#component/CommonViews.tsx";
+import { ContentStack, CustomProfileGrid, ShopTypography } from "#component/CommonViews.tsx";
 import { items as itemsStub } from "#testData.ts";
 import ProductItem from "#component/ProductItem.tsx";
 import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH } from "#constants.tsx";
@@ -64,14 +64,16 @@ export default function Order() {
 								</Typography>
 							</NavStack>
 						</Stack>
-						<Stack bgcolor={'white'}>
-							<OrderTabContainer direction={'row'} gap={2} ref={tabContainerRef}>
-								{
-									orderTabs.map((orderTab, index) => <OrderTabButton onClick={handleSelectTab(orderTab)} $isActive={orderTab == selectedTab} key={index}>{orderTab}</OrderTabButton>)
-								}
-							</OrderTabContainer>
-							<Outlet />
-						</Stack>
+						<CustomProfileGrid>
+							<Stack bgcolor={'white'}>
+								<OrderTabContainer direction={'row'} gap={2} ref={tabContainerRef}>
+									{
+										orderTabs.map((orderTab, index) => <OrderTabButton onClick={handleSelectTab(orderTab)} $isActive={orderTab == selectedTab} key={index}>{orderTab}</OrderTabButton>)
+									}
+								</OrderTabContainer>
+								<Outlet />
+							</Stack>
+						</CustomProfileGrid>
 					</PageContainerStack>
 				</StyledStack>
 				<ContentStack mt={8}>
@@ -87,8 +89,8 @@ export default function Order() {
 									key={index}
 									item={{
 										...itemsStub[0], id: index, name: arrayItem + " " + index, promotion: {
-											promoName: "Valentine's Deals",
-											promoPrice: 10
+											id: 2,
+											promotionName: 'Kobo specials'
 										}
 									}}
 									showPrice={true}

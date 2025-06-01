@@ -161,8 +161,8 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 								key={index}
 								item={{
 									...itemsStub[0], id: index, name: arrayItem + " " + index, promotion: {
-										promoName: "Valentine's Deals",
-										promoPrice: 10
+										id: 1,
+										promotionName: '5x bundle'
 									}
 								}}
 								showPrice={true}

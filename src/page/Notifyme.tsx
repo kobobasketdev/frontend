@@ -1,3 +1,4 @@
+import { CustomProfileGrid } from "#component/CommonViews.tsx";
 import ProfileHeading from "#component/ProfileHeading.tsx";
 import KoboBundleSvg from "#component/svg/KoboBundleSvg.tsx";
 import KobodealSvg from "#component/svg/KobodealSvg.tsx";
@@ -66,16 +67,18 @@ export default function Notifyme() {
 								Enable notifications to stay updated on discounts, exclusive bundles, and the latest products.
 							</Typography>
 						</NavStack>
-						<ErrorBoundary
-							fallbackRender={NotificationErrorFallback}
-							onReset={() => {
-								handleRefetch();
-							}}
-						>
-							<Suspense fallback={<NotificationListSuspense />}>
-								<NotificationList />
-							</Suspense>
-						</ErrorBoundary>
+						<CustomProfileGrid>
+							<ErrorBoundary
+								fallbackRender={NotificationErrorFallback}
+								onReset={() => {
+									handleRefetch();
+								}}
+							>
+								<Suspense fallback={<NotificationListSuspense />}>
+									<NotificationList />
+								</Suspense>
+							</ErrorBoundary>
+						</CustomProfileGrid>
 						<NavStack>
 							<Typography pl={.5} fontSize={'14px'} className="bottom-text">
 								By enabling notifications, you agree to receive updates, promotions, and other communications from Kobobasket regarding your orders and our products.
@@ -184,7 +187,7 @@ const PageContainerStack = styled(Stack)(({ theme }) => ({
 const WrapperStyledStack = styled(Stack)(({ theme }) => ({
 	flexDirection: 'row',
 	gap: theme.spacing(),
-	maxWidth: '1000px',
+	maxWidth: '1200px',
 	margin: '0 auto',
 	[theme.breakpoints.down(CUSTOM_893_WIDTH)]: {
 		'& .profile-nav': {

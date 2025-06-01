@@ -264,6 +264,11 @@ export const StyledProfileButton = styled(Button, {
 	})
 }));
 
+export const CustomProfileGrid = styled('div')(({ theme }) => ({
+	display: 'grid',
+	gridTemplateColumns: 'repeat(1, minmax(auto, 1200px))',
+}));
+
 export const StyledProfileNavContent = styled('div')(({ theme }) => ({
 	display: 'flex',
 	gap: theme.spacing(),

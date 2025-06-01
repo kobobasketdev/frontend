@@ -1,4 +1,4 @@
-import { ContentStack, ShopTypography } from "#component/CommonViews.tsx";
+import { ContentStack, CustomProfileGrid, ShopTypography } from "#component/CommonViews.tsx";
 import { items as itemsStub } from "#testData.ts";
 import { CUSTOM_893_WIDTH, DESKTOP_SCREEN_MAX_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { Stack, styled } from "@mui/material";
@@ -13,9 +13,11 @@ export default function Profile() {
 			<StyledStackContent>
 				<StyledStack>
 					<ProfileHeading />
-					<ContentStack>
-						<ProfileWishlist />
-					</ContentStack>
+					<CustomProfileGrid>
+						<ContentStack>
+							<ProfileWishlist />
+						</ContentStack>
+					</CustomProfileGrid>
 				</StyledStack>
 				<ContentStack mt={2}>
 					<Stack gap={2} >
