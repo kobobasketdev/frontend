@@ -1,14 +1,13 @@
-import HeaderWithouSearch from "#component/HeaderWithoutSearch.tsx";
+
 import { MEDIUM_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { theme } from "#customtheme.ts";
-import { useAppDispatch } from "#state-management/hooks.ts";
-import { updateShowCheckoutSignin } from "#state-management/slices/cart.slice.ts";
-import { countries, CountryType } from "#utils/index.ts";
-import { CreditCard, ExpandMore } from "@mui/icons-material";
+import { useAppSelector } from "#state-management/hooks.ts";
+import { ExpandMore } from "@mui/icons-material";
 import {
-	Accordion, AccordionDetails, AccordionSummary, Autocomplete, Avatar, Box,
-	Button, Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputAdornment, InputLabel,
-	List, ListItem, OutlinedInput, Radio, Stack, styled,
+	Accordion, AccordionDetails, AccordionSummary, Avatar,
+	Button, FormLabel,
+	List, ListItem, Radio, Skeleton, Stack, styled,
+	SvgIcon,
 	TextField, Typography
 } from "@mui/material";
 import americanPay from '@src/assets/american.png';
@@ -19,109 +18,125 @@ import jcbPay from '@src/assets/jcb.png';
 import mastercardPay from '@src/assets/mastercard.png';
 import paypalPay from '@src/assets/paypal.png';
 import visaPay from '@src/assets/visa.png';
-import { ChangeEvent, SyntheticEvent, useRef, useState } from "react";
-import parsePhoneNumber, { isValidPhoneNumber, CountryCode } from 'libphonenumber-js';
-import { initialCurrencyState } from "#state-management/slices/currency.slice.ts";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import stripe from '@src/assets/stripe.png';
-import paypal2 from '@src/assets/paypal2.png';
-import CheckoutOrderSummary, { TPaymentType } from "#component/CheckoutOrderSummary.tsx";
+import CheckoutOrderSummary, { TCouponCode, TPaymentType } from "#component/CheckoutOrderSummary.tsx";
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement } from '@stripe/react-stripe-js';
+import { ShippingAddressInfo } from "#component/ShippingAddress.tsx";
+import { IOtherShippingInfo, IShippingAddressState, TCreateOrder, TShippingKeys } from "#component/types/index.js";
+import { CountryType, getCartItems, getCartWeight, initialOtherShippingState, shippingInitialState } from "#utils/index.ts";
+import { initialSupportedCountries, IDeliveryState, selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
+import { selectCartItems } from "#state-management/slices/cart.slice.ts";
+import axios from "axios";
+import ShieldSvg from "#component/svg/ShieldSvg.tsx";
+import { useCartMutation } from "#hooks/mutations/cart";
 
-type TOtherShippingInfo = {
-	province: string,
-	city: string,
-	postalCode: string,
-	phone: string,
-	address: string
-};
-
-type TShippingError = TOtherShippingInfo & { country: string };
-type TPaymentDetails = {
-	card: string,
-	holderName: string,
-	expiry: string,
-	cvc: string,
-	payer: string,
-};
-
-type TBillingAddress = TOtherShippingInfo & {
-	country: CountryType | null,
-};
+const env = import.meta.env;
 
 const payment = [
 	americanPay, chinaPay, dinersPay, discoveryPay, jcbPay, mastercardPay, paypalPay, visaPay
 ];
-const initialState: TOtherShippingInfo = {
-	province: '',
-	city: '',
-	postalCode: '',
-	phone: '',
-	address: ''
-};
-const paymentInitialDetails: TPaymentDetails = {
-	card: '',
-	holderName: '',
-	expiry: '',
-	cvc: '',
-	payer: ''
-};
-const shippingErrorState: TShippingError = {
-	...initialState,
-	country: ''
-};
 
-const billingAddressState: TBillingAddress = {
-	...initialState,
-	country: null
-};
-const parseExpiry = (expiry: string) => {
-	if (expiry.length > 2) {
-		return expiry.substring(0, 2) + '/' + expiry.substring(2);
-	}
-	return expiry;
-};
+const stripePromise = loadStripe(env.VITE_STRIPE_PUBLIC_KEY);
 
-export default function CheckoutOrder({ email }: { email: string }) {
-	const dispatch = useAppDispatch();
-	const [shippingCountry, setShippingCountry] = useState<CountryType | null>(null);
-	const [otherShippingDetails, setOtherShippingDetails] = useState<TOtherShippingInfo>(initialState);
-	const [paymentDetails, setPaymentDetails] = useState<TPaymentDetails>(paymentInitialDetails);
-	const [billingAddress, setBillingAddress] = useState<TBillingAddress>(billingAddressState);
-	const [shippingError, setShippingError] = useState<TShippingError>(shippingErrorState);
+
+export default function CheckoutOrder({ email, handleChangeEmail }: { email: string, handleChangeEmail: (args: boolean) => void }) {
+	const [payForMeEmail, setPayForMeEmail] = useState<string>('');
 	const [paymentMethod, setPaymentMethod] = useState<TPaymentType>('card');
+	const [otherShippingDetails, setOtherShippingDetails] = useState<IOtherShippingInfo>(initialOtherShippingState);
+	const [shippingError, setShippingError] = useState<IShippingAddressState>(shippingInitialState);
+	const deliveryLocation = useAppSelector(selectDeliverLocation);
+	const [shippingCountry, setShippingCountry] = useState<CountryType | null>(initialSupportedCountries.countries[(deliveryLocation as IDeliveryState).code]);
+	const [stripeClientSecret, setStripeClientSecret] = useState<{ id: string, secret: string }>();
+	const [shippingFee, setShippingFee] = useState(0);
+	const [couponCode, setCouponCode] = useState<TCouponCode>({ value: 0, isValid: false });
+	const [shouldLoadingShippingFee, setLoadShippingFee] = useState(false);
+	const { createOrderMutation } = useCartMutation();
+
+	const [isDisablePayment, setIsDisablePayment] = useState(true);
+
 	const paymentAnchorRef = useRef<HTMLElement | null>(null);
 
-	const shippingCost = 50;
-	let deliveryInfo;
-	if (shippingCountry && shippingCountry.label.toLowerCase() in initialCurrencyState.currencies) {
-		deliveryInfo = {
-			code: initialCurrencyState.currencies[shippingCountry.label.toLowerCase()].code,
-			symbol: initialCurrencyState.currencies[shippingCountry.label.toLowerCase()].symbol,
-		};
-	}
-	const handleChangeAccount = () => {
-		console.log('change account');
-		dispatch(updateShowCheckoutSignin(true));
+	const cartItemsMap = useAppSelector(selectCartItems);
+	const cartItems = getCartItems(cartItemsMap);
+	const cartItemInfo = getCartWeight(cartItems);
+
+	const shouldDisablePayment = !shippingCountry || isDisablePayment || Object.keys(otherShippingDetails).some(shippingDetails => !otherShippingDetails[shippingDetails as TShippingKeys]);
+	console.log(shouldDisablePayment, 'disable payment', stripeClientSecret?.id);
+
+	const finalShippingFee = shouldLoadingShippingFee ? shippingFee : undefined;
+	const paymentTotal = useMemo(() => cartItemInfo.total + (finalShippingFee || 0) - couponCode.value, [cartItemInfo.total, finalShippingFee, couponCode.value]);
+
+	useEffect(() => {
+		loadPaymentIntent({ initial: true });
+	}, []);
+
+	const handleCountryChange = (args: CountryType | null) => {
+		setShippingCountry(args);
+		if (!args) {
+			setLoadShippingFee(false);
+		}
 	};
+	const handleOtherShippingChange = (args: IOtherShippingInfo, key?: string) => {
+		setOtherShippingDetails(args);
+		if (key !== 'province') {
+			return;
+		}
 
-	const handleChangeShippingCountry = (_e: SyntheticEvent, value: CountryType | null) => {
-		setShippingCountry(value);
-		setOtherShippingDetails(initialState);
-		setShippingError({
-			...initialState,
-			country: value && !(value.label.toLowerCase() in initialCurrencyState.currencies) ? `Delivery not available to ${value.label}. We are working fast to bring KoboBasket to your location` : ''
-		});
+		if (!args.province) {
+			setLoadShippingFee(false);
+			return;
+		}
+
+		loadPaymentIntent({ province: args.province });
+
 	};
+	function loadPaymentIntent({ initial, province }: { initial?: boolean, province?: string }) {
+		setIsDisablePayment(true);
 
-	const handleUseShippingAsBilling = (_e: SyntheticEvent, checked: boolean) => {
-		let values = billingAddressState;
+		let value;
 
-		if (checked) {
-			values = {
-				...otherShippingDetails,
-				country: shippingCountry
+		if (stripeClientSecret?.id) {
+			value = {
+				url: 'http://10.0.0.92:3000/update-payment-intent',
+				method: 'put'
 			};
 		}
-		setBillingAddress(values);
+		else {
+			value = {
+				url: 'http://10.0.0.92:3000/create-payment-intent',
+				method: 'post'
+			};
+		}
+		axios({
+			...value,
+			data: {
+				id: stripeClientSecret?.id,
+				amount: paymentTotal.toFixed(2),
+				currencyCode: cartItemInfo.code,
+				weight: cartItemInfo.weight,
+				deliveryCountry: {
+					code: shippingCountry?.code, label: shippingCountry?.label,
+					// city: otherShippingDetails.city, postalCode: otherShippingDetails.postalCode,
+					province: province ?? otherShippingDetails.province
+				}
+			}
+		}).then(response => {
+			setShippingFee(response.data.shippingFee);
+			setStripeClientSecret(response.data.stripeInfo);
+			setIsDisablePayment(false);
+			if (!initial) {
+				setLoadShippingFee(true);
+			}
+		}).catch(() => {
+			setIsDisablePayment(true);
+			setLoadShippingFee(false);
+		});
+	}
+
+	const handleChangeAccount = () => {
+		handleChangeEmail(true);
 	};
 
 	const handlePaymentMethod = (paymentType: TPaymentType) => () => {
@@ -132,53 +147,221 @@ export default function CheckoutOrder({ email }: { email: string }) {
 		console.log(paymentAnchorRef.current?.offsetTop);
 	};
 
-	const handleCountryBillingAddress = (_e: SyntheticEvent, value: CountryType | null) => {
-		setBillingAddress({
-			...billingAddress,
-			country: value
-		});
+	const handlePayForMeName = (e: ChangeEvent<HTMLInputElement>) => {
+		setPayForMeEmail(e.target.value);
 	};
 
-	const handleBillingAddress = (field: string) => (e: ChangeEvent<HTMLInputElement>) => {
-		setBillingAddress({
-			...billingAddress,
-			[field]: e.target.value
-		});
+	const createOrder = async () => {
+		const orderData: TCreateOrder = {
+			items: cartItems.map(cartitem => ({
+				id: cartitem.item.id + '',
+				name: cartitem.item.name,
+				quantity: cartitem.quantity,
+				weight: cartitem.item.variations[cartitem.variant] + 'kg',
+				price: cartitem.item.variations[cartitem.variant].price.converted
+			})),
+			status: 0,
+			shippingFee: finalShippingFee || 0,
+			settlementCurrency: cartItemInfo.code,
+			userId: email,
+			shippingAddress: {
+				firstName: '',
+				lastName: '',
+				address: otherShippingDetails.address,
+				city: otherShippingDetails.city,
+				country: shippingCountry?.code || '',
+				postalCode: otherShippingDetails.postalCode,
+				province: otherShippingDetails.province,
+				phone: otherShippingDetails.phone
+			},
+			payformeEmail: paymentMethod === 'payforme' ? payForMeEmail : null
+		};
+		const { data } = await createOrderMutation.mutateAsync(orderData);
+		return { orderId: data.id, email };
 	};
 
-	const handlePaymentInfo = (field: string) => (e: ChangeEvent<HTMLInputElement>) => {
-		let value = e.target.value;
-		if (field === 'expiry') {
-			value = value.replace('/', '');
-			value = /\D/.test(value) ? paymentDetails.expiry : value;
-		}
-		else if (field === 'card') {
-			value = /\d{17}/.test(value) ? paymentDetails.card : value;
-		}
-		setPaymentDetails({
-			...paymentDetails,
-			[field]: value
-		});
+	const appearance = {
+		theme: 'stripe' as const,
 	};
-	const handleShippingInfo = (field: string) => (e: ChangeEvent<HTMLInputElement>) => {
-		let value = e.target.value;
-		if (field === 'phone') {
-			const phoneNumber = parsePhoneNumber(e.target.value, shippingCountry!.code as CountryCode);
-			value = phoneNumber?.formatInternational() || value;
-			setShippingError({
-				...shippingError,
-				[field]: !isValidPhoneNumber(value, shippingCountry!.code as CountryCode) ?
-					`Enter a valid ${shippingCountry?.label} phone number` : ''
-			});
-		}
-		setOtherShippingDetails({
-			...otherShippingDetails,
-			[field]: value
-		});
-	};
+	// Enable the skeleton loader UI for optimal loading.
+	const loader = 'auto';
+	return (
+		<>
+			{
+				!stripeClientSecret ?
+					<SkeletionPayment />
+					:
+					<Elements options={{ clientSecret: stripeClientSecret.secret, appearance, loader }} stripe={stripePromise}>
+						<form>
+							<Stack>
+								<StyledStackContent>
+									<Stack gap={3}>
+										<Stack gap={1} p={1}>
+											<Typography fontFamily={'Alata'} fontSize={'24px'}>CHECKOUT YOUR ORDER</Typography>
+											<Typography fontSize={'14px'}>Payment methods we accept.</Typography>
+										</Stack>
+										<StyleContainerStack>
+											<Stack p={1} position={'relative'}>
+												<Stack direction={'row'} flexWrap={'wrap'} gap={3} mt={2}>
+													{
+														payment.map((icon, index) => <Avatar variant="rounded" src={icon} key={index} />)
+													}
+												</Stack>
+												<StyledAccordion defaultExpanded>
+													<StyledAccordionSummary
+														expandIcon={<ExpandMore />}
+														aria-controls="account-content"
+														id="account-header"
+													>
+														<Typography component="span" fontFamily={'Alata'} fontSize={'18px'}>ACCOUNT</Typography>
+													</StyledAccordionSummary>
+													<AccordionDetails>
+														<Typography color="rgba(27, 31, 38, 0.72)">
+															{email}
+														</Typography>
+														<Button variant="text" onClick={handleChangeAccount} sx={{
+															color: theme.palette.primaryOrange.main,
+															fontSize: '12px',
+															textTransform: 'inherit',
+															paddingLeft: 0
+														}}>
+															Change account
+														</Button>
+													</AccordionDetails>
+												</StyledAccordion>
+												<StyledAccordion defaultExpanded>
+													<StyledAccordionSummary
+														expandIcon={<ExpandMore />}
+														aria-controls="shipping-content"
+														id="shipping-header"
+
+													>
+														<Typography component="span" fontFamily={'Alata'} fontSize={'18px'}>SHIPPING ADDRESS</Typography>
+													</StyledAccordionSummary>
+													<AccordionDetails >
+														<ShippingAddressInfo
+															otherShippingDetails={otherShippingDetails}
+															setOtherShippingDetails={handleOtherShippingChange}
+															shippingCountry={shippingCountry}
+															setShippingCountry={handleCountryChange}
+															shippingError={shippingError}
+															setShippingError={setShippingError}
+														/>
+													</AccordionDetails>
+												</StyledAccordion>
+												<StyledAccordion defaultExpanded>
+													<StyledAccordionSummary
+														expandIcon={<ExpandMore />}
+														aria-controls="delivery-content"
+														id="delivery-header"
+
+													>
+														<Typography component="span" fontFamily={'Alata'} fontSize={'18px'}>DELIVERY METHOD</Typography>
+													</StyledAccordionSummary>
+													<AccordionDetails>
+														<Stack direction={'row'} justifyContent={'space-between'}>
+															{
+																shouldLoadingShippingFee ?
+																	(<Typography color="rgba(27, 31, 38, 0.72)" fontSize={'14px'} width={'190px'} flexGrow={1}>
+																		Arrives within 10 - 14 business days
+																	</Typography>
+																	) : <Typography color="rgba(27, 31, 38, 0.72)" fontSize={'14px'} width={'190px'} flexGrow={1}>
+																		Select your delivery country and province
+																	</Typography>
+															}
+															{
+																shouldLoadingShippingFee && Boolean(shippingFee) && <Typography fontWeight={'500'} >
+																	{cartItemInfo.code} {cartItemInfo.symbol}{shippingFee.toFixed(2)}
+																</Typography>
+															}
+														</Stack>
+													</AccordionDetails>
+												</StyledAccordion>
+												<span id="payment-method" ref={paymentAnchorRef} />
+												<StyledAccordion defaultExpanded>
+													<StyledAccordionSummary
+														expandIcon={<ExpandMore />}
+														aria-controls="payment-content"
+														id="payment-header"
+
+													>
+														<Typography component="span" fontFamily={'Alata'} fontSize={'18px'}>PAYMENT METHOD</Typography>
+													</StyledAccordionSummary>
+													<AccordionDetails sx={{ p: 0 }}>
+														<List disablePadding>
+															<ListItem disablePadding >
+																<Stack width={1} >
+																	<StyledPaymentStack direction={'row'} alignItems={'center'} $isSelected={paymentMethod === 'card'}>
+																		<Radio id="card-method" size="small" color="default" checked={paymentMethod === 'card'} onChange={handlePaymentMethod('card')} />
+																		<Stack direction={'row'} justifyContent={'space-between'} width={1}>
+																			<FormLabel htmlFor="card-method" sx={{ fontWeight: '500', fontFamily: 'Roboto', color: 'black' }}>Credit/Debit card</FormLabel>
+																			<img src={stripe} width={50} />
+																		</Stack>
+																	</StyledPaymentStack>
+																	{
+																		paymentMethod === 'card' &&
+																		<PaymentElement id="payment-element" />
+																	}
+																</Stack>
+															</ListItem>
+															<ListItem disablePadding >
+																<Stack width={1} >
+																	<StyledPaymentStack direction={'row'} alignItems={'center'} $isSelected={paymentMethod === 'payforme'}>
+																		<Radio size="small" id="payforme-method" color="default" checked={paymentMethod === 'payforme'} onChange={handlePaymentMethod('payforme')} />
+																		<Stack direction={'row'} justifyContent={'space-between'} width={1}>
+																			<FormLabel htmlFor="payforme-method" sx={{ fontWeight: '500', fontFamily: 'Roboto', color: 'black' }}>
+																				Pay for me
+																			</FormLabel>
+
+																		</Stack>
+																	</StyledPaymentStack>
+																	{
+																		paymentMethod === 'payforme' &&
+																		<Stack p={1} gap={2} maxWidth={'484px'}>
+																			<Stack gap={2} pt={1}>
+																				<StyledTextField label="Payer's email"
+																					slotProps={{
+																						inputLabel: {
+																							shrink: true
+																						}
+																					}}
+																					value={payForMeEmail}
+																					onChange={handlePayForMeName} />
+																				<Typography fontSize={'14px'} fontWeight={'500'}>Your checkout cart will be sent to the payer's email. When your payer completes the payment you will get a notification</Typography>
+																			</Stack>
+																		</Stack>
+																	}
+																</Stack>
+															</ListItem>
+														</List>
+													</AccordionDetails>
+												</StyledAccordion>
+											</Stack>
+											<CheckoutOrderSummary
+												shippingFee={finalShippingFee}
+												disablePayment={shouldDisablePayment}
+												itemCount={cartItems.length}
+												paymentTotal={paymentTotal}
+												couponCode={couponCode}
+												handleCouponChange={setCouponCode}
+												createOrder={createOrder}
+												cartItemInfo={cartItemInfo}
+												paymentMethod={paymentMethod}
+											/>
+										</StyleContainerStack>
+									</Stack>
+								</StyledStackContent>
+							</Stack>
+						</form>
+					</Elements>
+			}
+		</>
+	);
+}
+
+const SkeletionPayment = () => {
 	return (
 		<Stack>
-			<HeaderWithouSearch />
 			<StyledStackContent>
 				<Stack gap={3}>
 					<Stack gap={1} p={1}>
@@ -201,17 +384,7 @@ export default function CheckoutOrder({ email }: { email: string }) {
 									<Typography component="span" fontFamily={'Alata'} fontSize={'18px'}>ACCOUNT</Typography>
 								</StyledAccordionSummary>
 								<AccordionDetails>
-									<Typography color="rgba(27, 31, 38, 0.72)">
-										{email}
-									</Typography>
-									<Button variant="text" onClick={handleChangeAccount} sx={{
-										color: theme.palette.primaryOrange.main,
-										fontSize: '12px',
-										textTransform: 'inherit',
-										paddingLeft: 0
-									}}>
-										Change account
-									</Button>
+									<Skeleton />
 								</AccordionDetails>
 							</StyledAccordion>
 							<StyledAccordion defaultExpanded>
@@ -224,78 +397,7 @@ export default function CheckoutOrder({ email }: { email: string }) {
 									<Typography component="span" fontFamily={'Alata'} fontSize={'18px'}>SHIPPING ADDRESS</Typography>
 								</StyledAccordionSummary>
 								<AccordionDetails >
-									<Stack gap={2}>
-										<Autocomplete
-											options={countries}
-											getOptionLabel={(option) => option.label}
-											value={shippingCountry}
-											onChange={handleChangeShippingCountry}
-											isOptionEqualToValue={(option, value) => option.code === value.code}
-											renderOption={(props, option) => {
-												const { key, ...optionProps } = props;
-												return (
-													<Box
-														key={key}
-														component="li"
-														sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-														{...optionProps}
-													>
-														<img
-															loading="lazy"
-															width="20"
-															srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-															src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-															alt=""
-														/>
-														{option.label} ({option.code})
-													</Box>
-												);
-											}}
-											renderInput={(params) => <StyledTextField {...params}
-												helperText={shippingError.country} label="Country"
-												error={Boolean(shippingError.country)}
-											/>}
-										/>
-
-										<StyledTextField label='Province/State/Region' value={otherShippingDetails.province}
-											onChange={handleShippingInfo('province')} disabled={!deliveryInfo?.code} />
-
-										<StyledTextField label='City' value={otherShippingDetails.city}
-											onChange={handleShippingInfo('city')} disabled={!deliveryInfo?.code} />
-
-										<StyledTextField label='Postal code' value={otherShippingDetails.postalCode}
-											onChange={handleShippingInfo('postalCode')} disabled={!deliveryInfo?.code} />
-
-										<StyledTextField label='Address' value={otherShippingDetails.address}
-											onChange={handleShippingInfo('address')} disabled={!deliveryInfo?.code} />
-
-										<FormControl variant="outlined" sx={{ bgcolor: 'white' }} disabled={!deliveryInfo?.code} error={Boolean(shippingError.phone)}>
-											<InputLabel htmlFor="outlined-adornment-phone">Phone number</InputLabel>
-											<OutlinedInput
-												id="outlined-adornment-phone"
-												value={otherShippingDetails.phone}
-												onChange={handleShippingInfo('phone')}
-												endAdornment={
-													<InputAdornment position="end">
-														{
-															shippingCountry &&
-															<img
-																loading="lazy"
-																width="20"
-																srcSet={`https://flagcdn.com/w40/${shippingCountry.code.toLowerCase()}.png 2x`}
-																src={`https://flagcdn.com/w20/${shippingCountry.code.toLowerCase()}.png`}
-																alt=""
-															/>
-														}
-													</InputAdornment>
-												}
-												label="Phone number"
-											/>
-											{
-												shippingError.phone && <FormHelperText error={Boolean(shippingError.phone)}>{shippingError.phone}</FormHelperText>
-											}
-										</FormControl>
-									</Stack>
+									<Skeleton />
 								</AccordionDetails>
 							</StyledAccordion>
 							<StyledAccordion defaultExpanded>
@@ -308,20 +410,9 @@ export default function CheckoutOrder({ email }: { email: string }) {
 									<Typography component="span" fontFamily={'Alata'} fontSize={'18px'}>DELIVERY METHOD</Typography>
 								</StyledAccordionSummary>
 								<AccordionDetails>
-									{
-										deliveryInfo?.code &&
-										<Stack direction={'row'} justifyContent={'space-between'}>
-											<Typography color="rgba(27, 31, 38, 0.72)" fontSize={'14px'} width={'190px'}>
-												Arrives within 5 - 14 business days
-											</Typography>
-											<Typography fontWeight={'500'} >
-												{deliveryInfo.code} {deliveryInfo.symbol}{shippingCost}
-											</Typography>
-										</Stack>
-									}
+									<Skeleton />
 								</AccordionDetails>
 							</StyledAccordion>
-							<span id="payment-method" ref={paymentAnchorRef} />
 							<StyledAccordion defaultExpanded>
 								<StyledAccordionSummary
 									expandIcon={<ExpandMore />}
@@ -332,171 +423,27 @@ export default function CheckoutOrder({ email }: { email: string }) {
 									<Typography component="span" fontFamily={'Alata'} fontSize={'18px'}>PAYMENT METHOD</Typography>
 								</StyledAccordionSummary>
 								<AccordionDetails sx={{ p: 0 }}>
-									<List disablePadding>
-										<ListItem disablePadding >
-											<Stack width={1} >
-												<StyledPaymentStack direction={'row'} alignItems={'center'} $isSelected={paymentMethod === 'card'}>
-													<Radio id="card-method" size="small" color="default" checked={paymentMethod === 'card'} onChange={handlePaymentMethod('card')} />
-													<Stack direction={'row'} justifyContent={'space-between'} width={1}>
-														<FormLabel htmlFor="card-method" sx={{ fontWeight: '500', fontFamily: 'Roboto', color: 'black' }}>Credit card</FormLabel>
-														<img src={stripe} width={50} />
-													</Stack>
-												</StyledPaymentStack>
-												{
-													paymentMethod === 'card' &&
-													<Stack p={1} gap={2}>
-														<Stack gap={2} pt={1}>
-															<FormControl variant="outlined" sx={{ bgcolor: 'white' }}>
-																<InputLabel htmlFor="outlined-adornment-card-number">Card number</InputLabel>
-																<OutlinedInput
-																	type="number"
-																	id="outlined-adornment-card-number"
-																	value={paymentDetails.card}
-																	onChange={handlePaymentInfo('card')}
-																	startAdornment={
-																		<InputAdornment position="start">
-																			<CreditCard fontSize="small" />
-																		</InputAdornment>
-																	}
-																	label="Card number"
-																/>
-															</FormControl>
-
-															<StyledTextField label='Cardholder name'
-																slotProps={{
-																	inputLabel: {
-																		shrink: true
-																	}
-																}}
-																value={paymentDetails.holderName}
-																onChange={handlePaymentInfo('holderName')} />
-
-															<StyledTextField label='Expiration date'
-																slotProps={{
-																	inputLabel: {
-																		shrink: true
-																	},
-																}}
-																placeholder="MM / YY"
-																value={parseExpiry(paymentDetails.expiry)}
-																onChange={handlePaymentInfo('expiry')} />
-
-															<StyledTextField label='CVC / CVC2'
-																type="number"
-																slotProps={{
-																	inputLabel: {
-																		shrink: true
-																	}
-																}}
-																value={paymentDetails.cvc}
-																onChange={handlePaymentInfo('cvc')} />
-														</Stack>
-														<FormGroup>
-															<FormControlLabel onChange={handleUseShippingAsBilling} control={<Checkbox size="small" sx={{ 'svg': { color: 'black' } }} color="default" />} label={<Typography fontSize={'14px'}>Use shipping address as billing address</Typography>} />
-														</FormGroup>
-														<Stack gap={2} pb={1}>
-															<Typography fontFamily={'Alata'} fontSize={'18px'} pl={.5}>BILLING ADDRESS</Typography>
-															<Autocomplete
-																options={countries}
-																getOptionLabel={(option) => option.label}
-																value={billingAddress.country}
-																onChange={handleCountryBillingAddress}
-																isOptionEqualToValue={(option, value) => option.code === value.code}
-																renderOption={(props, option) => {
-																	const { key, ...optionProps } = props;
-																	return (
-																		<Box
-																			key={key}
-																			component="li"
-																			sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-																			{...optionProps}
-																		>
-																			<img
-																				loading="lazy"
-																				width="20"
-																				srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-																				src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-																				alt=""
-																			/>
-																			{option.label} ({option.code})
-																		</Box>
-																	);
-																}}
-																renderInput={(params) => <StyledTextField {...params} label="Country"
-																/>}
-															/>
-
-															<StyledTextField label='Province/State/Region' value={billingAddress.province}
-																onChange={handleBillingAddress('province')} />
-
-															<StyledTextField label='City' value={billingAddress.city}
-																onChange={handleBillingAddress('city')} />
-
-															<StyledTextField label='Postal code' value={billingAddress.postalCode}
-																onChange={handleBillingAddress('postalCode')} />
-
-															<StyledTextField label='Address' value={billingAddress.address}
-																onChange={handleBillingAddress('address')} />
-
-															<StyledTextField label='Phone number' value={billingAddress.phone}
-																onChange={handleBillingAddress('phone')} />
-														</Stack>
-													</Stack>
-												}
-											</Stack>
-										</ListItem>
-										<ListItem disablePadding>
-											<Stack width={1} >
-												<StyledPaymentStack direction={'row'} alignItems={'center'} $isSelected={paymentMethod === 'paypal'}>
-													<Radio id="paypal-method" size="small" color="default" checked={paymentMethod === 'paypal'} onChange={handlePaymentMethod('paypal')} />
-													<Stack direction={'row'} justifyContent={'space-between'} width={1} pr={.5}>
-														<FormLabel htmlFor="paypal-method" sx={{ fontWeight: '500', fontFamily: 'Roboto', color: 'black' }}>Paypal</FormLabel>
-														<img src={paypal2} width={60} height={18} />
-													</Stack>
-												</StyledPaymentStack>
-											</Stack>
-										</ListItem>
-										<ListItem disablePadding >
-											<Stack width={1} >
-												<StyledPaymentStack direction={'row'} alignItems={'center'} $isSelected={paymentMethod === 'payforme'}>
-													<Radio size="small" id="payforme-method" color="default" checked={paymentMethod === 'payforme'} onChange={handlePaymentMethod('payforme')} />
-													<Stack direction={'row'} justifyContent={'space-between'} width={1}>
-														<FormLabel htmlFor="payforme-method" sx={{ fontWeight: '500', fontFamily: 'Roboto', color: 'black' }}>
-															Pay for me
-														</FormLabel>
-
-													</Stack>
-												</StyledPaymentStack>
-												{
-													paymentMethod === 'payforme' &&
-													<Stack p={1} gap={2}>
-														<Stack gap={2} pt={1}>
-															<StyledTextField label="Payer's email"
-																slotProps={{
-																	inputLabel: {
-																		shrink: true
-																	}
-																}}
-																value={paymentDetails.payer}
-																onChange={handlePaymentInfo('payer')} />
-															<Typography fontSize={'14px'} fontWeight={'500'}>Your checkout cart will be sent to the payer's email. When your payer completes the payment you will get a notification</Typography>
-														</Stack>
-													</Stack>
-												}
-											</Stack>
-										</ListItem>
-									</List>
+									<Skeleton />
 								</AccordionDetails>
 							</StyledAccordion>
 						</Stack>
-						<CheckoutOrderSummary shippingFee={shippingCost} deliveryInfo={deliveryInfo} paymentMethod={paymentMethod} />
+						<Stack gap={0}>
+							<Stack direction={'row'}>
+								<SvgIcon viewBox="-1 0 9 9">
+									<ShieldSvg />
+								</SvgIcon>
+								<Typography fontSize={'12px'}>
+									Your payment is Safe, Secure and Encryted.
+								</Typography>
+							</Stack>
+							<Skeleton sx={{ width: '300px', alignSelf: 'flex-start', height: '300px' }} />
+						</Stack>
 					</StyleContainerStack>
 				</Stack>
 			</StyledStackContent>
 		</Stack>
 	);
-}
-
+};
 const StyleContainerStack = styled(Stack)(({ theme }) => ({
 	flexDirection: 'row',
 	justifyContent: 'center',

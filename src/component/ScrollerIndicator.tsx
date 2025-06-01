@@ -1,4 +1,4 @@
-import { DESKTOP_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { Avatar, styled } from "@mui/material";
 import { SyntheticEvent } from "react";
 
@@ -50,36 +50,35 @@ const ScrollerIndicatorContainer = styled('div', {
 })<{ $variant: TIndicatorVariant }>(({ $variant, theme }) => ({
 	display: 'flex',
 	gap: theme.spacing(1),
-	position: 'absolute',
-	bottom: '12px',
-	left: 0,
-	right: 0,
-	justifyContent: 'center',
-	zIndex: theme.zIndex.fab,
-	...($variant === 'thumbnail' && {
+	...($variant === 'thumbnail' ? {
+		position: 'relative',
 		flexDirection: 'column',
-		top: 0,
-		left: '-80px',
 		bottom: 'unset',
 		width: 'fit-content',
 		justifyContent: 'unset',
 		marginTop: theme.spacing(.2)
-
+	} : {
+		position: 'absolute',
+		bottom: '12px',
+		left: 0,
+		right: 0,
+		justifyContent: 'center',
+		zIndex: 1,
 	}),
-	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
-		...($variant == 'thumbnail' && {
-			justifyContent: 'left',
-			position: 'relative',
-			width: 'unset',
-			left: 0,
-			flexDirection: 'row',
-			flexWrap: 'wrap',
-			zIndex: 'unset',
-			bottom: 'unset',
-			margin: theme.spacing(.3),
-			marginTop: theme.spacing(1)
-		})
-	}
+	// [theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
+	// 	...($variant == 'thumbnail' && {
+	// 		justifyContent: 'left',
+	// 		position: 'relative',
+	// 		width: 'unset',
+	// 		// left: 0,
+	// 		flexDirection: 'row',
+	// 		flexWrap: 'wrap',
+	// 		zIndex: 'unset',
+	// 		bottom: 'unset',
+	// 		margin: theme.spacing(.3),
+	// 		marginTop: theme.spacing(1)
+	// 	})
+	// }
 }));
 
 const DotIndicator = styled('span')(({ theme }) => ({
@@ -93,4 +92,7 @@ const ThumbnailIndicator = styled('span')(({ theme }) => ({
 	width: '70px',
 	height: '70px',
 	borderRadius: theme.shape.borderRadius,
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		display: 'none'
+	}
 }));

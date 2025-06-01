@@ -1,3 +1,4 @@
+import { IOtherShippingInfo, IShippingAddressState, TOrderItem } from "#component/types/index.js";
 import { TCartItems, TCartMap } from "#state-management/slices/cart.slice.ts";
 
 export const getWindowWidth = () => innerWidth;
@@ -9,12 +10,17 @@ export const weightMap: { [x: string]: number } = {
 };
 
 export const getCartWeight = (cartItems: TCartItems[]) => {
-	return cartItems.reduce((acc, cartItem) => (
-		{
-			weight: acc.weight + (((cartItem.item.variations[cartItem.variant].weight.value)/weightMap[cartItem.item.variations[cartItem.variant].weight.measurement])*cartItem.quantity),
-			total: acc.total + ((cartItem.item.variations[cartItem.variant].promotion?.promoPrice || cartItem.item.variations[cartItem.variant].price)*cartItem.quantity)
-		}
-	), { weight: 0, total: 0 });
+	return cartItems.reduce((acc, cartItem) => {
+		const productVariant = cartItem.item.variations[cartItem.variant];
+		const currencyCode = productVariant.price.currency;
+		return (
+			{
+				weight: acc.weight + (productVariant.weight * cartItem.quantity),
+				total: acc.total + (productVariant.price.converted*cartItem.quantity),
+				symbol: appCurrencySymbol[currencyCode],
+				code: currencyCode,
+			}
+		);}, { weight: 0, total: 0, code: '', symbol: '' });
 };
 
 export const getCartItems = (cartItemsMap: TCartMap) => {
@@ -28,23 +34,71 @@ export const getCartItems = (cartItemsMap: TCartMap) => {
 
 export const getTotalSavings = (cartItems: TCartItems[]) => {
 	return cartItems.reduce((accSavings, cartItem) => {
-		const locationPrice = cartItem.item.variations[cartItem.variant].locationPrice || cartItem.item.locationPrice;
-		const price = cartItem.item.variations[cartItem.variant].promotion?.promoPrice || cartItem.item.variations[cartItem.variant].price || cartItem.item.promotion?.promoPrice || cartItem.item.price;
+		const marketPrice = cartItem.item.variations[cartItem.variant].marketPrice?.converted || 0;
 
-		const saving = cartItem.quantity * Math.abs(locationPrice - price);
+		const price = cartItem.item.variations[cartItem.variant].price.converted;
+
+		const saving = cartItem.quantity * Math.abs(marketPrice - price);
 		const newSaving = accSavings + saving;
 		return newSaving;
 	}, 0);
 };
 
+export type TPasswordError = {
+	[x: number]: boolean | string
+};
+export const validatePassword = (password: string) => {
+	const error: TPasswordError[] = [];
+	error.push([RegExp(/.{8,}/).test(password), '8 or more Characters']);
+	error.push([RegExp(/[A-Z]/).test(password), '1 or more Uppercase']);
+	error.push([RegExp(/\d/).test(password), '1 or more Number']);
+	error.push([RegExp(/\W/).test(password), '1 or more Special Character']);
+	return error;
+};
+
+export const calculateOnlyItemTotal = (items: TOrderItem[]) => {
+	const itemTotal = items.reduce((acc, current) => {
+		return acc + (current.amount * current.quantity);
+	}, 0);
+	return itemTotal;
+};
+
+export const initialOtherShippingState: IOtherShippingInfo = {
+	province: '',
+	city: '',
+	postalCode: '',
+	phone: '',
+	address: '',
+};
+
+export const shippingInitialState: IShippingAddressState = {
+	...initialOtherShippingState,
+	firstName: '',
+	lastName: '',
+	country: ''
+};
 export interface CountryType {
 	code: string;
 	label: string;
 	phone: string;
 	suggested?: boolean;
 }
-export // From https://bitbucket.org/atlassian/atlaskit-mk-2/raw/4ad0e56649c3e6c973e226b7efaeb28cb240ccb0/packages/core/select/src/data/countries.js
-const countries: readonly CountryType[] = [
+
+export type TCheckoutOrderSummary = Partial<CountryType & Pick<IOtherShippingInfo, 'province' | 'postalCode' | 'city'>>;
+
+export const appCurrencySymbol: {
+	[x: string]: string
+} = {
+	'CAD': '$',
+	'USD': '$',
+	'GBP': '£',
+	'EUR': '€',
+	'CNY': '¥',
+	'AUD': '$',
+	'NGN': '₦'
+};
+// From https://bitbucket.org/atlassian/atlaskit-mk-2/raw/4ad0e56649c3e6c973e226b7efaeb28cb240ccb0/packages/core/select/src/data/countries.js
+export const countries: readonly CountryType[] = [
 	{ code: 'AD', label: 'Andorra', phone: '376' },
 	{
 		code: 'AE',
@@ -468,3 +522,15 @@ const countries: readonly CountryType[] = [
 	{ code: 'ZM', label: 'Zambia', phone: '260' },
 	{ code: 'ZW', label: 'Zimbabwe', phone: '263' },
 ];
+
+export const province: Record<string, string[]> = {
+	"CA": ['ontario', 'manitoba', 'new brunswick', 'yukon', 'saskatchewan', 'prince edward island', 'alberta', 'quebec', 'nova scotia', 'british columbia', 'nunavut', 'newfoundland', 'northwest territories'],
+	"US": ['delaware', 'maryland', 'new hampshire', 'kansas', 'texas', 'nebraska', 'vermont', 'hawaii', 'guam', 'united states virgin islands', 'utah', 'oregon', 'california', 'new jersey', 'north dakota', 'kentucky', 'minnesota', 'oklahoma', 'pennsylvania', 'new mexico', 'illinois', 'michigan', 'virginia', 'west virginia', 'mississipi', 'northern mariana islands', 'massachusetts', 'arizona', 'connecticut', 'florida', 'district of columbia', 'indiana', 'wisconsin', 'wyoming', 'south carolina', 'arkansas', 'south dakota', 'north carolina', 'missouri', 'new york', 'maine', 'tennessee', 'georgia', 'alabama', 'louisiana', 'nevada', 'iowa', 'idaho', 'washington', 'ohio'],
+	"GB": [ "isle of wight", "st helens", "brent", "walsall", "trafford", "city of southampton", "sheffield", "west sussex", "peterborough", "caerphilly", "vale of glamorgan", "shetland islands", "rhondda cynon taf", "poole", "central bedfordshire", "down district council", "portsmouth", "haringey", "bexley", "rotherham", "hartlepool", "telford and wrekin", "belfast", "cornwall", "sutton", "omagh", "banbridge", "causeway coast and glens", "newtownabbey", "leicester", "islington", "wigan", "oxfordshire", "magherafelt", "southend-on-sea", "armagh, banbridge and craigavon", "perth and kinross", "waltham forest", "rochdale", "merthyr tydfil", "blackburn with darwen", "knowsley", "armagh", "middlesbrough", "east renfrewshire", "cumbria", "scotland", "england", "northern ireland", "wales", "bath and north east somerset", "liverpool", "sandwell", "bournemouth", "isles of scilly", "falkirk", "dorset", "scottish borders", "havering", "moyle", "camden", "newry and mourne", "neath port talbot", "conwy", "outer hebrides", "west lothian", "lincolnshire", "barking and dagenham", "westminster", "lewisham", "nottingham", "moray", "ballymoney", "south lanarkshire", "ballymena", "doncaster", "northumberland", "fermanagh and omagh", "tameside", "kensington and chelsea", "hertfordshire", "east riding of yorkshire", "kirklees", "sunderland", "gloucestershire", "east ayrshire", "united kingdom", "hillingdon", "south ayrshire", "ascension island", "gwynedd", "hounslow", "medway", "limavady", "highland", "north east lincolnshire", "harrow", "somerset", "angus", "inverclyde", "darlington", "tower hamlets", "wiltshire", "argyll and bute", "strabane", "stockport", "brighton and hove", "lambeth", "redbridge", "manchester", "mid ulster", "south gloucestershire", "aberdeenshire", "monmouthshire", "derbyshire", "glasgow", "buckinghamshire", "durham", "shropshire", "wirral", "south tyneside", "essex", "hackney", "antrim and newtownabbey", "bristol", "east sussex", "dumfries and galloway", "milton keynes", "derry", "newham", "wokingham", "warrington", "stockton-on-tees", "swindon", "cambridgeshire", "london", "birmingham", "york", "slough", "edinburgh", "mid and east antrim", "north somerset", "gateshead", "southwark", "swansea", "wandsworth", "hampshire", "wrexham", "flintshire", "coventry", "carrickfergus", "west dunbartonshire", "powys", "cheshire west and chester", "renfrewshire", "cheshire east", "cookstown", "derry city and strabane", "staffordshire", "hammersmith and fulham", "craigavon", "clackmannanshire", "blackpool", "bridgend", "north lincolnshire", "east dunbartonshire", "reading", "nottinghamshire", "dudley", "newcastle upon tyne", "bury", "lisburn and castlereagh", "coleraine", "east lothian", "aberdeen", "kent", "wakefield", "halton", "suffolk", "thurrock", "solihull", "bracknell forest", "west berkshire", "rutland", "norfolk", "orkney islands", "city of kingston upon hull", "enfield", "oldham", "torbay", "fife", "northamptonshire", "kingston upon thames", "windsor and maidenhead", "merton", "carmarthenshire", "derby", "pembrokeshire", "north lanarkshire", "stirling", "wolverhampton", "bromley", "devon", "greenwich", "salford", "lisburn", "lancashire", "torfaen", "denbighshire", "ards", "barnsley", "herefordshire", "richmond upon thames", "saint helena", "leeds", "bolton", "warwickshire", "stoke-on-trent", "bedford", "dungannon and south tyrone", "ceredigion", "worcestershire", "dundee", "croydon", "north down", "plymouth", "larne", "leicestershire", "calderdale", "sefton", "midlothian", "barnet", "north tyneside", "north yorkshire", "ards and north down", "newport", "castlereagh", "surrey", "redcar and cleveland", "cardiff", "bradford", "blaenau gwent", "fermanagh", "ealing", "antrim", "newry, mourne and down", "north ayrshire" ],
+	"DE": [ "schleswig-holstein", "baden-württemberg", "mecklenburg-vorpommern", "lower saxony", "bavaria", "berlin", "saxony-anhalt", "brandenburg", "bremen", "thuringia", "hamburg", "north rhine-westphalia", "hessen", "rhineland-palatinate", "saarland", "saxony" ],
+	"AE": [ "sharjah", "dubai", "umm al quwain", "fujairah", "ras al khaimah", "ajman", "abu dhabi" ],
+	"CN": [ "zhejiang", "fujian", "shanghai", "jiangsu", "anhui", "shandong", "jilin", "shanxi", "taiwan", "jiangxi", "beijing", "hunan", "henan", "yunnan", "guizhou", "ningxia huizu", "xinjiang", "xizang", "heilongjiang", "macau sar", "hong kong sar", "liaoning", "inner mongolia", "qinghai", "chongqing", "shaanxi", "hainan", "hubei", "gansu", "tianjin", "sichuan", "guangxi zhuang", "guangdong", "hebei" ],
+	"FR": [ "saint-barthélemy", "nouvelle-aquitaine", "île-de-france", "mayotte", "auvergne-rhône-alpes", "occitanie", "pays-de-la-loire", "normandie", "corse", "bretagne", "saint-martin", "wallis and futuna", "alsace", "provence-alpes-côte-d’azur", "paris", "centre-val de loire", "grand-est", "saint pierre and miquelon", "french guiana", "la réunion", "french polynesia", "bourgogne-franche-comté", "martinique", "hauts-de-france", "guadeloupe", "ain", "aisne", "allier", "alpes-de-haute-provence", "hautes-alpes", "alpes-maritimes", "ardèche", "ardennes", "ariège", "aube", "aude", "aveyron", "bouches-du-rhône", "calvados", "cantal", "charente", "charente-maritime", "cher", "corrèze", "côte-d'or", "côtes-d'armor", "creuse", "dordogne", "doubs", "drôme", "eure", "eure-et-loir", "finistère", "corse-du-sud", "haute-corse", "gard", "haute-garonne", "gers", "gironde", "hérault", "ille-et-vilaine", "indre", "indre-et-loire", "isère", "jura", "landes", "loir-et-cher", "loire", "haute-loire", "loire-atlantique", "loiret", "lot", "lot-et-garonne", "lozère", "maine-et-loire", "manche", "marne", "haute-marne", "mayenne", "meurthe-et-moselle", "meuse", "morbihan", "moselle", "nièvre", "nord", "oise", "orne", "pas-de-calais", "puy-de-dôme", "pyrénées-atlantiques", "hautes-pyrénées", "pyrénées-orientales", "bas-rhin", "haut-rhin", "rhône", "métropole de lyon", "haute-saône", "saône-et-loire", "sarthe", "savoie", "haute-savoie", "seine-maritime", "seine-et-marne", "yvelines", "deux-sèvres", "somme", "tarn", "tarn-et-garonne", "var", "vaucluse", "vendée", "vienne", "haute-vienne", "vosges", "yonne", "territoire de belfort", "essonne", "hauts-de-seine", "seine-saint-denis", "val-de-marne", "val-d'oise", "clipperton", "french southern and antarctic lands" ],
+	"HK": [ "yuen long", "tsuen wan", "tai po", "sai kung", "islands", "central and western", "wan chai", "eastern", "southern", "yau tsim mong", "sham shui po", "kowloon city", "wong tai sin", "kwun tong", "kwai tsing", "tuen mun", "north", "sha tin" ],
+	"AU": [ "victoria", "south australia", "queensland", "western australia", "australian capital territory", "tasmania", "new south wales", "northern territory" ],
+};

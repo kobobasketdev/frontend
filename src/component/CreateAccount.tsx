@@ -14,7 +14,7 @@ export default function CreateAccount({ showHeading }: { showHeading?: boolean }
 	return (
 		<>
 			{
-				email ? <AccountOTP type="signup" email={email} handleClearEmail={handleSetEmail} /> : <LoginContent showHeading={showHeading} handleEmailPropagate={handleSetEmail} />
+				email ? <AccountOTP email={email} handleClearEmail={handleSetEmail} /> : <LoginContent showHeading={showHeading} handleEmailPropagate={handleSetEmail} />
 			}
 		</>
 	);

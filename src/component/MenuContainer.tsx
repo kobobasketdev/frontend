@@ -1,25 +1,34 @@
-import { Stack, styled, Button, Popper, ClickAwayListener, Paper, Box, Grid2 as Grid } from "@mui/material";
+import { Stack, styled, Button, Popper, ClickAwayListener, Paper, Box, Grid } from "@mui/material";
 import ScrollableContainer from "./ScrollableContainer";
 import { DESKTOP_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { AllMobileOnlyView, FilterItem } from "./CommonViews";
 import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
-import { selectActiveMenu, selectIsShowMenu, setActiveMenu } from "#state-management/slices/active-menu.slice.ts";
-import { menus } from "#state-management/utils/index.ts";
+import { selectActiveMenu, selectIsShowMenu, selectProductCategories, setActiveMenu } from "#state-management/slices/active-menu.slice.ts";
 import { useNavigate } from "@tanstack/react-router";
 import { RoutePath } from "#utils/route.ts";
-import { useState, MouseEvent } from "react";
+import { useState, MouseEvent, SyntheticEvent } from "react";
+import { TItem, TProductCategory } from "./types";
+import { useQuery } from "@tanstack/react-query";
+import { getCategoryItems } from "./filters";
 
 export default function MenuContainer({ contentViewArea = '45px' }: { contentViewArea?: string }) {
 	const activeMenuIndex = useAppSelector(selectActiveMenu);
 	const isShowMenu = useAppSelector(selectIsShowMenu);
-	const navigate = useNavigate();
-	const dispatch = useAppDispatch();
+	const productCategories = useAppSelector(selectProductCategories);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [open, setOpen] = useState(false);
+	const [hoverMenu, setHoverMenu] = useState<{ id?: number, name?: string }>({});
+	const { data } = useQuery(getCategoryItems(hoverMenu.id));
+	const previewItems: TItem[] = data?.data || [];
+	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
 
-	const handleMenuSelect = (index: number) => () => {
-		dispatch(setActiveMenu(index));
-		if(index === 0) {
+	const handleMenuSelect = (menu: TProductCategory) => (e: SyntheticEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		const activeMenuPosition = productCategories.findIndex(category => category.name === menu.name);
+		dispatch(setActiveMenu(activeMenuPosition));
+		if (menu.name === 'all') {
 			navigate({
 				to: RoutePath.HOME
 			});
@@ -28,15 +37,23 @@ export default function MenuContainer({ contentViewArea = '45px' }: { contentVie
 
 		navigate({
 			to: RoutePath.CATEGORY,
-			params: { category: menus[index] }
+			params: { category: menu.name }
 		});
 	};
 
-	const handleMouseHover = () => (event: MouseEvent<HTMLElement>) => {
+	const handleMouseHover = (menu: TProductCategory) => (event: MouseEvent<HTMLElement>) => {
 		event.preventDefault();
 		event.stopPropagation();
 		setAnchorEl(event.currentTarget);
+		setHoverMenu({ id: menu.id, name: menu.name });
 		setOpen(true);
+	};
+
+	const handleSeeMore = () => {
+		navigate({
+			to: RoutePath.CATEGORY,
+			params: { category: hoverMenu.name! }
+		});
 	};
 
 	const handleMouseLeave = () => () => {
@@ -57,76 +74,51 @@ export default function MenuContainer({ contentViewArea = '45px' }: { contentVie
 			{
 				isShowMenu ?
 					(
-						<CustomDiv onMouseOver={handleMouseLeave()} 
+						<CustomDiv onMouseOver={handleMouseLeave()}
 							onMouseLeave={handleMouseLeave()}>
 							<CustomStack height={contentViewArea}>
 								<ScrollableContainer orientation="horizontal">
 									<StyledStack direction={'row'} gap={2} flexGrow={1} >
 										{
-											menus.map((menu, index) => {
-												if(index === 0 ){
-													return  <AllMobileOnlyView key={index}>
-														<MenuButton  $isActive={index === activeMenuIndex} onClick={handleMenuSelect(index)}>ALL</MenuButton>
+											productCategories.map((menu, index) => {
+												if (index === 0) {
+													return <AllMobileOnlyView key={menu.id}>
+														<MenuButton $isActive={menu.id === activeMenuIndex} onClick={handleMenuSelect(menu)}>ALL</MenuButton>
 													</AllMobileOnlyView>;
 												}
-												else return <MenuButton aria-describedby={id} 
-													onMouseOver={handleMouseHover()}
-													onClick={handleMenuSelect(index)} 
-													$isActive={index === activeMenuIndex} 
-													$isDeals={menu === 'DEALS'} 
-													key={index}
-												>{menu}</MenuButton>;
+												else return <MenuButton aria-describedby={id}
+													onMouseOver={handleMouseHover(menu)}
+													onClick={handleMenuSelect(menu)}
+													$isActive={index === activeMenuIndex}
+													$isDeals={menu.name === 'deals'}
+													key={menu.id}
+												>{menu.name.toUpperCase()}</MenuButton>;
 											})
 										}
 									</StyledStack>
 								</ScrollableContainer>
 							</CustomStack>
-							<StyledPopper id={id} open={open} anchorEl={anchorEl} placement="bottom" 
+							<StyledPopper id={id} open={open} anchorEl={anchorEl} placement="bottom"
 								onMouseEnter={stopPropagation()}
 								onMouseOver={stopPropagation()}
 							>
 								<ClickAwayListener onClickAway={handleClickAway}>
 									<Paper elevation={2}>
 										<Stack gap={1} pt={1} pb={1}>
-											<Stack p={2} pt={1} 
+											<Stack p={2} pt={1}
 												justifyContent={'center'}
 												alignItems={'center'}
 											>
 												<Grid container spacing={4} maxWidth={'500px'}>
-													<Grid >
-														<FilterItem title={"Kilishi"} imageSrc={""} />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Cameroon Pepper"} imageSrc={""} />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Cray Fish"} />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Water Leaf"}  />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Local Spice"}  />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Palm Oil"} />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Beans Flour"} />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Cocoyam Flour"} />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Yellow Garri"} />
-													</Grid>
-													<Grid >
-														<FilterItem title={"Ijebu White Garri"} />
-													</Grid>
+													{
+														previewItems.length > 0 && previewItems.slice(0, 20).map(item => <Grid key={item.id}>
+															<FilterItem title={item.name} imageSrc={item.images[0]} href={`/products/${item.id}`} />
+														</Grid>)
+													}
 												</Grid>
 											</Stack>
 											<Box pl={1}>
-												<SeeMoreButton variant="contained">
+												<SeeMoreButton variant="contained" onClick={handleSeeMore}>
 													See More
 												</SeeMoreButton>
 											</Box>
@@ -193,23 +185,23 @@ const StyledStack = styled(Stack)(({ theme }) => ({
 
 const MenuButton = styled(Button, {
 	shouldForwardProp: prop => !['$isDeals', '$isActive'].includes(prop as string)
-})<{ $isDeals?: boolean, $isActive: boolean }>(({ theme, $isDeals, $isActive })=> ({
+})<{ $isDeals?: boolean, $isActive: boolean }>(({ theme, $isDeals, $isActive }) => ({
 	minWidth: '90px',
 	fontFamily: 'Alata',
 	fontSize: '24px',
 	lineHeight: '133.4%',
 	color: $isActive ? theme.palette.primaryBlack.moreDeeper : $isDeals ? theme.palette.primaryOrange.main : theme.palette.primaryBlack.main,
-	...($isActive && { backgroundColor: theme.palette.primaryYellow.main }),
+	...($isActive && { backgroundColor: 'rgba(120, 120, 128, 0.2)' }),
 	':hover': {
 		color: theme.palette.primaryBlack.moreDeeper,
-		backgroundColor: theme.palette.action.hover
+		backgroundColor: 'rgba(120, 120, 128, 0.2)'
 	},
 	':focus': {
 		color: theme.palette.primaryBlack.moreDeeper,
-		backgroundColor: theme.palette.primaryYellow.main
+		backgroundColor: 'rgba(120, 120, 128, 0.2)'
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		backgroundColor: $isActive ? theme.palette.primaryYellow.main: 'white',
+		backgroundColor: $isActive ? 'rgba(120, 120, 128, 0.2)' : 'white',
 		borderRadius: '12px',
 		fontSize: '1rem',
 		padding: '4px 8px',

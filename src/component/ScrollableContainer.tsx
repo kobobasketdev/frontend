@@ -1,8 +1,10 @@
 import { IconButton, Stack, styled } from "@mui/material";
 import { ExpandLess, ExpandMore, ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { Dispatch, useEffect, useRef, useState, SetStateAction, MouseEvent, TouchEvent } from "react";
+import { Dispatch, useEffect, useRef, useState, SetStateAction, MouseEvent, TouchEvent, SyntheticEvent } from "react";
 import { TScrollNavigationMode, TScrollOrientation } from "./types";
 import ScrollerIndicator from "./ScrollerIndicator";
+import { getWindowWidth } from "#utils/index.ts";
+import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 
 const processNavigationDisabled = ({
 	setShouldDisableTopNavigation,
@@ -85,16 +87,18 @@ const setTranslatedValue = ({
 };
 
 const horizontalArrangeContents = ({
-	outterContainerWidth, nodeChildren, orientation, fullContent
+	outterContainerWidth, nodeChildren, orientation, fullContent, isThumbnail
 }: {
-	outterContainerWidth: number, nodeChildren: HTMLCollection, orientation: TScrollOrientation, fullContent: boolean
+	outterContainerWidth: number, nodeChildren: HTMLCollection, orientation: TScrollOrientation, fullContent: boolean,
+	isThumbnail?: boolean
 }) => {
 	if (orientation === 'vertical' || !fullContent) {
 		return 0;
 	}
 
+	const deduction = !isThumbnail ? 0 : getWindowWidth() >= TABLET_SCREEN_MAX_WIDTH ? 70 : 0;
 	for (const node of nodeChildren) {
-		(node as HTMLElement).style.width = `${outterContainerWidth}px`;
+		(node as HTMLElement).style.width = `${outterContainerWidth - deduction}px`;
 	}
 
 	return nodeChildren.length;
@@ -157,7 +161,8 @@ export default function ScrollableContainer({
 			fullContent,
 			outterContainerWidth: outterContainerRef.current.clientWidth,
 			nodeChildren: scrollContainerRef.current.children,
-			orientation
+			orientation,
+			isThumbnail: indicator === 'thumbnail'
 		});
 
 		const { boundary } = getBoundary(outterContainerRef, scrollContainerRef, orientation);
@@ -176,7 +181,8 @@ export default function ScrollableContainer({
 				outterContainerWidth: outterContainerRef.current!.clientWidth,
 				nodeChildren: scrollContainerRef.current!.children,
 				orientation,
-				fullContent
+				fullContent,
+				// isThumbnail: indicator === 'thumbnail'
 			});
 			const { boundary, shouldDisableTranslate } = getBoundary(outterContainerRef, scrollContainerRef, orientation);
 			scrollContainerRef.current!.style.translate = resetScroller({ translateValue, boundary, shouldDisableTranslate, orientation });
@@ -187,7 +193,7 @@ export default function ScrollableContainer({
 		return () => {
 			removeEventListener('resize', handleResize);
 		};
-	}, [orientation, fullContent]);
+	}, [orientation, fullContent, indicator]);
 
 	const handleScrollBy = (navDirection: number, scrollValue?: number) => {
 		isUserActionDown.current = false;
@@ -347,6 +353,11 @@ export default function ScrollableContainer({
 
 	};
 
+	const handleClickScroll = (dir: number, scrollBy?: number) => (e: SyntheticEvent) => {
+		e.stopPropagation();
+		handleScrollBy(dir, scrollBy);
+	};
+
 	const handleMouseEnter = () => () => {
 		setIsFloatHover(float);
 	};
@@ -356,7 +367,7 @@ export default function ScrollableContainer({
 	};
 
 	return (
-		<StyledScrollerWrapper onMouseLeave={handleMouseLeave()} height={height} width={width}>
+		<StyledScrollerWrapper onMouseLeave={handleMouseLeave()} height={height} width={width} thumbnailVariant={indicator}>
 			<ScrollableStackContainer
 				direction={orientation === 'horizontal' ? 'row' : 'column'}
 				gap={.5}
@@ -372,7 +383,8 @@ export default function ScrollableContainer({
 								size="small"
 								disabled={shouldDisableTopNavigation}
 								aria-controls="scrollable-container"
-								onClick={() => handleScrollBy(SCROLL_NAVIGATION_ID_ENUM.PREV, scrollBy)}>
+								onClick={handleClickScroll(SCROLL_NAVIGATION_ID_ENUM.PREV, scrollBy)}
+							>
 								{orientation === 'horizontal' ? <ChevronLeft /> : <ExpandLess />}
 							</IconButton>
 						</span>
@@ -406,7 +418,7 @@ export default function ScrollableContainer({
 								size="small"
 								disabled={shouldDisableBottomNavigation}
 								aria-controls="scrollable-container"
-								onClick={() => handleScrollBy(SCROLL_NAVIGATION_ID_ENUM.NEXT, scrollBy)}>
+								onClick={handleClickScroll(SCROLL_NAVIGATION_ID_ENUM.NEXT, scrollBy)}>
 								{orientation === 'horizontal' ? <ChevronRight /> : <ExpandMore />}
 							</IconButton>
 						</span>
@@ -423,10 +435,15 @@ export default function ScrollableContainer({
 	);
 }
 
-const StyledScrollerWrapper = styled('div')<{ height?: string, width?: string }>(({ height, width }) => ({
+const StyledScrollerWrapper = styled('div')<{ height?: string, width?: string, thumbnailVariant?: string }>(({ height, width, thumbnailVariant }) => ({
 	width: width || 'inherit',
 	height: height || '100%',
 	position: 'relative',
+	...(thumbnailVariant === 'thumbnail' && {
+		display: "flex",
+		gap: '2px',
+		flexDirection: 'row-reverse'
+	})
 }));
 
 const ScrollableStackContainer = styled(Stack, {
@@ -436,7 +453,6 @@ const ScrollableStackContainer = styled(Stack, {
 	height: 'inherit',
 	borderRadius: theme.shape.borderRadius * 3,
 	overflow: 'hidden',
-
 	...($orientation === 'vertical' ?
 		{
 			flexDirection: 'column',

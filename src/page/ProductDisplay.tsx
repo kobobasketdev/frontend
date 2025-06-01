@@ -1,14 +1,11 @@
 import { TItem } from "#component/types/index.js";
-import { CUSTOM_893_WIDTH, DESKTOP_SCREEN_MAX_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { CUSTOM_893_WIDTH, DESKTOP_SCREEN_MAX_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { RoutePath } from "#utils/route.ts";
 import { Link } from "@tanstack/react-router";
 import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Divider, Stack, styled, Typography } from "@mui/material";
 import MiniNavigation from "#component/MiniNavigation.tsx";
 import { Check, ChevronRight, ExpandMore, IosShare } from '@mui/icons-material';
-import ScrollableContainer from "#component/ScrollableContainer.tsx";
-import { CustomIconButton, CustomSpan, ProductAvatar, ShopTypography, StyledHeaderLink } from "#component/CommonViews.tsx";
-import { theme } from "#customtheme.ts";
-import ProductDisplayDetail from "#component/ProductDisplayDetail.tsx";
+import { CustomSpan, ShopTypography, StyledHeaderLink } from "#component/CommonViews.tsx";
 import { items as itemsStub, reviews as reviewsStub } from "#testData.ts";
 import ProductItem from "#component/ProductItem.tsx";
 import { useSnackbar } from "notistack";
@@ -17,6 +14,7 @@ import BoughtTogether from "#component/BoughtTogether.tsx";
 import RatingHeading from "#component/RatingHeading.tsx";
 import ReviewSection from "#component/ReviewSection.tsx";
 import { useEffect, useRef } from "react";
+import ProductsDetail from "#component/ProductsDetail.tsx";
 
 
 export default function ProductDisplay({ item }: { item: TItem }) {
@@ -28,15 +26,15 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 		if (!pictureProductRef.current || !productDetailRef.current) {
 			return;
 		}
-		console.log(pictureProductRef.current!.clientWidth, productDetailRef.current!.offsetHeight);
+
 		const handleScroll = () => {
 			const clientHeight = productDetailRef.current!.scrollHeight;
 
-			if ((clientHeight - scrollY) < 300) {
+			if (scrollY > (clientHeight / 1.5) - 50) {
 				pictureProductRef.current!.classList.add('absolute');
 				pictureProductRef.current!.classList.remove('sticky');
 			}
-			else if (scrollY > 100 && scrollY < clientHeight) {
+			else if (scrollY > 100 && scrollY < clientHeight / 1.5) {
 				pictureProductRef.current!.classList.add('sticky');
 				pictureProductRef.current!.classList.remove('absolute');
 			}
@@ -73,9 +71,9 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 								<ChevronRight />
 							</Stack>
 						</StyledHeaderLink>
-						<Link to={RoutePath.CATEGORY} params={{ category: _.upperCase(item.category!) }}>
+						<Link to={RoutePath.CATEGORY} params={{ category: _.upperCase(item.productCategoryId!) }}>
 							<StyledHeaderTypography textTransform={'uppercase'}>
-								{item.category}
+								{item.category.name}
 							</StyledHeaderTypography>
 						</Link>
 						<ChevronRight color="action" />
@@ -95,76 +93,53 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 			</MiniNavigation>
 
 			<ContainerCollection gap={1}>
-				<StyledProductDetailStack gap={1} >
-					<StyledPictureContainer ref={productDetailRef}>
-						<CustomProductBox ref={pictureProductRef}>
-							<ScrollableContainer orientation="horizontal" float fullContent width="100%" indicator="thumbnail" thumbnails={item.images}>
-								{
-									item.images.map((image, index) => (
-										<Stack key={index} width={1} height={1}>
-											<ProductAvatar
-												key={index}
-												src={image || ''}
-												alt={item.name}
-												variant={'rounded'}
-											/>
-										</Stack>
-									))
-								}
-							</ScrollableContainer>
-							<MobileShareStyledSpan>
-								<CustomIconButton onClick={() => handleCopyToClipBoard()}>
-									<IosShare fontSize="small" />
-									<CustomSpan >
-										Share
-									</CustomSpan>
-								</CustomIconButton>
-							</MobileShareStyledSpan>
-						</CustomProductBox>
-					</StyledPictureContainer>
-					<DetailsStack gap={1} >
-						<ProductDisplayDetail item={item} fontSize="24px" fontWeight="600" />
-						<Box pt={1}>
-							<CustomAccordion>
-								<AccordionSummary
-									expandIcon={<ExpandMore />}
-								>
-									<Typography variant="inherit" fontWeight={'bold'}>Product description</Typography>
-								</AccordionSummary>
-								<AccordionDetails>
-									<Typography>
-										{item.productDescription}
-									</Typography>
-								</AccordionDetails>
-							</CustomAccordion>
-							<CustomAccordion>
-								<AccordionSummary
-									expandIcon={<ExpandMore />}
-								>
-									<Typography variant="inherit" fontWeight={'bold'}>Delivery and shipping</Typography>
-								</AccordionSummary>
-								<AccordionDetails>
-									<Typography>
-										Lorem ipsum dolor sit amet consectetur. Laoreet tristique nibh sit donec mattis arcu tellus tincidunt ultricies. Neque aliquam molestie habitasse elit a. Elementum id urna placerat cursus eu at odio.
-									</Typography>
-								</AccordionDetails>
-							</CustomAccordion>
-							<CustomAccordion>
-								<AccordionSummary
-									expandIcon={<ExpandMore />}
-								>
-									<Typography variant="inherit" fontWeight={'bold'}>Security and privacy</Typography>
-								</AccordionSummary>
-								<AccordionDetails>
-									<Typography>
-										Lorem ipsum dolor sit amet consectetur. Laoreet tristique nibh sit donec mattis arcu tellus tincidunt ultricies. Neque aliquam molestie habitasse elit a. Elementum id urna placerat cursus eu at odio.
-									</Typography>
-								</AccordionDetails>
-							</CustomAccordion>
-						</Box>
-						<BoughtTogether boughtTogether={itemsStub.slice(0, 4)} />
-					</DetailsStack>
-				</StyledProductDetailStack>
+				<ProductsDetail
+					item={item}
+					handleCopyToClipBoard={handleCopyToClipBoard}
+					pictureProductRef={pictureProductRef}
+					productDetailRef={productDetailRef}
+				>
+					<Box pt={1}>
+						<CustomAccordion>
+							<AccordionSummary
+								expandIcon={<ExpandMore />}
+							>
+								<Typography variant="inherit" fontWeight={'bold'}>Product description</Typography>
+							</AccordionSummary>
+							<AccordionDetails>
+								<Typography>
+									{item.description}
+								</Typography>
+							</AccordionDetails>
+						</CustomAccordion>
+						<CustomAccordion>
+							<AccordionSummary
+								expandIcon={<ExpandMore />}
+							>
+								<Typography variant="inherit" fontWeight={'bold'}>Delivery and shipping</Typography>
+							</AccordionSummary>
+							<AccordionDetails>
+								<Typography>
+									Lorem ipsum dolor sit amet consectetur. Laoreet tristique nibh sit donec mattis arcu tellus tincidunt ultricies. Neque aliquam molestie habitasse elit a. Elementum id urna placerat cursus eu at odio.
+								</Typography>
+							</AccordionDetails>
+						</CustomAccordion>
+						<CustomAccordion>
+							<AccordionSummary
+								expandIcon={<ExpandMore />}
+							>
+								<Typography variant="inherit" fontWeight={'bold'}>Security and privacy</Typography>
+							</AccordionSummary>
+							<AccordionDetails>
+								<Typography>
+									Lorem ipsum dolor sit amet consectetur. Laoreet tristique nibh sit donec mattis arcu tellus tincidunt ultricies. Neque aliquam molestie habitasse elit a. Elementum id urna placerat cursus eu at odio.
+								</Typography>
+							</AccordionDetails>
+						</CustomAccordion>
+					</Box>
+					<BoughtTogether boughtTogether={itemsStub.slice(0, 4)} />
+				</ProductsDetail>
+				<span id="reviews" />
 			</ContainerCollection>
 			<ReviewContainer>
 				<Stack alignItems={'center'} p={2} pt={1} gap={3}>
@@ -185,7 +160,7 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 							<ProductItem
 								key={index}
 								item={{
-									...itemsStub[0], productId: index, name: arrayItem + " " + index, promotion: {
+									...itemsStub[0], id: index, name: arrayItem + " " + index, promotion: {
 										promoName: "Valentine's Deals",
 										promoPrice: 10
 									}
@@ -225,7 +200,7 @@ const WebShareButton = styled(Button)(({ theme }) => ({
 	}
 }));
 
-const ContentStack = styled(Stack)(() => ({
+const ContentStack = styled(Stack)(({ theme }) => ({
 	alignItems: 'center',
 	width: '100%',
 	marginLeft: 'auto',
@@ -241,38 +216,6 @@ const CustomAccordion = styled(Accordion)(({ theme }) => ({
 	borderBottom: `1px solid ${theme.palette.divider}`,
 	'::before': {
 		height: 'unset'
-	}
-}));
-const StyledPictureContainer = styled(Stack)(({ theme }) => ({
-	[theme.breakpoints.up(TABLET_SCREEN_MAX_WIDTH)]: {
-		position: "relative",
-		width: '50%',
-	}
-}));
-
-const CustomProductBox = styled(Box)(({ theme }) => ({
-	position: 'relative',
-	[theme.breakpoints.up(TABLET_SCREEN_MAX_WIDTH)]: {
-		'&.sticky': {
-			position: 'fixed',
-			top: '70px',
-			width: '485px',
-		},
-		'&.absolute': {
-			position: 'absolute',
-			top: 'unset',
-			width: '485px',
-			bottom: 0,
-		},
-
-		height: '400px'
-	}
-}));
-
-const DetailsStack = styled(Stack)(({ theme }) => ({
-	width: '50%',
-	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		width: '100%'
 	}
 }));
 
@@ -294,21 +237,6 @@ const ContainerCollection = styled(Stack)(({ theme }) => ({
 		justifyContent: 'center',
 		alignItems: 'center',
 		alignSelf: 'center'
-	}
-}));
-
-const StyledProductDetailStack = styled(Stack)(({ theme }) => ({
-	width: '100%',
-	flexDirection: 'row',
-	padding: theme.spacing(),
-	alignSelf: 'center',
-	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		padding: theme.spacing(0),
-		maxWidth: '450px',
-		flexDirection: 'column',
-	},
-	[theme.breakpoints.down(320)]: {
-		width: '100%'
 	}
 }));
 
@@ -335,34 +263,18 @@ const StyledHeaderTypography = styled(Typography)(({ theme }) => ({
 	textDecoration: 'underline'
 }));
 
-const MobileShareStyledSpan = styled(Stack)(({ theme }) => ({
-	position: 'absolute',
-	top: '10px',
-	right: '10px',
-	zIndex: theme.zIndex.fab,
-	padding: theme.spacing(1),
-	flexDirection: 'row',
-	alignItems: 'center',
-	justifyContent: 'right',
-	[theme.breakpoints.up(TABLET_SCREEN_MAX_WIDTH)]: {
-		display: 'none'
-	},
-	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
-		padding: theme.spacing(0.3)
-	}
-}));
 
 const StyledStackContent = styled(Stack)(({ theme }) => ({
 	// paddingTop: theme.spacing(17),
-	paddingTop: theme.spacing(17),
+	paddingTop: theme.spacing(16),
 	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
-		paddingTop: theme.spacing(23.7)
+		paddingTop: theme.spacing(23.5)
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		paddingTop: theme.spacing(16.7)
 	},
 	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		paddingTop: theme.spacing(23)
+		paddingTop: theme.spacing(13)
 	},
 }));
 
@@ -370,12 +282,13 @@ const ProductItemGrid = styled('div')(({ theme }) => ({
 	display: 'grid',
 	width: '100%',
 	rowGap: theme.spacing(3),
-	columnGap: theme.spacing(1.5),
+	columnGap: theme.spacing(3),
 	padding: `0px ${theme.spacing(.3)}`,
 	gridAutoFlow: 'row dense',
-	gridTemplateColumns: "repeat(6,220PX)",
+	gridTemplateColumns: "repeat(5,220PX)",
 	[theme.breakpoints.down(LARGED_DESKTOP_SCREEN_MAX_WIDTH)]: {
 		gridTemplateColumns: "repeat(4,220PX)",
+		columnGap: theme.spacing(1.5),
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		padding: `0px ${theme.spacing()}`,

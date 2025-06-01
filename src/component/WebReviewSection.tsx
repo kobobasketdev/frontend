@@ -32,6 +32,7 @@ export default function WebReviewSection({ item, reviews }: { item: TItem, revie
 							title="Filter by"
 							handleUpdateFilter={handleFilterBy}
 							filterOptions={[
+								{ label: 'All', value: 'all' },
 								{ label: '5 Star', value: 5 },
 								{ label: '4 Star', value: 4 },
 								{ label: '3 Star', value: 3 },
@@ -42,6 +43,7 @@ export default function WebReviewSection({ item, reviews }: { item: TItem, revie
 							title="Sort by"
 							handleUpdateFilter={handleSortBy}
 							filterOptions={[
+								{ label: 'All', value: 'all' },
 								{ label: 'Most Recent', value: 'date' },
 								{ label: 'Highest rated', value: 'high-rate' },
 								{ label: 'Lowest rated', value: 'low-rate' },
@@ -53,7 +55,7 @@ export default function WebReviewSection({ item, reviews }: { item: TItem, revie
 						{
 							reviews.slice(0, Math.min(4, reviews.length)).map((review, index) => (
 								<Box key={index} width={'312px'}>
-									<ReviewContent reviewer={review} productId={item.productId + ''} isWebView />
+									<ReviewContent reviewer={review} productId={item.id + ''} isWebView />
 								</Box>
 							))
 						}

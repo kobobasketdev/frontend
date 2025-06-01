@@ -1,8 +1,7 @@
 import { Box, IconButton, Rating, Stack, styled, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { TItem } from "./types";
-import { CustomLongWishlistButton, CustomSpan, ProductPriceTypography, ProductSavingTypography, ViewMore } from "./CommonViews";
-import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
-import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
+import { CustomLongWishlistButton, ProductPriceTypography, ProductSavingTypography, ViewMore } from "./CommonViews";
+import { useAppDispatch } from "#state-management/hooks.ts";
 import { CheckCircle, ExpandLess, ExpandMore } from "@mui/icons-material";
 import { MouseEvent, useEffect, useState } from "react";
 import { theme } from "#customtheme.ts";
@@ -13,24 +12,26 @@ import millify from "millify";
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import ProductAddToCartControl from "./ProductAddToCartControl";
 import { removeFromWishlist, addToWishlist } from "#state-management/slices/wishlist.slice.ts";
+import { appCurrencySymbol } from "#utils/index.ts";
 
 const getSavedPercent = (price: number, locationPrice: number) => {
 	return Math.abs(price - locationPrice);
 };
 
-export default function ProductDisplayDetail({ 
+export default function ProductDisplayDetail({
 	item,
 	fontSize,
 	fontWeight,
-}: { item: TItem, 
+}: {
+	item: TItem,
 	fontWeight?: string,
 	fontSize?: string,
 }) {
 	const dispatch = useAppDispatch();
 	const [isWishListItem, setIsWishListItem] = useState<boolean>(false);
 	const handleAddToWishlist = (item: TItem) => () => {
-		if(isWishListItem) {
-			dispatch(removeFromWishlist(""+item.productId));
+		if (isWishListItem) {
+			dispatch(removeFromWishlist("" + item.id));
 		}
 		else {
 			dispatch(addToWishlist(item));
@@ -41,13 +42,15 @@ export default function ProductDisplayDetail({
 
 	useEffect(() => {
 		setIsWishListItem(item.isWishListItem);
-	},[]);
+	}, []);
 
 	const [selectedVariant, setSelectedVariant] = useState<number>(0);
-	const { code, symbol } = useAppSelector(selectDeliverLocation);
-	const price = item.variations[selectedVariant].promotion?.promoPrice || item.variations[selectedVariant].price || item.promotion?.promoPrice || item.price;
-	const itemPromotion = item.variations[selectedVariant].promotion || item.promotion;
-	const locationPrice = item.variations[selectedVariant].locationPrice || item.locationPrice;
+	const productVariant = item.variations[selectedVariant];
+	const code = productVariant.price.currency;
+	const symbol = appCurrencySymbol[code];
+	const price = productVariant.price.converted;
+	const itemPromotion = item.promotion;
+	const marketPrice = productVariant.marketPrice?.converted;
 
 	const handleVariantSelection = (_e: MouseEvent<HTMLElement>, value: number) => {
 		setSelectedVariant(value);
@@ -55,20 +58,22 @@ export default function ProductDisplayDetail({
 	return (
 		<>
 			<StyledStack gap={2} p={1}>
-				<ProductDetails details={item.productDetails!} />
+				<ProductDetails details={item.productDetails || "10-Pack Men'S Boxer Briefs, 96% Polyester 4% Elastane, Solid Color, Breathable Comfort Fit, Knit Fabric, Slight Stretch, Casual Athletic Shorts"} />
 				<Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
 					<Typography fontSize={'14px'} fontWeight={'500'} color={theme.palette.primaryOrange.main}>
-						LOCAL MARKET PRICE <span style={{ textDecoration: 'line-through' }}>{code} {symbol}{locationPrice}</span>
+						LOCAL MARKET PRICE <span style={{ textDecoration: 'line-through' }}>{code} {symbol}{marketPrice}</span>
 					</Typography>
 					<ProductSavingTypography $fontWeight="500">
-						save {code} {symbol}{getSavedPercent(price, locationPrice)}
+						save {code} {symbol}{getSavedPercent(price, marketPrice)}
 					</ProductSavingTypography>
 				</Stack>
 				<Stack direction={'row'} alignItems={'center'} gap={.2}>
 					<span style={{ color: 'rgba(27, 31, 38, 0.72)' }}>{item.rating}</span>
-					<Rating size="small" readOnly value={Math.floor(item.rating!) + .5} precision={0.5}/>
+					<Rating size="small" readOnly value={Math.floor(item.rating!) + .5} precision={0.5} />
 					<ReviewSpan $lineThrough>
-						{item.reviewCount} Reviews
+						<a href="#reviews">
+							{item.reviewCount} Reviews
+						</a>
 					</ReviewSpan>
 					<VeritcalBar />
 					<ReviewSpan >
@@ -76,7 +81,7 @@ export default function ProductDisplayDetail({
 					</ReviewSpan>
 					<VeritcalBar />
 					<ReviewSpan $disableColor>
-						<GrommetWishListSvg $isFilled /> 
+						<GrommetWishListSvg $isFilled />
 						{millify(item.likeCount!, {
 							units: ['', 'k', 'm', 'b'],
 							precision: 3,
@@ -86,16 +91,16 @@ export default function ProductDisplayDetail({
 					</ReviewSpan>
 				</Stack>
 				{
-					item.bestSellerCategory && 
+					item.isBestSeller &&
 					<Stack direction={'row'}>
 						<BestSellerSpan>
-							Best Sellers in {item.bestSellerCategory}
+							Best Sellers in {item.productCategoryId}
 						</BestSellerSpan>
 					</Stack>
 				}
 				<ProductPriceTypography $isPromotion={Boolean(itemPromotion)} $fontSize={fontSize} $fontWeight={fontWeight}>
 					{code} {symbol}{price}
-				</ProductPriceTypography> 
+				</ProductPriceTypography>
 				<StyledToggleButtonGroup
 					size="small"
 					value={selectedVariant}
@@ -107,24 +112,24 @@ export default function ProductDisplayDetail({
 						item.variations.map((variant, index) => (
 							<ToggleButton value={index} aria-label="left aligned" key={index}>
 								{
-									selectedVariant === index && <CheckCircle fontSize="small" color="success"/>
+									selectedVariant === index && <CheckCircle fontSize="small" color="success" />
 								}
-								{variant.weight.value}{variant.weight.measurement}
+								{variant.weight}kg
 							</ToggleButton>
 						))
 					}
 				</StyledToggleButtonGroup>
 			</StyledStack>
 			<StyledReversableStack gap={1}>
-				<Box p={1}>
-					<ProductAddToCartControl item={item} fullWidth choosenVariant={selectedVariant}/>
+				<Box p={1} flexGrow={1}>
+					<ProductAddToCartControl item={item} fullWidth choosenVariant={selectedVariant} showControl />
 				</Box>
-				<Box p={1}>
-					<CustomLongWishlistButton onClick={() => handleAddToWishlist(item)()} fullWidth>
+				<Box p={1} flexGrow={1}>
+					<CustomLongWishlistButton onClick={() => handleAddToWishlist(item)()} fullWidth sx={{ pl: 2.5, pr: 2.5 }}>
 						<GrommetWishListSvg $isFilled={isWishListItem} />
-						<CustomSpan>
+						<WishlistCustomSpan>
 							ADD TO WISHLIST
-						</CustomSpan>
+						</WishlistCustomSpan>
 					</CustomLongWishlistButton>
 				</Box>
 			</StyledReversableStack>
@@ -134,15 +139,25 @@ export default function ProductDisplayDetail({
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 	gap: theme.spacing(1.5),
-	
+
 	'.MuiToggleButtonGroup-firstButton, .MuiToggleButtonGroup-lastButton': {
-		width: '60px',
+		width: '70px',
 		color: 'black',
 		border: `1px solid ${theme.palette.divider}`,
 		borderRadius: theme.spacing(.5),
 		borderTopRightRadius: theme.spacing(.5)
 	}
 }));
+
+export const WishlistCustomSpan = styled('span')(({ theme }) => ({
+	display: 'inline-flex',
+	marginLeft: theme.spacing(.5),
+	fontSize: '.8rem',
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		fontSize: '.7rem'
+	}
+}));
+
 const BestSellerSpan = styled('span')({
 	background: 'linear-gradient(175.69deg, #F74C25 35.39%, #FFF700 158.3%)',
 	borderRadius: '14px 0px',
@@ -159,10 +174,13 @@ const ReviewSpan = styled('span', {
 	margin: '0px 4px',
 	display: 'inline-flex',
 	alignItems: 'center',
-	textDecoration: $lineThrough ? 'underline' : 'none'
+	textDecoration: $lineThrough ? 'underline' : 'none',
+	'> a': {
+		color: 'inherit'
+	}
 }));
 
-const VeritcalBar= styled('span')({
+const VeritcalBar = styled('span')({
 	display: 'inline-block',
 	width: '2px',
 	height: '15px',
@@ -183,7 +201,7 @@ const ProductDetails = ({ details }: { details: string }) => {
 			{htmlReactParse(details)}
 			<ViewMore>
 				<IconButton onClick={handleShowMore(!showMore)} size="small">
-					{ showMore ? <ExpandLess fontSize="small"/> : <ExpandMore fontSize="small" />}
+					{showMore ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
 				</IconButton>
 			</ViewMore>
 		</StyledDiv>
@@ -193,20 +211,21 @@ const ProductDetails = ({ details }: { details: string }) => {
 
 const StyledDiv = styled('span', {
 	shouldForwardProp: prop => prop !== '$showMore'
-})<{ $showMore: boolean }>(({ $showMore })=> ({
+})<{ $showMore: boolean }>(({ $showMore }) => ({
 	display: '-webkit-box',
 	WebkitBoxOrient: 'vertical',
 	position: 'relative',
-	paddingRight: $showMore ? 'unset': '10px',
+	paddingRight: $showMore ? 'unset' : '10px',
 	overflow: $showMore ? 'unset' : 'hidden',
 	WebkitLineClamp: $showMore ? 'unset' : 2
 }));
 
 const StyledStack = styled(Stack)(() => ({
-	
+
 }));
 
 const StyledReversableStack = styled(Stack)(({ theme }) => ({
+	flexWrap: 'wrap',
 	[theme.breakpoints.up(TABLET_SCREEN_MAX_WIDTH)]: {
 		flexDirection: 'row',
 		alignItems: 'center'

@@ -24,19 +24,19 @@ export default function MobileReview() {
 		scrollTo({
 			top: 0
 		});
-		if(!headerRef.current || !reviewFilterRef.current) {
+		if (!headerRef.current || !reviewFilterRef.current) {
 			return;
 		}
 		const reviewFilterOffsetTop = reviewFilterRef.current!.offsetTop;
 		const handleOnScroll = () => {
-			if(scrollY > headerRef.current!.clientHeight) {
+			if (scrollY > headerRef.current!.clientHeight) {
 				headerRef.current!.classList.add('add-shadow');
 			}
 			else {
 				headerRef.current!.classList.remove('add-shadow');
 			}
 
-			if(scrollY >= reviewFilterOffsetTop) {
+			if (scrollY >= reviewFilterOffsetTop) {
 				reviewFilterRef.current!.classList.add('fix-filter');
 			}
 			else {
@@ -53,30 +53,30 @@ export default function MobileReview() {
 		console.log(e.target.value);
 		setFilters({
 			...filters,
-			filterBy: e.target.value+''
+			filterBy: e.target.value + ''
 		});
 	};
 
 	const handleSortBy = (e: SelectChangeEvent<unknown>) => {
 		setFilters({
 			...filters,
-			sortBy: e.target.value+''
+			sortBy: e.target.value + ''
 		});
 	};
 	return (
 		<>
 			<StyledStackContent position={'relative'}>
 				<StyledReviewHeader ref={headerRef} direction={'row'}>
-					<Link to="/products/$details" params={{ details: item.productId+'' }} style={{ color: theme.palette.primaryBlack.moreDeeper }}>
-						<ChevronLeft fontSize="large"/>
+					<Link to="/products/$details" params={{ details: item.id + '' }} style={{ color: theme.palette.primaryBlack.moreDeeper }}>
+						<ChevronLeft fontSize="large" />
 					</Link>
 				</StyledReviewHeader>
 				<Stack mt={8} gap={3} alignSelf={'center'} maxWidth={'600px'}>
-					<Box pl={.5} pr={.5}>
-						<RatingHeading heading="CUSTOMERS RATINGS AND REVIEWS"/>
+					<Box pl={.5} pr={.5} pt={2}>
+						<RatingHeading heading="CUSTOMERS RATINGS AND REVIEWS" />
 					</Box>
 					<Stack bgcolor={'#EDEDED'}>
-						<ReviewBanner item={item}/>
+						<ReviewBanner item={item} />
 					</Stack>
 					<CustomFilter ref={reviewFilterRef}>
 						<FormControl fullWidth>
@@ -91,6 +91,9 @@ export default function MobileReview() {
 								}}>
 								<MenuItem value="Sort By">
 									Sort By
+								</MenuItem>
+								<MenuItem value="all">
+									All
 								</MenuItem>
 								<MenuItem value="date">
 									Most Recent
@@ -122,6 +125,9 @@ export default function MobileReview() {
 								<MenuItem value='Filter By'>
 									Filter By
 								</MenuItem>
+								<MenuItem value={'all'}>
+									All
+								</MenuItem>
 								<MenuItem value={5}>
 									5 Star
 								</MenuItem>
@@ -141,11 +147,11 @@ export default function MobileReview() {
 						</FormControl>
 					</CustomFilter>
 					{
-						reviews.length > 0 && 
+						reviews.length > 0 &&
 						<Stack gap={1.5}>
 							{
 								reviews.map((review, index) => (
-									<ReviewContent key={index} reviewer={review} tag={index + 1}/>    
+									<ReviewContent key={index} reviewer={review} tag={index + 1} />
 								))
 							}
 						</Stack>
@@ -179,7 +185,7 @@ const CustomFilter = styled('div')(({ theme }) => ({
 		right: '30%',
 		width: '350px',
 		zIndex: theme.zIndex.fab,
-		[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]:{
+		[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
 			width: '80%',
 			maxWidth: '350px',
 			right: 0,

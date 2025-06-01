@@ -20,7 +20,7 @@ export const wishlistSlice = createSlice({
 	initialState,
 	reducers: {
 		addToWishlist: (state, action: PayloadAction<TItem>) => {
-			state.wishlistItems[""+action.payload.productId] =  action.payload;
+			state.wishlistItems[""+action.payload.id] =  action.payload;
 			saveToLocalStorage('wishlist', state.wishlistItems);
 		},
 		removeFromWishlist: (state, action: PayloadAction<string>) => {

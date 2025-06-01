@@ -5,7 +5,7 @@ import NavigationUserActions from "./NavigationUserActions";
 import BrandLogoSvg from "./svg/BrandLogoSvg";
 import { Link } from "@tanstack/react-router";
 
-export default function HeaderWithouSearch({ hideNav = false }: { hideNav?: boolean }) {
+export default function HeaderWithoutSearch({ hideNav = false }: { hideNav?: boolean }) {
 	return (
 		<StyledAppBar elevation={0}>
 			<CustomHeaderToolbar>

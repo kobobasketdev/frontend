@@ -4,7 +4,6 @@ import { Avatar, Box, Button, Card, CardContent, Stack, Step, StepLabel, Stepper
 import CartProgressbar from "./CartProgressbar";
 import { theme } from "#customtheme.ts";
 import { CheckoutButton, ProductPriceTypography } from "./CommonViews";
-import { IDeliveryState } from "#state-management/slices/delivery.slice.ts";
 import americanPay from '@src/assets/american.png';
 import chinaPay from '@src/assets/china.png';
 import dinersPay from '@src/assets/diners.png';
@@ -24,9 +23,9 @@ const steps = [
 	{ label: 'ORDER COMPLETE', isComplete: false, level: 0 }
 ];
 export default function WebCartContainer({
-	weight, deliveryLocation, totalPrice, totalSavings, handleCartButton
+	weight, userCurrency, totalPrice, totalSavings, handleCartButton
 }: {
-	weight: number, deliveryLocation: IDeliveryState, totalPrice: number, totalSavings: number, handleCartButton: () => void
+	weight: number, userCurrency: { code: string, symbol: string }, totalPrice: number, totalSavings: number, handleCartButton: () => void
 }) {
 	const isDisabled = weight < minimumWeight;
 	return (
@@ -94,7 +93,7 @@ export default function WebCartContainer({
 										Weight of total products
 									</Typography>
 									<ProductPriceTypography $isPromotion $fontWeight="600">
-										{weight}kg
+										{weight.toFixed(2)}kg
 									</ProductPriceTypography>
 								</Stack>
 								<Stack direction={'row'} justifyContent={'space-between'} alignContent={'center'}>
@@ -102,7 +101,7 @@ export default function WebCartContainer({
 										Subtotal of products
 									</Typography>
 									<ProductPriceTypography $fontWeight="600">
-										{deliveryLocation.code} {deliveryLocation.symbol}{totalPrice}
+										{userCurrency.code} {userCurrency.symbol}{totalPrice.toFixed(2)}
 									</ProductPriceTypography>
 								</Stack>
 								<Stack direction={'row'} justifyContent={'space-between'} alignContent={'center'}>
@@ -110,7 +109,7 @@ export default function WebCartContainer({
 										Market price savings
 									</Typography>
 									<ProductPriceTypography $isPromotion $fontWeight="600">
-										{deliveryLocation.code} {deliveryLocation.symbol}{totalSavings}
+										{userCurrency.code} {userCurrency.symbol}{totalSavings.toFixed(2)}
 									</ProductPriceTypography>
 								</Stack>
 								<Stack direction={'row'} justifyContent={'space-between'} alignContent={'center'}>

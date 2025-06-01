@@ -1,136 +1,30 @@
-import MiniPromotion from "#component/MiniPromotion.tsx";
 import { Button, Stack, styled } from "@mui/material";
-//TODO Get Item data as items
-import { items as itemsStub } from "#testData.ts";
-import { theme } from "#customtheme.ts"; 
-import { CUSTOM_893_WIDTH, DESKTOP_SCREEN_MAX_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
-import ProductItem from "#component/ProductItem.tsx";
-import { ContentStack, MiniPromotionGrid, ProductAvatar, ShopTypography, ShopTypographyLight } from "#component/CommonViews.tsx";
-import ScrollableContainer from "#component/ScrollableContainer.tsx";
+import { DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH } from "#constants.tsx";
 
-function generateRandomPromotion() {
-	const shouldGenerate = Math.floor(Math.random() * 100);
-	if(shouldGenerate % 2 == 0) {
-		return { promotion: { 
-			promoName: "Valentine's Deals", 
-			promoPrice: 10 
-		} };
-	} 
-	return {};
-}
+import InitialMarketPlace from "#component/InitialMarketPlace.tsx";
+import MoreMarketPlace from "#component/MoreMarketPlace.tsx";
+import { memo, useState } from "react";
+
+const MemoInitialMarketPlace = memo(InitialMarketPlace);
+const MemoMoreMarketPlace = memo(MoreMarketPlace);
 export default function MarketPlace() {
-	
+	const [page, setPage] = useState<number>(0);
+	const handleLoadMore = () => {
+		setPage(prev => prev + 1);
+	};
 	return (
 		<StyledStackContent>
 			<Stack width={1}>
 				<Banner>
 				</Banner>
-				<Stack width={1} gap={6} pt={4} pb={4}>
-					<ContentStack>
-						<MiniPromotionGrid>
-							<MiniPromotion title={"Best sellers in Food"} width={"inherit"} type={{
-								name: 'scroll',
-								spacing: 2,
-								size: { height: '100px', width: '100px' },
-								scollBy: 210,
-							}} items={itemsStub} bgColor={theme.palette.primaryGreen.lightshade!} showPrice height="200px"/>
-
-							<MiniPromotion title={"Frequently bought snacks"} width={"inherit"} type={{
-								name: 'scroll',
-								spacing: 2,
-								size: { height: '100px', width: '100px' },
-								scollBy: 210,
-							}} items={itemsStub} bgColor={theme.palette.menuBackground.main} showPrice  height="200px"/>
-						</MiniPromotionGrid>
-					</ContentStack>
-					<ContentStack>
-						<Stack gap={2} >
-							<Stack gap={1}>
-								<ShopTypography>
-									SHOP ALL THINGS WEST AFRICA
-								</ShopTypography>
-								<ShopTypographyLight>
-									Recommended products
-								</ShopTypographyLight>
-							</Stack>
-							<ProductItemGrid>
-								{Array(24).fill('Item').map((arrayItem, index) => (
-									<ProductItem 
-										key={index}
-										item={{ ...itemsStub[0], productId: index, name: arrayItem+" "+index , ...generateRandomPromotion() }} 
-										showPrice={true} 
-										isCircularImage={false}
-										fullDetails
-										fontSize="24px"
-										fontWeight="600"
-									/>
-								))}
-							</ProductItemGrid>
-						</Stack>
-					</ContentStack>
-					<ProductPromotionContainer>
-						<ProductPromotionGrid>
-							<StyledLeftStack gap={2}>
-								<MiniPromotion title={"Shop new products this week"} width={"inherit"} type={{
-									name: 'grid',
-									spacing: 2,
-									column: 2
-								}} items={itemsStub.slice(0,6)} bgColor={theme.palette.customGrey.main} isCircularImage dynamicClass/>
-
-								<MiniPromotion title={"Amazing Deals on Staples"} width={"inherit"} type={{
-									name: 'grid',
-									spacing: 2,
-									column: 2
-								}} items={itemsStub.slice(0,2)} bgColor={theme.palette.menuBackground.main} />
-							</StyledLeftStack>
-							<StyledLargePromotionStack borderRadius={3} overflow={'hidden'}>
-								<ScrollableContainer orientation="horizontal" float fullContent>
-									{
-										["","",""].map((image, index) => (
-											<CustomPromotionStack key={index}>
-												<ProductAvatar src={image} variant="rounded"/>
-												<LargePromotionShopNow>
-													Shop Now
-												</LargePromotionShopNow> 
-											</CustomPromotionStack>
-										))
-									}
-								</ScrollableContainer>
-							</StyledLargePromotionStack>
-							<StyledRightStack gap={2}>
-								<MiniPromotion title={"Shop quality Farmed oils"} width={"inherit"} type={{
-									name: 'grid',
-									spacing: 2,
-									column: 2
-								}} items={itemsStub.slice(0,2)} bgColor={theme.palette.menuBackground.main}/>
-								<MiniPromotion title={"Get Free gift on this products"} width={"inherit"} type={{
-									name: 'grid',
-									spacing: 2,
-									column: 2
-								}} items={itemsStub.slice(0,6)} bgColor={theme.palette.customGrey.main} dynamicClass />
-							</StyledRightStack>
-						</ProductPromotionGrid>
-					</ProductPromotionContainer>
-					<ContentStack>
-						<Stack gap={2} >
-							<ProductItemGrid>
-								{Array(24).fill('Item').map((arrayItem, index) => (
-									<ProductItem 
-										key={index}
-										item={{ ...itemsStub[0], name: arrayItem+" "+index }} 
-										showPrice={true} 
-										isCircularImage={false}
-										fullDetails
-										fontSize="24px"
-										fontWeight="600"
-									/>
-								))}
-							</ProductItemGrid>
-						</Stack>
-					</ContentStack>
-					<Stack alignItems={'center'}>
-						<StyledButton variant="outlined" color="inherit" size="small" >VIEW MORE PRODUCTS</StyledButton>
-					</Stack>
+				<MemoInitialMarketPlace key={'inital'} />
+				{
+					Array(page).fill('').map((_, index) => (
+						<MemoMoreMarketPlace key={index} page={(index + 1)} />
+					))
+				}
+				<Stack alignItems={'center'}>
+					<StyledButton onClick={handleLoadMore} variant="outlined" color="inherit" size="small" >VIEW MORE PRODUCTS</StyledButton>
 				</Stack>
 			</Stack>
 		</StyledStackContent>
@@ -138,171 +32,19 @@ export default function MarketPlace() {
 }
 
 const StyledStackContent = styled(Stack)(({ theme }) => ({
-	// paddingTop: theme.spacing(17),
 	paddingTop: theme.spacing(16),
-	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)] : {
-		paddingTop: theme.spacing(23)
+	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
+		paddingTop: theme.spacing(23.5)
 	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)] : {
-		paddingTop: theme.spacing(26)
+	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+		paddingTop: theme.spacing(20)
 	},
 }));
 
-const Banner = styled('div')(({ theme }) =>({
+const Banner = styled('div')(({ theme }) => ({
 	width: '100%',
 	backgroundColor: theme.palette.divider,
 	height: '279px'
-}));
-
-const ProductItemGrid = styled('div')(({ theme }) => ({
-	display: 'grid',
-	width: '100%',
-	rowGap: theme.spacing(3),
-	columnGap: theme.spacing(1.5),
-	padding: `0px ${theme.spacing(.3)}`,
-	gridAutoFlow: 'row dense',
-	gridTemplateColumns: "repeat(6,220PX)",
-	[theme.breakpoints.down(LARGED_DESKTOP_SCREEN_MAX_WIDTH)]: {
-		gridTemplateColumns: "repeat(4,220PX)",
-	},
-	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		padding: `0px ${theme.spacing()}`,
-		gridTemplateColumns: "repeat(4,minmax(185px, 220px))",
-	},
-	[theme.breakpoints.down(CUSTOM_893_WIDTH)]: {
-		rowGap: theme.spacing(3),
-		columnGap: theme.spacing(1.5),
-		padding: `0px ${theme.spacing(.3)}`,
-		gridTemplateColumns: "repeat(3,minmax(185px, 220px))",
-	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		rowGap: theme.spacing(3),
-		columnGap: theme.spacing(1.5),
-		padding: `0px ${theme.spacing(.3)}`,
-		gridTemplateColumns: "repeat(3,minmax(155px, 220px))",
-	},
-	[theme.breakpoints.down(690)]: {
-		rowGap: theme.spacing(3),
-		columnGap: theme.spacing(2),
-		padding: `0px ${theme.spacing(.3)}`,
-		gridTemplateColumns: "repeat(2,minmax(155px, 220px))",
-	},
-	[theme.breakpoints.down(447)] : {
-		columnGap: theme.spacing(1),
-		justifyContent: 'space-around',
-		gridTemplateColumns: "repeat(2, minmax(150px, auto))",
-	}
-}));
-
-const ProductPromotionContainer = styled('div')(({ theme }) => ({
-	
-	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
-		width: '100%'
-	}
-}));
-
-const ProductPromotionGrid = styled('div')(({ theme }) => ({
-	display: 'grid',
-	rowGap: theme.spacing(4),
-	'& .dynamic-avatar': {
-		height: '115px'
-	},
-	justifyContent: 'center',
-	columnGap: theme.spacing(4),
-	gridTemplateColumns: "repeat(3, 400px)",
-	
-	[theme.breakpoints.down(LARGED_DESKTOP_SCREEN_MAX_WIDTH)] : {
-		gridTemplateColumns: "repeat(3, 320px)",
-		columnGap: theme.spacing(2),
-	},
-	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)] : {
-		'& .dynamic-avatar': {
-			height: '110px'
-		},
-		gridTemplateColumns: "repeat(2, auto)",
-	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)] : {
-		'& .dynamic-avatar': {
-			height: '120px'
-		},
-		gridTemplateColumns: "repeat(1, 452px)",
-	},
-	[theme.breakpoints.down(485)] : {
-		
-		justifyContent: 'center',
-		gridTemplateColumns: "repeat(1, minmax(320px, auto))",
-	}
-}));
-
-const StyledLeftStack = styled(Stack)(({ theme }) => ({
-	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		flexDirection: 'row',
-		gridColumn: '1 / 3',
-	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		gridColumn: '1 / 1',
-		flexDirection: 'column',
-		' > div:first-of-type .grid-parent': {
-			gridTemplateColumns: 'repeat(3, auto)',
-		}
-	},
-	[theme.breakpoints.down(364)]: {
-		' > div:first-of-type .grid-parent': {
-			gridTemplateColumns: 'repeat(2, auto)',
-			'& .dynamic-avatar': {
-				height: '130px'
-			},
-		}
-	},
-}));
-
-const StyledLargePromotionStack = styled(Stack)(({ theme }) => ({
-	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		height: '500px',
-	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		height: '500px',
-	},
-}));
-
-const CustomPromotionStack = styled(Stack)(() => ({
-	position: 'relative',
-	width: '100%',
-	height: '100%',
-}));
-
-const StyledRightStack = styled(Stack)(({ theme }) => ({
-	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		flexDirection: 'row',
-		'& > div:first-of-type ' : {
-			width: 'unset'
-		}
-	},
-	[theme.breakpoints.between(911, TABLET_SCREEN_MAX_WIDTH)]: {
-		'& > div:nth-of-type(2) .grid-parent' : {
-			gridTemplateColumns: 'repeat(2, auto)'
-		}
-	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		flexDirection: 'column',
-	},
-}));
-
-const LargePromotionShopNow = styled(Button)(({ theme }) => ({
-	backgroundColor: theme.palette.primaryOrange.main,
-	border: `${theme.spacing(.3)} solid white`,
-	fontFamily: 'Roboto',
-	fontWeight: '600',
-	fontSize: '15px',
-	lineHeight: '26px',
-	letterSpacing: '0.46px',
-	textTransform: 'uppercase',
-	color: '#FFFFFF',
-	position: 'absolute',
-	bottom: '20px',
-	right: '20px',
-	paddingLeft: theme.spacing(2),
-	paddingRight: theme.spacing(2)
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({

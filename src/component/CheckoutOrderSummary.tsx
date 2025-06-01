@@ -1,49 +1,150 @@
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
-import { useAppSelector } from "#state-management/hooks.ts";
-import { selectCartItems } from "#state-management/slices/cart.slice.ts";
-import { getCartItems, getCartWeight } from "#utils/index.ts";
-import { Check, ExpandMore, Remove } from "@mui/icons-material";
-import { Box, Button, Checkbox, FormLabel, List, ListItem, Stack, styled, SvgIcon, TextField, Typography } from "@mui/material";
+import { ExpandMore, Remove } from "@mui/icons-material";
+import { Alert, Box, Button, Checkbox, FormLabel, List, ListItem, Stack, styled, SvgIcon, TextField, Typography } from "@mui/material";
 import pluralize from "pluralize";
 import { ChangeEvent, SyntheticEvent, useEffect, useRef, useState } from "react";
 import ShieldSvg from "./svg/ShieldSvg";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { theme } from "#customtheme.ts";
 import { RoutePath } from "#utils/route.ts";
 import { CheckoutButton } from "./CommonViews";
-import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
+import { useStripe, useElements } from '@stripe/react-stripe-js';
+import { useSnackbar } from "notistack";
+import { validateEmail } from "#utils/validation.ts";
+import { useCartMutation } from "#hooks/mutations/cart";
 
-type TDeliveryInfo = {
-	code: string,
-	symbol: string
-};
+const env = import.meta.env;
 export type TPaymentType = 'card' | 'paypal' | 'payforme';
-
+export type TCouponCode = { value: number, isValid: boolean, code?: string };
 export default function CheckoutOrderSummar({
 	shippingFee,
-	deliveryInfo,
-	paymentMethod
-}: { shippingFee: number, deliveryInfo?: TDeliveryInfo, paymentMethod: TPaymentType }) {
-	const cartItemsMap = useAppSelector(selectCartItems);
-	const deliverLocation = useAppSelector(selectDeliverLocation);
-	const cartItems = getCartItems(cartItemsMap);
-	const cartItemInfo = getCartWeight(cartItems);
-	const [couponCode, setCouponCode] = useState<string>('');
+	itemCount,
+	cartItemInfo,
+	paymentMethod,
+	couponCode,
+	disablePayment,
+	paymentTotal,
+	createOrder,
+	handleCouponChange
+}: {
+	shippingFee?: number,
+	itemCount: number,
+	couponCode: TCouponCode,
+	cartItemInfo: {
+		weight: number;
+		total: number;
+		code: string;
+		symbol: string;
+	},
+	paymentTotal: number,
+	disablePayment: boolean,
+	paymentMethod: TPaymentType,
+	handleCouponChange: (args: TCouponCode) => void,
+	createOrder: () => Promise<{ orderId: string, email: string }>,
+}) {
 	const [saveMyInfo, setSaveMyInfo] = useState<boolean>(true);
 	const paymentContainerRef = useRef<HTMLDivElement | null>(null);
 	const [termAgreement, setTermAgreement] = useState<boolean>(false);
-	const currenciesSymbol = deliveryInfo || { code: deliverLocation.code, symbol: deliverLocation.symbol };
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [coupon, setCoupon] = useState('');
+	const { enqueueSnackbar } = useSnackbar();
+	const stripe = useStripe();
+	const { applyCouponCode } = useCartMutation();
+	const elements = useElements();
+	const navigate = useNavigate();
 
-	const taxes = 30;
-	let couponDiscount = 0;
+	const shouldDisablePayment = isLoading || disablePayment || !termAgreement;
 
-	const handleCouponChange = (e: ChangeEvent<HTMLInputElement>) => {
-		setCouponCode(e.target.value);
+	const handlePayForMe = async () => {
+		try {
+			const { orderId } = await createOrder();
+			navigate({
+				to: '/complete/$orderId',
+				params: { orderId }
+			});
+		}
+		catch (e: any) {
+			enqueueSnackbar(<Alert severity="error">
+				Error creating "Pay for me" order: {e.message}
+			</Alert>, {
+				anchorOrigin: { horizontal: 'center', vertical: 'top' },
+				style: { backgroundColor: '#fdeded', padding: '0px 0px', }
+			});
+		}
 	};
 
-	const handleApplyCoupon = () => {
-		couponDiscount = 19;
-		setCouponCode('');
+	const handleConfirmPayment = async (e: SyntheticEvent) => {
+		e.preventDefault();
+		if (paymentMethod === 'payforme') {
+			await handlePayForMe();
+		}
+		else if (paymentMethod === 'card') {
+			if (!stripe || !elements) {
+				return;
+			}
+
+			setIsLoading(true);
+			try {
+				const { orderId, email } = await createOrder();
+
+				const { error } = await stripe.confirmPayment({
+					elements,
+					confirmParams: {
+						receipt_email: email,
+						return_url: 'http://' + env.VITE_CLIENT_URL + '/complete/' + orderId
+					}
+				});
+
+				if (error.type === 'card_error' || error.type === 'validation_error') {
+					enqueueSnackbar(<Alert severity="error">
+						{error.type ? 'Card error' : 'Validation error'}
+					</Alert>, {
+						anchorOrigin: { horizontal: 'center', vertical: 'top' },
+						style: { backgroundColor: '#fdeded', padding: '0px 0px', }
+					});
+				}
+				else {
+					enqueueSnackbar(<Alert severity="error">
+						Error completing payment occurred: {error.message}
+					</Alert>, {
+						anchorOrigin: { horizontal: 'center', vertical: 'top' },
+						style: { backgroundColor: '#fdeded', padding: '0px 0px', }
+					});
+				}
+			}
+			catch (e: any) {
+				enqueueSnackbar(<Alert severity="error">
+					An unexpected error occurred: {e.message}
+				</Alert>, {
+					anchorOrigin: { horizontal: 'center', vertical: 'top' },
+					style: { backgroundColor: '#fdeded', padding: '0px 0px', }
+				});
+			}
+		}
+
+		setIsLoading(false);
+	};
+
+	const handleOnCouponChange = (e: ChangeEvent<HTMLInputElement>) => {
+		setCoupon(e.target.value);
+	};
+
+	const handleApplyCoupon = async () => {
+		if (!coupon) {
+			return;
+		}
+		try {
+			const { data } = await applyCouponCode.mutateAsync(coupon);
+			handleCouponChange({ value: data.value, isValid: true, code: coupon });
+		}
+		catch (e: any) {
+			enqueueSnackbar(<Alert severity="error">
+				Could not apply coupon, {e.message}
+			</Alert>, {
+				anchorOrigin: { horizontal: 'center', vertical: 'top' },
+				style: { backgroundColor: '#fdeded', padding: '0px 0px', }
+			});
+		}
 	};
 
 	const handleSaveMyInfo = (_e: SyntheticEvent, checked: boolean) => {
@@ -72,7 +173,6 @@ export default function CheckoutOrderSummar({
 
 			}
 			else {
-				console.log('here');
 				paymentContainerRef.current.classList.add('absolute');
 				paymentContainerRef.current.classList.remove('sticky');
 
@@ -108,10 +208,10 @@ export default function CheckoutOrderSummar({
 										<ListItem disablePadding>
 											<Stack direction={'row'} justifyContent={'space-between'} width={1}>
 												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'}>
-													Subtotal ({cartItems.length} {pluralize('item', cartItems.length)})
+													Subtotal ({itemCount} {pluralize('item', itemCount)})
 												</Typography>
 												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'} fontWeight={'500'}>
-													{currenciesSymbol.code} {currenciesSymbol.symbol}{cartItemInfo.total}
+													{cartItemInfo.code} {cartItemInfo.symbol}{cartItemInfo.total.toFixed(2)}
 												</Typography>
 											</Stack>
 										</ListItem>
@@ -120,37 +220,30 @@ export default function CheckoutOrderSummar({
 												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'}>
 													Shipping fee
 												</Typography>
-												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'} fontWeight={'500'}>
-													{currenciesSymbol.code} {currenciesSymbol.symbol}{shippingFee}
-												</Typography>
-											</Stack>
-										</ListItem>
-										<ListItem disablePadding>
-											<Stack direction={'row'} justifyContent={'space-between'} width={1}>
-												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'}>
-													Taxes
-												</Typography>
-												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'} fontWeight={'500'}>
-													{currenciesSymbol.code} {currenciesSymbol.symbol}{taxes}
-												</Typography>
+												{
+													shippingFee &&
+													<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'} fontWeight={'500'}>
+														{cartItemInfo.code} {cartItemInfo.symbol}{shippingFee.toFixed(2)}
+													</Typography>
+												}
 											</Stack>
 										</ListItem>
 										<ListItem disablePadding>
 											<Stack direction={'row'} justifyContent={'space-between'} width={1}>
 												{
-													couponDiscount ?
+													couponCode.isValid ?
 														<>
 															<Typography fontSize={'14px'} color="rgba(27, 31, 38, 0.8)">
-																<Check color="success" fontSize="small" /> Coupon Applied
+																Coupon Applied
 															</Typography>
-															<Typography color="error" fontSize={'14px'}>
-																<Remove color="error" /> {currenciesSymbol.code} {currenciesSymbol.symbol}{couponDiscount}
-															</Typography>
+															<Stack color="#d32f2f" fontWeight={'500'} fontSize={'14px'} alignItems={'center'} direction={'row'}>
+																<Remove color="error" /> {cartItemInfo.code} {cartItemInfo.symbol}{couponCode.value}
+															</Stack>
 														</>
 														:
 														<>
-															<TextField size="small" value={couponCode} onChange={handleCouponChange} label="Coupon code" />
-															<Button variant="contained" sx={{ bgcolor: 'black' }} onClick={handleApplyCoupon} size="small">Apply</Button>
+															<TextField size="small" value={coupon} onChange={handleOnCouponChange} placeholder="Coupon code" />
+															<Button variant="contained" sx={{ bgcolor: 'black' }} disabled={applyCouponCode.isPending} onClick={handleApplyCoupon} size="small">Apply</Button>
 														</>
 												}
 											</Stack>
@@ -161,7 +254,7 @@ export default function CheckoutOrderSummar({
 													Total
 												</Typography>
 												<Typography fontSize={'16px'} fontWeight={'600'}>
-													{currenciesSymbol.code} {currenciesSymbol.symbol}{(cartItemInfo.total + shippingFee + taxes - couponDiscount)}
+													{cartItemInfo.code} {cartItemInfo.symbol}{(paymentTotal.toFixed(2))}
 												</Typography>
 											</Stack>
 										</ListItem>
@@ -199,9 +292,15 @@ export default function CheckoutOrderSummar({
 								}}>Privacy Notice</Link>
 							</Typography>
 						</Stack>
-						<CheckoutButton $isCurved={false} sx={{ fontWeight: '500' }}>
+						<CheckoutButton
+							type="submit"
+							$isCurved={false} sx={{ fontWeight: '500' }}
+							onClick={handleConfirmPayment} disabled={shouldDisablePayment} $disabledButton={shouldDisablePayment}
+						>
 							{
-								paymentMethod === 'payforme' ? 'SEND TO MY PAYER' : 'PAY NOW'
+								isLoading ? 'Please wait..' :
+									paymentMethod === 'payforme' ? 'SEND TO MY PAYER' : 'PAY NOW'
+
 							}
 						</CheckoutButton>
 					</Stack>

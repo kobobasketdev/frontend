@@ -1,30 +1,21 @@
 import { Box, IconButton, List, ListItem, ListItemButton, Modal, Stack, styled, Typography } from "@mui/material";
 import { HighlightOff } from '@mui/icons-material';
 import ScrollableContainer from "./ScrollableContainer";
-import { TCountryCurrency } from "#state-management/slices/currency.slice.ts";
-import * as _ from 'lodash';
-import { IDeliveryState } from "#state-management/slices/delivery.slice.ts";
+import { upperFirst } from 'lodash';
+import { extractsupportedCountries, IDeliveryState, TSupportedCountry } from "#state-management/slices/delivery.slice.ts";
 
-const extractCountriesCurrency = (countriesCurrency: TCountryCurrency, selectedCountry: string) => {
-	const countries = Object.keys(countriesCurrency);
-	const extractedCountriesCurrency: IDeliveryState[] = [];
-	countries.forEach(country => {
-		if(country !== selectedCountry) {
-			extractedCountriesCurrency.push({ country: country, ...countriesCurrency[country] });
-		}
-	});
-	return extractedCountriesCurrency;
-};
-export default function CurrencyList({ countriesCurrency, selection, open, isLocationBased, handleChooseSelection, handleClose }: 
-{ 
-	countriesCurrency: TCountryCurrency, 
+
+export default function DeliveryCountryList({
+	supportedCountries, selection, open, isLocationBased, handleChooseSelection, handleClose
+}: {
+	supportedCountries: TSupportedCountry,
 	selection: IDeliveryState,
 	open: boolean,
 	isLocationBased: boolean,
 	handleChooseSelection: (args: IDeliveryState) => void,
 	handleClose: () => void
 }) {
-	const parsedCountriesWithCurrency = extractCountriesCurrency(countriesCurrency, selection.country);
+	const parsedSupportedDeliveryCountry = extractsupportedCountries(supportedCountries, selection.code);
 	return (
 		<Modal
 			open={open}
@@ -45,7 +36,7 @@ export default function CurrencyList({ countriesCurrency, selection, open, isLoc
 								SELECT YOUR DELIVERY LOCATION
 							</StyledTypographyHead>
 							<StyledTypographySubhead id="currency-modal-title">
-								Delivery fee vary based on your location
+								Filters and displays products that are allowed into this delivery location
 							</StyledTypographySubhead>
 						</Stack>
 					</StyledBox>
@@ -53,44 +44,28 @@ export default function CurrencyList({ countriesCurrency, selection, open, isLoc
 						<ScrollableContainer showNavigation>
 							<StyledDeliveryList>
 								<Typography fontFamily={'Roboto'} fontSize={'14px'} mb={1}>{isLocationBased ? 'Suggested based on your location' : 'Based on your selection'}</Typography>
-								<SelectedCurrencyListItem>
+								<SelectedCountryListItem>
 									<Stack direction={'row'} gap={1} justifyContent={'space-between'} width={1}>
 										<Stack gap={1} justifyContent={'space-between'}>
 											<SelectedTypographyHead fontSize={'1px'}>
-												{_.upperFirst(selection.country)}
+												{upperFirst(selection.country)}
 											</SelectedTypographyHead>
 											<SelectedTypographySubhead>
-												Your order will be charged in
-											</SelectedTypographySubhead>
-										</Stack>
-										<Stack gap={1} width={1/3}>
-											<SelectedTypographyHead>
-												{_.upperFirst(selection.name)}
-											</SelectedTypographyHead>
-											<SelectedTypographySubhead>
-												{selection.code} {selection.symbol}
+												Showing you products allowed into this country
 											</SelectedTypographySubhead>
 										</Stack>
 									</Stack>
-								</SelectedCurrencyListItem>
-								{parsedCountriesWithCurrency.map(({ code, country, name, symbol }) => (
+								</SelectedCountryListItem>
+								{parsedSupportedDeliveryCountry.map(({ country, code }) => (
 									<StyledListItem key={country} disablePadding >
-										<ListItemButton disabled={selection.country === country} onClick={() => handleChooseSelection({ country, name, code, symbol })}
+										<ListItemButton disabled={selection.country === country} onClick={() => handleChooseSelection({ country, code })}
 											aria-label={`choose ${name}`}>
 											<Stack direction={'row'} gap={1} width={'100%'} justifyContent={'space-between'}>
 												<Box>
 													<ListTypography>
-														{_.upperFirst(country)}
+														{upperFirst(country)}
 													</ListTypography>
 												</Box>
-												<SideStyledBox>
-													<ListTypography>
-														{_.upperFirst(name)}
-													</ListTypography>
-													<LsitTypographyLight>
-														{code} {symbol}
-													</LsitTypographyLight>
-												</SideStyledBox>
 											</Stack>
 										</ListItemButton>
 									</StyledListItem>
@@ -128,17 +103,17 @@ const StyledTypographyHead = styled(Typography)({
 });
 
 const StyledDeliveryList = styled(List)(() => ({
-	
+
 }));
 
 const StyledTypographySubhead = styled(Typography)({
 	fontFamily: 'Roboto',
 	fontSize: '16px',
-	lineHeight: '100%',
+	lineHeight: '28px',
 	letterSpacing: '0.15px'
 });
 
-const SelectedCurrencyListItem = styled(ListItem)(({ theme }) => ({
+const SelectedCountryListItem = styled(ListItem)(({ theme }) => ({
 	backgroundColor: theme.palette.action.hover,
 	paddingTop: theme.spacing(1.5),
 	paddingBottom: theme.spacing(1.5),

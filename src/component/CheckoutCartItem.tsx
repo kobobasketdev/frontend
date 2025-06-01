@@ -1,19 +1,17 @@
-
-import { IDeliveryState } from "#state-management/slices/delivery.slice.ts";
 import { Stack, styled, SvgIcon, Typography } from "@mui/material";
 import CheckoutItem from "./CheckoutItem";
 import { TCartItems } from "#state-management/slices/cart.slice.ts";
 import CartSvg from "./svg/CartSvg";
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 
-export default function CheckoutCartItem({ cartItems, deliveryLocation }: { cartItems: TCartItems[], deliveryLocation: IDeliveryState }) {
+export default function CheckoutCartItem({ cartItems }: { cartItems: TCartItems[] }) {
 
 	return (
 		<StyledStack p={1} gap={4}>
 			<Stack gap={6}>
 				{
 					cartItems.length ? cartItems.map((item, index) => (
-						<CheckoutItem key={index} cartItem={item} deliveryLocation={deliveryLocation} />
+						<CheckoutItem key={index} cartItem={item} />
 					)) : (
 						<Stack alignItems={'center'}>
 							<SvgIcon viewBox="0 0 22 22" sx={{ width: '120px', height: '120px' }}>

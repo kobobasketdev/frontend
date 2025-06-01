@@ -3,7 +3,6 @@ import { Card, Divider, List, ListItem, Stack, styled, Typography } from "@mui/m
 import CartProgressbar from "./CartProgressbar";
 import CartItem from "./CartItem";
 import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
-import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
 import { closeCart, selectCartItems } from "#state-management/slices/cart.slice.ts";
 import { getCartItems, getCartWeight } from "#utils/index.ts";
 import { CartButton, CheckoutButton } from "./CommonViews";
@@ -15,7 +14,6 @@ import { RoutePath } from "#utils/route.ts";
 export default function CartDisplay() {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
-	const deliveryLocation = useAppSelector(selectDeliverLocation);
 	const cartItemsMap = useAppSelector(selectCartItems);
 	const cartItems = getCartItems(cartItemsMap);
 	const cartInfo = getCartWeight(cartItems);
@@ -62,7 +60,7 @@ export default function CartDisplay() {
 								Subtotal of products
 							</CartTotalHeadingTypography>
 							<CartTotalbodyTypography>
-								{deliveryLocation.symbol}{cartInfo.total} {deliveryLocation.code}
+								{cartInfo.symbol}{cartInfo.total.toFixed(2)} {cartInfo.code}
 							</CartTotalbodyTypography>
 						</Stack>
 						<Divider />
@@ -70,7 +68,7 @@ export default function CartDisplay() {
 					</Stack>
 				</StyledCheckoutCard>
 				<List>
-					{cartItems.slice(0, 5).map((cartItem, index) => (
+					{cartItems.map((cartItem, index) => (
 						<CartListItem key={index}>
 							<CartItem item={cartItem.item} variant={cartItem.variant} quantity={cartItem.quantity} />
 						</CartListItem>

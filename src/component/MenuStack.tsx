@@ -7,7 +7,7 @@ import MenuContainer from "./MenuContainer";
 import NavigationUserActions from "./NavigationUserActions";
 
 export default function MenuStack() {
-    
+
 	return (
 		<>
 			<MenuStackContainer width={1}>

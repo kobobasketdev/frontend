@@ -2,17 +2,16 @@ import { theme } from "#customtheme.ts";
 import { Box, Typography, Stack, styled, Button } from "@mui/material";
 import CartProgressbar from "./CartProgressbar";
 import { ProductPriceTypography, CheckoutButton } from "./CommonViews";
-import { IDeliveryState } from "#state-management/slices/delivery.slice.ts";
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { Link } from "@tanstack/react-router";
 import { RoutePath } from "#utils/route.ts";
 
 export default function MobileCartContainer({
-	deliveryLocation, weight, totalPrice, totalSavings, itemCount,
+	userCurrency, weight, totalPrice, totalSavings, itemCount,
 	isDisabled,
 	handleCartButton
 }: {
-	deliveryLocation: IDeliveryState,
+	userCurrency: { code: string, symbol: string },
 	weight: number,
 	totalPrice: number,
 	totalSavings: number,
@@ -36,8 +35,8 @@ export default function MobileCartContainer({
 							</Typography>
 							:
 							<Typography>
-								Based on local market price, Your Savings: <span style={{ color: theme.palette.primaryOrange.main, fontSize: '20px', fontWeight: '600' }}>
-									{deliveryLocation.code} {deliveryLocation.symbol}{totalSavings}
+								Based on local market price, You are Savings: <span style={{ color: theme.palette.primaryOrange.main, fontSize: '20px', fontWeight: '600' }}>
+									{userCurrency.code} {userCurrency.symbol}{totalSavings.toFixed(2)}
 								</span>
 							</Typography>
 					}
@@ -52,7 +51,7 @@ export default function MobileCartContainer({
 								Subtotal
 							</Typography>
 							<ProductPriceTypography $fontSize={'24px'} $fontWeight={'600'}>
-								{deliveryLocation.code} {deliveryLocation.symbol}{totalPrice}
+								{userCurrency.code} {userCurrency.symbol}{totalPrice.toFixed(2)}
 							</ProductPriceTypography>
 						</Stack>
 						{
@@ -94,7 +93,7 @@ const MobileCheckoutContainer = styled('div')(({ theme }) => ({
 		bottom: 0,
 		left: 0,
 		width: '100%',
-		zIndex: theme.zIndex.tooltip,
+		zIndex: theme.zIndex.drawer,
 		boxShadow: '4px 0px 29.3px rgba(0, 0, 0, 0.59)',
 		display: 'flex',
 		flexDirection: 'column',

@@ -1,25 +1,21 @@
 import CheckoutCartItem from "#component/CheckoutCartItem.tsx";
-import { ShopTypography, StyledHeaderLink } from "#component/CommonViews.tsx";
+import { StyledHeaderLink } from "#component/CommonViews.tsx";
 import MiniNavigation from "#component/MiniNavigation.tsx";
 import MobileCartContainer from "#component/MobileCartCheckout.tsx";
-import ProductItem from "#component/ProductItem.tsx";
 import WebCartContainer from "#component/WebCartContainer.tsx";
 import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, minimumWeight, SMALL_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { useAppSelector } from "#state-management/hooks.ts";
 import { selectCartItems } from "#state-management/slices/cart.slice.ts";
-import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
 import { getCartItems, getCartWeight, getTotalSavings } from "#utils/index.ts";
 import { RoutePath } from "#utils/route.ts";
 import { ChevronRight, IosShare } from "@mui/icons-material";
 import { Box, Button, Stack, Typography, styled } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
 import pluralize from "pluralize";
-import { items as itemsStub } from "#testData.ts";
-
 
 export default function Cart() {
 	const navigate = useNavigate();
-	const deliveryLocation = useAppSelector(selectDeliverLocation);
+
 	const cartItemsMap = useAppSelector(selectCartItems);
 	const cartItems = getCartItems(cartItemsMap);
 	const cartInfo = getCartWeight(cartItems);
@@ -62,23 +58,23 @@ export default function Cart() {
 							</Stack>
 						</StyledShareCartButton>
 					</Stack>
-					<CheckoutCartItem cartItems={cartItems} deliveryLocation={deliveryLocation} />
+					<CheckoutCartItem cartItems={cartItems} />
 				</Stack>
 				<WebCartContainer
 					weight={cartInfo.weight}
-					deliveryLocation={deliveryLocation}
+					userCurrency={{ code: cartInfo.code, symbol: cartInfo.symbol }}
 					totalPrice={cartInfo.total} totalSavings={totalSavings}
 					handleCartButton={handleCartButton} />
 
 				<MobileCartContainer
-					deliveryLocation={deliveryLocation}
+					userCurrency={{ code: cartInfo.code, symbol: cartInfo.symbol }}
 					weight={cartInfo.weight}
 					handleCartButton={handleCartButton}
 					isDisabled={isDisabled}
 					itemCount={cartItems.length}
 					totalSavings={totalSavings} totalPrice={cartInfo.total} />
 			</StyledCartContainerStack>
-			<ContentStack mt={3}>
+			{/* <ContentStack mt={3}>
 				<Stack gap={2} >
 					<Stack gap={1}>
 						<ShopTypography>
@@ -90,9 +86,9 @@ export default function Cart() {
 							<ProductItem
 								key={index}
 								item={{
-									...itemsStub[0], productId: index, name: arrayItem + " " + index, promotion: {
-										promoName: "Valentine's Deals",
-										promoPrice: 10
+									...itemsStub[0], id: index, name: arrayItem + " " + index, promotion: {
+										promotionName: "Valentine's Deals",
+										id: Math.floor(Math.random() * 100)
 									}
 								}}
 								showPrice={true}
@@ -104,9 +100,9 @@ export default function Cart() {
 						))}
 					</ProductItemGrid>
 				</Stack>
-			</ContentStack>
+			</ContentStack> */}
 
-			<ContentStack mt={3}>
+			{/* <ContentStack mt={3}>
 				<Stack gap={2} >
 					<Stack gap={1}>
 						<ShopTypography>
@@ -118,9 +114,9 @@ export default function Cart() {
 							<ProductItem
 								key={index}
 								item={{
-									...itemsStub[0], productId: index, name: arrayItem + " " + index, promotion: {
-										promoName: "Valentine's Deals",
-										promoPrice: 10
+									...itemsStub[0], id: index, name: arrayItem + " " + index, promotion: {
+										promotionName: "Valentine's Deals",
+										id: Math.floor(Math.random() * 100)
 									}
 								}}
 								showPrice={true}
@@ -132,7 +128,7 @@ export default function Cart() {
 						))}
 					</ProductItemGrid>
 				</Stack>
-			</ContentStack>
+			</ContentStack> */}
 		</StyledStackContent >
 	);
 }
@@ -191,7 +187,7 @@ const StyledStackContent = styled(Stack)(({ theme }) => ({
 		paddingTop: theme.spacing(16.7)
 	},
 	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		paddingTop: theme.spacing(23)
+		paddingTop: theme.spacing(13)
 	},
 }));
 
@@ -211,12 +207,13 @@ const ProductItemGrid = styled('div')(({ theme }) => ({
 	display: 'grid',
 	width: '100%',
 	rowGap: theme.spacing(3),
-	columnGap: theme.spacing(1.5),
+	columnGap: theme.spacing(3),
 	padding: `0px ${theme.spacing(.3)}`,
 	gridAutoFlow: 'row dense',
-	gridTemplateColumns: "repeat(6,220PX)",
+	gridTemplateColumns: "repeat(5,220PX)",
 	[theme.breakpoints.down(LARGED_DESKTOP_SCREEN_MAX_WIDTH)]: {
 		gridTemplateColumns: "repeat(4,220PX)",
+		columnGap: theme.spacing(1.5),
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		padding: `0px ${theme.spacing()}`,

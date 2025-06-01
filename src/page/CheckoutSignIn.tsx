@@ -1,7 +1,6 @@
 import CreateAccount from "#component/CreateAccount.tsx";
 import GuestCheckout from "#component/GuestCheckout.tsx";
-import HeaderWithouSearch from "#component/HeaderWithoutSearch.tsx";
-import { MEDIUM_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { MEDIUM_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { Stack, styled, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { useState } from "react";
 
@@ -12,13 +11,14 @@ export default function CheckoutSignIn() {
 		_event: React.MouseEvent<HTMLElement>,
 		newAlignment: string,
 	) => {
-		setValue(newAlignment);
+		if (newAlignment) {
+			setValue(newAlignment);
+		}
 	};
 	return (
 		<Stack>
-			<HeaderWithouSearch />
 			<StyledStackContent>
-				<Stack p={1} gap={3} maxWidth={'320px'} alignSelf={'center'}>
+				<ContainerStack p={1} gap={3} alignSelf={'center'}>
 					<Stack gap={1}>
 						<Typography fontFamily={'Alata'} fontSize={'24px'}>Guest Checkout or Login</Typography>
 						<Typography fontSize={'14px'}>Please choose how you want to checkout your items</Typography>
@@ -41,12 +41,18 @@ export default function CheckoutSignIn() {
 							:
 							<CreateAccount />
 					}
-				</Stack>
+				</ContainerStack>
 			</StyledStackContent>
 		</Stack>
 	);
 }
 
+const ContainerStack = styled(Stack)(({ theme }) => ({
+	width: '450px',
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		maxWidth: '320px'
+	}
+}));
 const StyledToggleButton = styled(ToggleButton)(({ theme }) => ({
 	textTransform: 'inherit',
 	'&.Mui-selected, &.Mui-selected:hover': {

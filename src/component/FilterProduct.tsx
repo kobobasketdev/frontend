@@ -1,20 +1,29 @@
 import { Button, Drawer, IconButton, Stack, Typography, styled } from "@mui/material";
 import FilterSvg from "./svg/FilterSvg";
 import { useState } from "react";
-import { DESKTOP_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH } from "#constants.tsx";
-import {  HighlightOff } from "@mui/icons-material";
+import { DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { HighlightOff, Menu } from "@mui/icons-material";
 import WebFilterContent from "./filters/WebFilterContent";
 import MobileFilterContent from "./filters/MobileFilterContent";
+import { useAppSelector } from "#state-management/hooks.ts";
+import { selectLoginUserFirstname } from "#state-management/slices/user.slice.ts";
+
 export default function FilterProduct() {
 	const [open, setOpen] = useState(false);
-	const signedInUserName = 'Jessica';
+	const userFirstName = useAppSelector(selectLoginUserFirstname);
+
 	const toggleDrawer = (newOpen: boolean) => () => {
 		setOpen(newOpen);
 	};
-	
-	
-	return(
+
+
+	return (
 		<div>
+			<HambugerContainer>
+				<IconButton onClick={toggleDrawer(true)}>
+					<Menu />
+				</IconButton>
+			</HambugerContainer>
 			<FilterButton onClick={toggleDrawer(true)}>
 				<FilterSvg />
 				<Typography>
@@ -28,7 +37,7 @@ export default function FilterProduct() {
 					</IconButton>
 					<Stack gap={1} borderBottom={1} pb={1} borderColor={'divider'}>
 						<Typography fontFamily={'Alata'} fontSize={'24px'}>
-							Hello {signedInUserName  || ', sign in'}
+							{userFirstName ? 'Hello ' + userFirstName : 'Hello, sign in'}
 						</Typography>
 						<Typography fontFamily={'Roboto'} fontSize={'16px'}>Shop by</Typography>
 					</Stack>
@@ -39,6 +48,15 @@ export default function FilterProduct() {
 		</div>
 	);
 }
+
+const HambugerContainer = styled('span')(({ theme }) => ({
+	display: 'none',
+	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
+		paddingTop: theme.spacing(.5),
+		display: 'inline-flex',
+		alignItems: 'center',
+	}
+}));
 
 const FilterButton = styled(Button)(({ theme }) => ({
 	color: theme.palette.primaryGreen.main,
@@ -57,7 +75,7 @@ const FilterButton = styled(Button)(({ theme }) => ({
 	border: `1px solid ${theme.palette.primaryGreen.main}`,
 	borderRadius: theme.shape.borderRadius * 2,
 	width: 'auto',
-	padding: `${theme.spacing(.3)} ${theme.spacing(1)}` ,
+	padding: `${theme.spacing(.3)} ${theme.spacing(1)}`,
 	paddingLeft: theme.spacing(1),
 	display: 'inline-flex',
 	justifyContent: 'center',
@@ -65,13 +83,12 @@ const FilterButton = styled(Button)(({ theme }) => ({
 	minWidth: 'unset',
 	backgroundColor: 'white',
 	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
+		display: 'none',
 		borderRadius: theme.shape.borderRadius * 10,
-		padding: `${theme.spacing(.8)} ${theme.spacing(1)}` ,
+		padding: `${theme.spacing(.8)} ${theme.spacing(1)}`,
 		paddingLeft: theme.spacing(1),
 	},
-	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
-		'& p': {
-			display: 'none'
-		},
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		display: 'none'
 	},
 }));

@@ -2,14 +2,14 @@ import { Stack, FormGroup, Checkbox, FormControlLabel, styled, FormControl, Radi
 import { DropDownView } from "./CommonViews";
 import { ChangeEvent, useState } from "react";
 
-export const CheckBoxFilters = ({ 
-	filtersGroup, 
+export const CheckBoxFilters = ({
+	filtersGroup,
 	appliedFilters,
 	handleUpdateFilter
-}: { 
-	filtersGroup: { [x:string]: string[] },
+}: {
+	filtersGroup: { [x: string]: string[] },
 	appliedFilters: Set<string>,
-	handleUpdateFilter: (args: string) => () => void
+	handleUpdateFilter: (key: string, filterOption: string) => () => void
 }) => {
 	const filtersKey = Object.keys(filtersGroup);
 
@@ -19,14 +19,14 @@ export const CheckBoxFilters = ({
 				<DropDownView title={filterKey} key={index}>
 					<FormGroup>
 						{
-							filtersGroup[filterKey].map((filterOption, index) => 
-								<StyledFormControlLabel key={index} 
+							filtersGroup[filterKey].map((filterOption, index) =>
+								<StyledFormControlLabel key={index}
 									control={
-										<Checkbox size="small" 
-											onChange={handleUpdateFilter(filterOption)}
-											checked={appliedFilters.has(filterOption)}
-										/>} 
-									label={filterOption} 
+										<Checkbox size="small"
+											onChange={handleUpdateFilter(filterKey, filterOption)}
+											checked={appliedFilters.has(filterOption + '=>' + filterKey)}
+										/>}
+									label={filterOption}
 								/>
 							)
 						}
@@ -41,37 +41,37 @@ type TRadioOptions = {
 	value: string | number,
 	label: string,
 };
-export const RadioFilters = ({ 
+export const RadioFilters = ({
 	title,
-	filterOptions, 
+	filterOptions,
 	handleUpdateFilter
-}: { 
+}: {
 	title: string,
-	filterOptions: TRadioOptions[] ,
+	filterOptions: TRadioOptions[],
 	handleUpdateFilter: (args: string) => void
 }) => {
 
 	const [value, setValue] = useState<string>('');
 	const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const value = (e.target as HTMLInputElement).value;
-		handleUpdateFilter(value+"");
+		handleUpdateFilter(value + "");
 		setValue(value);
 	};
 	return (
 		<Stack pb={2.5} gap={2}>
 			<DropDownView title={title} >
 				<FormControl>
-					<RadioGroup 
+					<RadioGroup
 						value={value}
 						onChange={handleOnChange}
 					>
 						{
-							filterOptions.map((filterOption, index) => 
-								<StyledFormControlLabel value={filterOption.value} key={index} 
+							filterOptions.map((filterOption, index) =>
+								<StyledFormControlLabel value={filterOption.value} key={index}
 									control={
-										<Radio size="small" 
-										/>} 
-									label={filterOption.label} 
+										<Radio size="small"
+										/>}
+									label={filterOption.label}
 								/>
 							)
 						}

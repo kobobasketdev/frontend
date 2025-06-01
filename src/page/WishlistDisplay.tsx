@@ -7,17 +7,21 @@ import LargeWishlistSvg from "#component/svg/LargeWishlistSvg.tsx";
 import WishlistRecommendation from "#component/WishlistRecommendation.tsx";
 import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { theme } from "#customtheme.ts";
+import { getAllProducts } from "#hooks/query/product";
 import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
 import { removeFromWishlist, selectWishlistItems } from "#state-management/slices/wishlist.slice.ts";
 import { items as itemsStub } from "#testData.ts";
 import { RoutePath } from "#utils/route.ts";
 import { ChevronRight } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, Stack, styled, SvgIcon, Typography } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 export default function WishlistDisplay() {
 	const wishlistItem = useAppSelector(selectWishlistItems);
 	const wishlistArray = Object.keys(wishlistItem);
+	const { data: wishlistRecommendData } = useQuery(getAllProducts({ page: 1 }));
+	const wishlistRecommendation = wishlistRecommendData?.data || [];
 	const [firstRemoveId, setFirstRemoveId] = useState<string>('');
 	const [openDialog, setOpenDialog] = useState<boolean>(false);
 	const dispatch = useAppDispatch();
@@ -60,7 +64,7 @@ export default function WishlistDisplay() {
 				wishlistArray.length === 0 ?
 					(
 						<>
-							<EmptyStateTextStack gap={1}>
+							<EmptyStateTextStack gap={1} >
 								<ShopTypography>
 									WISHLIST
 								</ShopTypography>
@@ -89,14 +93,14 @@ export default function WishlistDisplay() {
 													showPrice={true}
 													disableWishlisting
 													disableProductSlider
-													showShareProduct={true}
+													showShareProduct={false}
 													isCircularImage={false}
 													fullDetails
 													fontSize="24px"
 													fontWeight="600"
 												/>
 												<WishlistCustomFloatingSpan>
-													<WishLishIconButton onClick={handleRemoveFromWishlist(wishlistItem[wishItem].productId)}>
+													<WishLishIconButton onClick={handleRemoveFromWishlist(wishlistItem[wishItem].id)}>
 														<GrommetWishListSvg $isFilled={true} />
 													</WishLishIconButton>
 												</WishlistCustomFloatingSpan>
@@ -112,14 +116,14 @@ export default function WishlistDisplay() {
 				<ShopTypography>
 					Best-sellers in the last 24 hours
 				</ShopTypography>
-				<WishlistRecommendation />
+				<WishlistRecommendation recommendations={wishlistRecommendation} />
 				<Stack mt={6}>
-					<MiniPromotion title={"Kobo Specials Promo"} width={"inherit"} type={{
+					<MiniPromotion categoryInfo={{ name: 'electronics', id: 2 }} width={"inherit"} type={{
 						name: 'scroll',
 						spacing: 2,
 						size: { height: '100px', width: '100px' },
 						scollBy: 210,
-					}} items={itemsStub} bgColor={theme.palette.menuBackground.main} showPrice height="200px" />
+					}} bgColor={theme.palette.menuBackground.main} showPrice height="200px" />
 				</Stack>
 			</Stack>
 			<Dialog open={openDialog}>
@@ -198,20 +202,22 @@ const StyledHeaderTypography = styled(Typography)(() => ({
 
 const StyledStackContent = styled(Stack)(({ theme }) => ({
 	// paddingTop: theme.spacing(17),
-	paddingTop: theme.spacing(11),
+	paddingTop: theme.spacing(16),
 	[theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
-		paddingTop: theme.spacing(17.7)
+		paddingTop: theme.spacing(22.7)
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		paddingTop: theme.spacing(12)
+		paddingTop: theme.spacing(17)
 	},
 	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		paddingTop: theme.spacing(16)
+		paddingTop: theme.spacing(14)
 	},
 }));
 
 const ContainerCollection = styled(Stack)(({ theme }) => ({
 	width: '100%',
+	position: 'fixed',
+	zIndex: theme.zIndex.fab,
 	[theme.breakpoints.up(MEDIUM_SCREEN_MAX_WIDTH)]: {
 		maxWidth: '1000px',
 		justifyContent: 'center',
@@ -224,12 +230,13 @@ const ProductItemGrid = styled('div')(({ theme }) => ({
 	display: 'grid',
 	width: '100%',
 	rowGap: theme.spacing(3),
-	columnGap: theme.spacing(1.5),
+	columnGap: theme.spacing(3),
 	padding: `0px ${theme.spacing(.3)}`,
 	gridAutoFlow: 'row dense',
-	gridTemplateColumns: "repeat(6,220PX)",
+	gridTemplateColumns: "repeat(5,220PX)",
 	[theme.breakpoints.down(LARGED_DESKTOP_SCREEN_MAX_WIDTH)]: {
 		gridTemplateColumns: "repeat(4,220PX)",
+		columnGap: theme.spacing(1.5),
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		padding: `0px ${theme.spacing()}`,

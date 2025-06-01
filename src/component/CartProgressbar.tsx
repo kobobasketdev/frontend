@@ -4,11 +4,11 @@ import CheckoutReadySvg from "./svg/CheckoutReadySvg";
 import ProductAddToCartSvg from "./svg/ProductAddToCartSvg";
 
 export default function CartProgressbar({
-	cartWeight = 7, showProgressWeight = false, showCartWeight = true
+	cartWeight = 0, showProgressWeight = false, showCartWeight = true
 }: {
 	cartWeight: number, showProgressWeight?: boolean, showCartWeight?: boolean
 }) {
-	const fixedWeight = parseFloat(cartWeight + '').toFixed(2);
+	const fixedWeight = cartWeight.toFixed(2);
 	const value = Math.min(((+fixedWeight / minimumWeight) * 100), 100);
 	return (
 		<Stack gap={2} position={'relative'}>

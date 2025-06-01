@@ -2,29 +2,29 @@ import { Stack, Typography } from "@mui/material";
 import { ProductAvatar, ProductPriceTypography, WeightSpan } from "./CommonViews";
 import { TItem } from "./types";
 import CartItemControl from "./CartItemControl";
-import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
-import { useAppSelector } from "#state-management/hooks.ts";
+import { appCurrencySymbol } from "#utils/index.ts";
 
 export default function CartItem({ variant, item, quantity }: { variant: number, item: TItem, quantity: number }) {
-	const price = item.variations[variant].promotion?.promoPrice || item.variations[variant].price;
-	const deliveryLocation = useAppSelector(selectDeliverLocation);
+	const price = item.variations[variant].price.converted;
+	const code = item.variations[variant].price.currency;
+	const symbol = appCurrencySymbol[code];
 
 	return (
 		<Stack width={1} gap={1}>
 			<Stack overflow={'hidden'} borderRadius={3}>
-				<ProductAvatar src={item.images[0]} variant="rounded" />
+				<ProductAvatar src={item.images[0]?.url || ''} variant="rounded" />
 			</Stack>
 			<Stack direction={'row'}>
 				<WeightSpan>
 					<Typography fontSize={'14px'}>
-						{item.variations[variant].weight.value}{item.variations[variant].weight.measurement}
+						{item.variations[variant].weight}kg
 					</Typography>
 				</WeightSpan>
 			</Stack>
 			<ProductPriceTypography>
-				{deliveryLocation.code} {deliveryLocation.symbol}{price}
+				{code} {symbol}{price}
 			</ProductPriceTypography>
-			<CartItemControl variant={variant} productId={item.productId} quantity={quantity} />
+			<CartItemControl variant={variant} productId={item.id} quantity={quantity} />
 		</Stack>
 	);
 }

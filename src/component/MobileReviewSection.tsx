@@ -12,14 +12,14 @@ export default function MobileReviewSection({ item, reviews }: { item: TItem, re
 	return (
 		<StyleReviewStack>
 			<Stack p={.5}>
-				<ReviewBanner item={item}/>
+				<ReviewBanner item={item} />
 			</Stack>
 			<Stack p={1}>
 				<ScrollableContainer orientation="horizontal" float>
 					<Stack direction={'row'} gap={1}>
 						{
 							reviews.slice(0, Math.min(4, reviews.length)).map((review, index) => (
-								<ReviewContent reviewer={review} key={index} productId={item.productId+''} tag={index + 1}/>
+								<ReviewContent reviewer={review} key={index} productId={item.id + ''} tag={index + 1} />
 							))
 						}
 					</Stack>
@@ -27,8 +27,8 @@ export default function MobileReviewSection({ item, reviews }: { item: TItem, re
 			</Stack>
 			<Stack direction={'row'} justifyContent={'center'} p={1} pt={1.5}>
 				{
-					reviews.length > 0 && 
-					<Link to={RoutePath.MOBILEREVIEW} params={{ details: item.productId+'' }} style={{
+					reviews.length > 0 &&
+					<Link to={RoutePath.MOBILEREVIEW} params={{ details: item.id + '' }} style={{
 						color: theme.palette.primaryBlack.moreDeeper,
 						border: `1px solid ${theme.palette.primaryBlack.moreDeeper}`,
 						padding: '6px 12px',

@@ -1,5 +1,4 @@
 import { configureStore } from "@reduxjs/toolkit";
-import currencyReducer from "./slices/currency.slice";
 import deliveryReducer from "./slices/delivery.slice";
 import cartReducer from "./slices/cart.slice";
 import wishlistReducer from "./slices/wishlist.slice";
@@ -9,7 +8,6 @@ import userReducer from './slices/user.slice';
 
 export const store = configureStore({
 	reducer: {
-		currency: currencyReducer,
 		delivery: deliveryReducer,
 		cart: cartReducer,
 		wishlist: wishlistReducer,

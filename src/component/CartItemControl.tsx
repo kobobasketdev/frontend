@@ -5,6 +5,7 @@ import { removeItemFromCart, updateCartItem } from "#state-management/slices/car
 import { useAppDispatch } from "#state-management/hooks.ts";
 import { CartWishlistSvg } from "./svg/WishlistSvg";
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { useCartMutation } from "#hooks/mutations/cart";
 
 export default function CartItemControl({ productId, quantity, variant, isCheckoutItem }: {
 	variant: number,
@@ -14,7 +15,7 @@ export default function CartItemControl({ productId, quantity, variant, isChecko
 }) {
 	const displayQuantity = quantity;
 	const dispatch = useAppDispatch();
-
+	const { removeCartItem, updateCartItem: axiosupdateCartItem } = useCartMutation();
 
 	const handleQuantity = (value: number) => () => {
 		const newCount = displayQuantity + value;
@@ -23,10 +24,16 @@ export default function CartItemControl({ productId, quantity, variant, isChecko
 		}
 
 		dispatch(updateCartItem({ productId_Variant: productId + '-' + variant, quantity: newCount }));
+		if (localStorage.getItem('access_token')) {
+			axiosupdateCartItem.mutateAsync({ cartItemId: productId, quantity: newCount });
+		}
 	};
 
 	const handleRemoveFromCart = () => () => {
 		dispatch(removeItemFromCart({ productId_Variant: productId + '-' + variant }));
+		if (localStorage.getItem('access_token')?.trim()) {
+			removeCartItem.mutateAsync(productId);
+		}
 	};
 
 	const handleAddToWishlist = (itemId: number) => () => {
@@ -47,7 +54,7 @@ export default function CartItemControl({ productId, quantity, variant, isChecko
 					</IconButton>
 				</ControlStack>
 				{
-					isCheckoutItem &&
+					isCheckoutItem && localStorage.getItem('access_token') &&
 					<WishListControl variant="outlined" size="small" color="inherit" onClick={handleAddToWishlist(productId)}>
 						<Stack direction={'row'} alignItems={'center'} justifyContent={'center'}>
 							<Typography pl={.5} fontSize={'12px'}>Move to wishlist</Typography>

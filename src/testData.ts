@@ -2,31 +2,45 @@ import { TItem, TReview } from "./component/types";
 
 export const items: TItem[] = [
 	{
-		productId: 1, 
+		id: 1, 
 		name: 'Ofada Rice1', 
-		weight: { value: 2, measurement: 'kg' }, 
 		isWishListItem: false,
-		category: 'flour',
-		price: 22, 
+
 		productDetails: `<b>Discover the rich</b>, authentic flavor of traditional pounded yam with Kobobasket Poundo Yam Flour. Perfect for busy families and food lovers, this premium flour ensures quick and easy preparation while delivering unmatched taste and quality.`,
-		productDescription: 'Lorem ipsum dolor sit amet consectetur. Commodo morbi diam mauris nibh nibh vitae vestibulum pellentesque euismod. Curabitur pellentesque consequat elementum blandit euismod. Placerat faucibus dignissim porta sodales.',
-		locationPrice: 35, 
-		images: ["", "", ''],
+		images: [{ id: 1, url: '' }, { id: 2, url: '' }, { id: 3, url: '' }],
 		rating: 4.8,
 		reviewCount: 18,
 		soldCount: 23,
 		likeCount: 23,
-		bestSellerCategory: 'Flour',
+		category: {
+			name: 'Staples'
+		},
 		variations: [
 			{
-				price: 22,
-				locationPrice: 35,
-				weight: { value: 2, measurement: 'kg' },
+				price: {
+					converted: 22,
+					currency: 'CAD',
+					default: 28
+				},
+				marketPrice: {
+					converted: 35,
+					currency: 'CAD',
+					default: 35
+				},
+				weight: 2,
 			},
 			{
-				locationPrice: 56,
-				price: 50,
-				weight: { value: 5, measurement: 'kg' },
+				marketPrice: {
+					converted: 56,
+					currency: 'CAD',
+					default: 28
+				},
+				price: {
+					converted: 50,
+					currency: 'CAD',
+					default: 28
+				},
+				weight: 5
 			}
 		],
 		ratingBank: {
@@ -49,246 +63,160 @@ export const items: TItem[] = [
 		}
 	},
 	{
-		productId: 2, 
+		id: 2, 
 		name: 'Smoked Panla Fish', 
-		weight: { value: 3, measurement: 'kg' }, 
-		price: 15, 
-		isWishListItem: false,
-		category: '',
-		locationPrice: 30, 
-		images: [""], 
+		isWishListItem: false, 
+		images: [{ id: 1, url: '' }], 
 		promotion: { 
-			promoName: "Valentine's Deals", 
-			promoPrice: 10 
+			promotionName: "Valentine's Deals", 
+			id: 1 
 		},
 		variations: [
 			{
-				price: 15,
-				weight: { value: 3, measurement: 'kg' },
+				price: {
+					converted: 15,
+					currency: 'CAD',
+					default: 28
+				},
+				marketPrice: {
+					converted: 28,
+					currency: 'CAD',
+					default: 28
+				},
+				weight: 3
 			}
 		],
 	},
 	{
-		productId: 24, 
+		id: 24, 
 		name: 'Ijebu Garri', 
-		weight: { value: 3, measurement: 'kg' }, 
-		price: 15, 
 		isWishListItem: false,
-		category: '',
-		locationPrice: 30, 
-		images: [""], 
+		images: [{ id: 1, url: '' }], 
 		variations: [
 			{
-				price: 15,
-				weight: { value: 3, measurement: 'kg' },
+				price: {
+					converted: 15,
+					currency: 'CAD',
+					default: 28
+				},
+				marketPrice: {
+					converted: 15,
+					currency: 'CAD',
+					default: 28
+				},
+				weight: 3
 			}
 		],
 	},
 	{
-		productId: 5, 
+		id: 5, 
 		name: 'Dried Ugwu Leaf', 
-		weight: { value: 3, measurement: 'kg' },
-		price: 15, 
+		
 		isWishListItem: false,
-		category: '',
-		locationPrice: 20, 
-		images: [""], 
+		 
+		images: [{ id: 1, url: '' }], 
 		variations: [
 			{
-				price: 15,
-				weight: { value: 3, measurement: 'kg' },
+				price: {
+					converted: 15,
+					currency: 'CAD',
+					default: 28
+				},
+				marketPrice:{
+					converted: 15,
+					currency: 'CAD',
+					default: 28
+				},
+				weight: 3
 			}
 		],
 	},
 	{
-		productId: 3, 
+		id: 3, 
 		name: 'Cameroon Pepper',  
-		weight: { value: 500, measurement: 'g' },
 		isWishListItem: false,
-		category: '',
-		price: 29, 
-		locationPrice: 35, 
-		images: [""], 
+		 
+		images: [{ id: 1, url: '' }], 
 		promotion: { 
-			promoName: 'Kobo Specials', 
-			promoPrice: 10 
+			promotionName: 'Kobo Specials', 
+			id: 2 
 		},
 		variations: [
 			{
-				price: 29,
-				weight: { value: 500, measurement: 'g' },
+				price: {
+					converted: 29,
+					currency: 'CAD',
+					default: 28
+				},
+				marketPrice:{
+					converted: 15,
+					currency: 'CAD',
+					default: 28
+				},
+				weight: 0.5
 			}
 		],
 	},
 	{
-		productId: 6, 
+		id: 6, 
 		name: 'Periwinkle', 
-		weight: { value: 500, measurement: 'g' },
 		isWishListItem: true,
-		category: '',
-		price: 29, 
-		locationPrice: 35, 
-		images: [""], 
+		images: [{ id: 1, url: '' }], 
 		variations: [
 			{
-				price: 29,
-				weight: { value: 500, measurement: 'g' },
+				price: {
+					converted: 29,
+					currency: 'CAD',
+					default: 28
+				},
+				marketPrice: {
+					converted: 35,
+					currency: 'CAD',
+					default: 28
+				},
+				weight: 0.5
 			}
 		],
 	},
 	{
-		productId: 7, 
+		id: 7, 
 		name: 'Locust Beans (Iru)', 
-		weight: { value: 800, measurement: 'g' },
 		isWishListItem: false,
-		category: '',
-		price: 24, 
-		locationPrice: 30, 
-		images: [""], 
+		images: [{ id: 1, url:"" }], 
 		variations: [
 			{
-				price: 24,
-				weight: { value: 800, measurement: 'g' },
+				price: {
+					converted: 24,
+					currency: 'CAD',
+					default: 28
+				},
+				marketPrice: {
+					converted: 15,
+					currency: 'CAD',
+					default: 28
+				},
+				weight: 0.8
 			}
 		],
 	},
 	{
-		productId: 9, 
-		name: 'Orijin Bitter', 
-		weight: { value: 0.1, measurement: 'kg' },
-		isWishListItem: false,
-		category: '',
-		price: 9, 
-		locationPrice: 15, 
-		images: [""], 
-		promotion: { 
-			promoName: 'Kobo Specials', 
-			promoPrice: 7 
-		},
-		variations: [
-			{
-				price: 9,
-				weight: { value: 0.1, measurement: 'kg' },
-			}
-		],
-	},
-	{
-		productId: 10, 
-		name: 'Yellow Garri', 
-		weight: { value: 1, measurement: 'kg' },
-		isWishListItem: false,
-		category: '',
-		price: 24, 
-		locationPrice: 30, 
-		images: [""], 
-		variations: [
-			{
-				price: 24,
-				weight: { value: 1, measurement: 'kg' },
-			}
-		],
-	},
-	{
-		productId: 11, 
-		name: 'Beans Flour',
-		weight: { value: 700, measurement: 'g' },
-		isWishListItem: false,
-		category: '',
-		price: 22, 
-		locationPrice: 28, 
-		images: [""], 
-		variations: [
-			{
-				price: 22,
-				weight: { value: 700, measurement: 'g' },
-			}
-		],
-	},
-	{
-		productId: 12, 
-		name: 'Palm Oil', 
-		weight: { value: 5, measurement: 'kg' },
-		isWishListItem: false,
-		category: '',
-		price: 26, 
-		locationPrice: 30, 
-		images: [""], 
-		promotion: { 
-			promoName: 'Black friday', 
-			promoPrice: 20 
-		},
-		variations: [
-			{
-				price: 26,
-				weight: { value: 5, measurement: 'kg' },
-			}
-		],
-	},
-	{
-		productId: 13, 
-		name: 'Local Spice', 
-		weight: { value: 2, measurement: 'kg' },
-		isWishListItem: false,
-		category: '',
-		price: 15, 
-		locationPrice: 24, 
-		images: [""], 
-		variations: [
-			{
-				price: 15,
-				weight: { value: 2, measurement: 'kg' },
-			}
-		],
-	},
-	{
-		productId: 14, 
-		name: 'Water Leaf', 
-		weight: { value: 500, measurement: 'g' },
-		isWishListItem: false,
-		category: '',
-		price: 24, 
-		locationPrice: 32, 
-		images: [""], 
-		variations: [
-			{
-				price: 24,
-				weight: { value: 500, measurement: 'g' },
-			}
-		],
-	},
-	{
-		productId: 15, 
-		name: 'Cray Fish', 
-		weight: { value: 5, measurement: 'kg' },
-		isWishListItem: false,
-		category: '',
-		price: 30, 
-		locationPrice: 35, 
-		images: [""], 
-		promotion: { 
-			promoName: 'Kobo Specials', 
-			promoPrice: 25 
-		},
-		variations: [
-			{
-				price: 30,
-				weight: { value: 5, measurement: 'kg' },
-			}
-		],
-	},
-	{
-		productId: 16, 
+		id: 16, 
 		name: 'Kilishi', 
-		weight: { value: 500, measurement: 'g' },
 		isWishListItem: false,
-		category: '',
-		price: 20, 
-		locationPrice: 28, 
-		images: [""], 
+		images: [{ id: 1, url: '' }], 
 		variations: [
 			{
-				price: 20,
-				weight: { value: 500, measurement: 'g' },
+				price: {
+					converted: 20,
+					currency: 'CAD',
+					default: 28
+				},
+				marketPrice: {
+					converted: 15,
+					currency: 'CAD',
+					default: 28
+				},
+				weight: 0.5
 			}
 		],
 	}

@@ -8,6 +8,7 @@ import { getWindowWidth } from './utils';
 import { Outlet } from '@tanstack/react-router';
 import DrawerComponent from '#component/DrawerComponent.tsx';
 import { useCallback, useEffect } from 'react';
+import PopupAddToCart from '#component/PopupAddToCart.tsx';
 
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
 			removeEventListener('resize', handleDrawerClose);
 		};
 	}, [handleDrawerClose]);
-	
+
 	return (
 		<>
 			<CssBaseline />
@@ -39,13 +40,14 @@ function App() {
 					</Stack>
 				</CustomDivWrapper>
 			</Main>
-			<DrawerComponent isCartOpen={isCartOpen} handleDrawerClose={handleDrawerClose}/>
+			<PopupAddToCart />
+			<DrawerComponent isCartOpen={isCartOpen} handleDrawerClose={handleDrawerClose} />
 		</>
 	);
 }
 
 const CustomDivWrapper = styled('div')(({ theme }) => ({
-	display: 'flex', 
+	display: 'flex',
 	flexDirection: 'column',
 	minHeight: '100vmin',
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
@@ -83,6 +85,6 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
 		},
 	],
 }));
-  
+
 
 export default App;

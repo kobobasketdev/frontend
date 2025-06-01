@@ -9,7 +9,7 @@ export const Route = createFileRoute(RoutePath.HOME)({
 		store.dispatch(setActiveMenu(0));
 		store.dispatch(setShowMenu(true));
 		store.dispatch(setIsShowheaderContainer(true));
-		
+
 		scrollTo({
 			top: 0,
 			behavior: 'instant'
