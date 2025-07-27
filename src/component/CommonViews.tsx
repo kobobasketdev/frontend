@@ -1,8 +1,10 @@
-import { LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, SMALLDESKTOP_BREAKPOINT, TABLET_BREAKPOINT, TABLET_SCREEN_MAX_WIDTH, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
+import { CUSTOM_893_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, SMALLDESKTOP_BREAKPOINT, TABLET_BREAKPOINT, TABLET_SCREEN_MAX_WIDTH, XTRA_SMALL_PHONE_BREAKPOINT } from "#constants.tsx";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { Avatar, Box, Button, Chip, IconButton, Link, Stack, styled, Typography } from "@mui/material";
+import { Avatar, Box, Button, Chip, IconButton, Stack, styled, Typography } from "@mui/material";
 import { useState } from "react";
 import { TAvatarSizing } from "./types";
+import { Link as RouteLink } from '@tanstack/react-router';
+import { upperFirst } from "lodash";
 
 export const WebOnlyView = styled(Box)(({ theme }) => ({
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
@@ -49,13 +51,13 @@ export const DropDownView = ({ title, children }: { title: string, children: Rea
 	return (
 		<Stack>
 			<Stack width={'fit-content'}>
-				<StyledButton 
+				<StyledButton
 					onClick={handleIsOpen()}
-					aria-label={`${title} dropdown`}  
+					aria-label={`${title} dropdown`}
 					variant="text"
 					endIcon={
 						<>
-							{!isOpen ? <ExpandMore /> : <ExpandLess /> }
+							{!isOpen ? <ExpandMore /> : <ExpandLess />}
 						</>
 					}
 				>
@@ -63,7 +65,7 @@ export const DropDownView = ({ title, children }: { title: string, children: Rea
 				</StyledButton>
 			</Stack>
 			<Box pl={1} mt={0}>
-				{isOpen ? children : <span></span> }
+				{isOpen ? children : <span></span>}
 				{/* <TransitionGroup>
 				</TransitionGroup> */}
 			</Box>
@@ -71,14 +73,14 @@ export const DropDownView = ({ title, children }: { title: string, children: Rea
 	);
 };
 
-export const FilterItem = ({ title="", imageSrc = "", href="" }: { title?: string, imageSrc?: string, href?: string }) => {
+export const FilterItem = ({ title = "", imageSrc = "", href = "" }: { title?: string, imageSrc?: string, href?: string }) => {
 	return (
-		<FilterItemLink underline="none" href={href}>
+		<FilterItemLink to={href}>
 			<Stack alignItems={'center'} gap={1} >
 				<FilterAvatar alt={title} src={imageSrc} />
 				{
 					title && <Typography fontWeight={'light'} fontFamily={'Roboto'} fontSize={'14px'} textAlign={'center'} width={'74px'}>
-						{title}
+						{upperFirst(title)}
 					</Typography>
 				}
 			</Stack>
@@ -86,8 +88,8 @@ export const FilterItem = ({ title="", imageSrc = "", href="" }: { title?: strin
 	);
 };
 
-const FilterItemLink = styled(Link)(({ theme }) =>({
-	'& p':{
+const FilterItemLink = styled(RouteLink)(({ theme }) => ({
+	'& p': {
 		color: theme.palette.primaryBlack.main
 	}
 }));
@@ -109,6 +111,23 @@ export const ProductAvatar = styled(Avatar, {
 	width: $size?.width || '100%'
 }));
 
+export const CartButton = styled(Button)(({ theme }) => ({
+	borderColor: 'rgba(109, 76, 65, 0.2)',
+	borderRadius: theme.shape.borderRadius * 5,
+	textTransform: 'inherit',
+	color: theme.palette.primaryBlack.lightshade
+}));
+
+export const CheckoutButton = styled(Button, {
+	shouldForwardProp: prop => !['$disabledButton', '$isCurved'].includes(prop as string)
+})<{ $disabledButton?: boolean, $isCurved?: boolean }>(({ theme, $disabledButton, $isCurved = true }) => ({
+	backgroundColor: $disabledButton ? theme.palette.action.disabled : theme.palette.primaryYellow.main,
+	borderRadius: $isCurved ? theme.shape.borderRadius * 5 : theme.shape.borderRadius,
+	textTransform: 'inherit',
+	color: theme.palette.primaryBlack.moreDeeper,
+	fontFamily: 'Roboto',
+}));
+
 export const ProductPriceTypography = styled(Typography, {
 	shouldForwardProp: prop => !['$isPromotion', '$fontSize', '$fontWeight'].includes(prop as string)
 })<{ $isPromotion?: boolean, $fontSize?: string, $fontWeight?: string }>(({ theme, ...props }) => ({
@@ -121,6 +140,20 @@ export const ProductPriceTypography = styled(Typography, {
 	[theme.breakpoints.down(466)]: {
 		fontSize: props.$fontSize && `calc(${props.$fontSize} - 4px)` || '16px'
 	},
+}));
+
+export const WeightSpan = styled('span')(({ theme }) => ({
+	backgroundColor: theme.palette.primaryGreen.light,
+	padding: theme.spacing(),
+	borderRadius: theme.shape.borderRadius
+}));
+
+export const SigupWithGoogle = styled(Button)(({ theme }) => ({
+	background: '#FFFFFF',
+	border: '1px solid rgba(120, 120, 128, 0.2)',
+	boxShadow: '0px 2px 11.4px rgba(0, 0, 0, 0.1)',
+	textTransform: 'inherit',
+	color: theme.palette.primaryBlack.moreDeeper
 }));
 
 export const ProductNameTypography = styled(Typography, {
@@ -165,7 +198,7 @@ export const ProductLocationPriceSpan = styled('span')(({ theme }) => ({
 	fontWeight: 'bold',
 	lineHeight: '100%',
 	letterSpacing: '0.17px',
-	textDecoration: 'line-through' 
+	textDecoration: 'line-through'
 }));
 
 export const ProductSavingTypography = styled(Typography, {
@@ -182,7 +215,7 @@ export const ProductSavingTypography = styled(Typography, {
 	},
 }));
 
-export const ProductPromotionChip = styled(Chip)(({ theme })=> ({
+export const ProductPromotionChip = styled(Chip)(({ theme }) => ({
 	backgroundColor: theme.palette.primaryOrange.light,
 	fontFamily: 'Roboto',
 	fontWeight: '500',
@@ -201,12 +234,12 @@ export const MiniPromotionGrid = styled('div')(({ theme }) => ({
 	width: 'fit-content',
 	columnGap: theme.spacing(3),
 	rowGap: theme.spacing(4),
-	gridTemplateColumns: "repeat(2, 680px)",
+	gridTemplateColumns: "repeat(2, 610px)",
 	[theme.breakpoints.down(LARGED_DESKTOP_SCREEN_MAX_WIDTH)]: {
 		gridTemplateColumns: "repeat(2, 450px)",
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		gridTemplateColumns: "repeat(2, minmax(400px,auto))",
+		gridTemplateColumns: "repeat(2, minmax(435px, auto))",
 		padding: `0px ${theme.spacing(1)}`,
 	},
 	[theme.breakpoints.down(893)]: {
@@ -214,13 +247,38 @@ export const MiniPromotionGrid = styled('div')(({ theme }) => ({
 		padding: `0px`,
 	},
 	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		gridTemplateColumns: "repeat(1, minmax(318px, auto))",
+		gridTemplateColumns: "repeat(1, minmax(auto, 690px))",
 		padding: `0px ${theme.spacing(2)}`,
 	},
 	[theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
-		gridTemplateColumns: "repeat(1, minmax(318px, auto))",
-		padding: `0px`,
+		// gridTemplateColumns: "repeat(1, minmax(318px, auto))",
+		padding: `8px`,
 	}
+}));
+
+export const StyledProfileButton = styled(Button, {
+	shouldForwardProp: props => props !== '$isActive'
+})<{ $isActive?: boolean }>(({ $isActive }) => ({
+	...($isActive && {
+		backgroundColor: 'rgba(120, 120, 128, 0.2)'
+	})
+}));
+
+export const CustomProfileGrid = styled('div')(() => ({
+	display: 'grid',
+	gridTemplateColumns: 'repeat(1, minmax(auto, 1200px))',
+}));
+
+export const StyledProfileNavContent = styled('div')(({ theme }) => ({
+	display: 'flex',
+	gap: theme.spacing(),
+	padding: theme.spacing(),
+	flexGrow: 1,
+	[theme.breakpoints.down(CUSTOM_893_WIDTH)]: {
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
 }));
 
 export const ContentStack = styled(Stack)(() => ({
@@ -228,6 +286,15 @@ export const ContentStack = styled(Stack)(() => ({
 	width: 'fit-content',
 	marginLeft: 'auto',
 	marginRight: 'auto',
+}));
+
+export const BuyagainButton = styled(Button)(({ theme }) => ({
+	backgroundColor: theme.palette.primaryYellow.main,
+	borderRadius: theme.shape.borderRadius * 2,
+	textTransform: 'inherit',
+	color: theme.palette.primaryBlack.moreDeeper,
+	fontFamily: 'Roboto',
+	boxShadow: '0px 1px 5px rgba(0, 0, 0, 0.12), 0px 2px 2px rgba(0, 0, 0, 0.14), 0px 3px 1px -2px rgba(0, 0, 0, 0.2)'
 }));
 
 export const ShopTypography = styled(Typography)(({ theme }) => ({
@@ -252,7 +319,7 @@ export const ShopTypographyLight = styled(Typography)(({ theme }) => ({
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
 		paddingLeft: theme.spacing()
 	},
-	
+
 }));
 
 export const CustomIconButton = styled(IconButton)(() => ({
@@ -271,13 +338,13 @@ export const CustomLongWishlistButton = styled(Button)(({ theme }) => ({
 	backgroundColor: 'rgba(255, 255, 255, 0.82)',
 	boxShadow: '0px 2px 11.4px rgba(0, 0, 0, 0.1)',
 	borderRadius: theme.shape.borderRadius * 6,
-	color: theme.palette.primaryBlack.moreDeeper
+	color: theme.palette.primaryBlack.moreDeeper,
 }));
 
 export const CustomSpan = styled('span')(({ theme }) => ({
 	display: 'inline-flex',
 	marginLeft: theme.spacing(.5),
-	fontSize: '1rem'
+	fontSize: '.8rem',
 }));
 
 export const WishLishIconButton = styled(IconButton)(({ theme }) => ({
@@ -291,4 +358,14 @@ export const ViewMore = styled('span')(() => ({
 	height: '22px',
 	right: '-6px',
 	bottom: '-3px'
+}));
+
+export const StyledHeaderLink = styled(RouteLink)(({ theme }) => ({
+	fontFamily: 'Roboto',
+	fontWeight: '500',
+	lineHeight: '166%',
+	/* or 17px */
+	letterSpacing: '0.4px',
+	color: theme.palette.primaryBlack.disabled,
+	textDecoration: 'underline'
 }));

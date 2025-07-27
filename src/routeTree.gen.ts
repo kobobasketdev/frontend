@@ -8,14 +8,39 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as WishlistImport } from './routes/wishlist'
+import { Route as TrackImport } from './routes/track'
+import { Route as SignupImport } from './routes/signup'
+import { Route as LoginImport } from './routes/login'
+import { Route as ForgotPasswordImport } from './routes/forgot-password'
+import { Route as FaqImport } from './routes/faq'
+import { Route as CheckoutImport } from './routes/checkout'
+import { Route as CartImport } from './routes/cart'
+import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
 import { Route as ProductsDetailsImport } from './routes/products.$details'
+import { Route as CompleteOrderIdImport } from './routes/complete.$orderId'
 import { Route as CategoryCategoryImport } from './routes/category.$category'
+import { Route as AuthSettingsImport } from './routes/_auth/settings'
+import { Route as AuthProfileImport } from './routes/_auth/profile'
+import { Route as AuthNotificationImport } from './routes/_auth/notification'
+import { Route as AuthHelpImport } from './routes/_auth/help'
+import { Route as AuthBuyagainImport } from './routes/_auth/buyagain'
 import { Route as ProductsReviewDetailsImport } from './routes/products_.review.$details'
+import { Route as AuthOrdersOrdersImport } from './routes/_auth/orders/_orders'
+import { Route as AuthOrdersOrdersIndexImport } from './routes/_auth/orders/_orders/index'
+import { Route as AuthOrdersDeliveredOrderIdImport } from './routes/_auth/orders/delivered.$orderId'
+import { Route as AuthOrdersOrdersNeworderImport } from './routes/_auth/orders/_orders/neworder'
+import { Route as AuthOrdersOrdersDeliveredImport } from './routes/_auth/orders/_orders/delivered'
+
+// Create Virtual Routes
+
+const AuthOrdersImport = createFileRoute('/_auth/orders')()
 
 // Create/Update Routes
 
@@ -25,15 +50,74 @@ const WishlistRoute = WishlistImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const TrackRoute = TrackImport.update({
+  id: '/track',
+  path: '/track',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SignupRoute = SignupImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ForgotPasswordRoute = ForgotPasswordImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FaqRoute = FaqImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CheckoutRoute = CheckoutImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CartRoute = CartImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthRoute = AuthImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthOrdersRoute = AuthOrdersImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AuthRoute,
+} as any)
+
 const ProductsDetailsRoute = ProductsDetailsImport.update({
   id: '/products/$details',
   path: '/products/$details',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CompleteOrderIdRoute = CompleteOrderIdImport.update({
+  id: '/complete/$orderId',
+  path: '/complete/$orderId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -43,10 +127,71 @@ const CategoryCategoryRoute = CategoryCategoryImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthSettingsRoute = AuthSettingsImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthProfileRoute = AuthProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthNotificationRoute = AuthNotificationImport.update({
+  id: '/notification',
+  path: '/notification',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthHelpRoute = AuthHelpImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthBuyagainRoute = AuthBuyagainImport.update({
+  id: '/buyagain',
+  path: '/buyagain',
+  getParentRoute: () => AuthRoute,
+} as any)
+
 const ProductsReviewDetailsRoute = ProductsReviewDetailsImport.update({
   id: '/products_/review/$details',
   path: '/products/review/$details',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AuthOrdersOrdersRoute = AuthOrdersOrdersImport.update({
+  id: '/_orders',
+  getParentRoute: () => AuthOrdersRoute,
+} as any)
+
+const AuthOrdersOrdersIndexRoute = AuthOrdersOrdersIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthOrdersOrdersRoute,
+} as any)
+
+const AuthOrdersDeliveredOrderIdRoute = AuthOrdersDeliveredOrderIdImport.update(
+  {
+    id: '/delivered/$orderId',
+    path: '/delivered/$orderId',
+    getParentRoute: () => AuthOrdersRoute,
+  } as any,
+)
+
+const AuthOrdersOrdersNeworderRoute = AuthOrdersOrdersNeworderImport.update({
+  id: '/neworder',
+  path: '/neworder',
+  getParentRoute: () => AuthOrdersOrdersRoute,
+} as any)
+
+const AuthOrdersOrdersDeliveredRoute = AuthOrdersOrdersDeliveredImport.update({
+  id: '/delivered',
+  path: '/delivered',
+  getParentRoute: () => AuthOrdersOrdersRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -60,6 +205,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthImport
+      parentRoute: typeof rootRoute
+    }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartImport
+      parentRoute: typeof rootRoute
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutImport
+      parentRoute: typeof rootRoute
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqImport
+      parentRoute: typeof rootRoute
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordImport
+      parentRoute: typeof rootRoute
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupImport
+      parentRoute: typeof rootRoute
+    }
+    '/track': {
+      id: '/track'
+      path: '/track'
+      fullPath: '/track'
+      preLoaderRoute: typeof TrackImport
+      parentRoute: typeof rootRoute
+    }
     '/wishlist': {
       id: '/wishlist'
       path: '/wishlist'
@@ -67,11 +268,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WishlistImport
       parentRoute: typeof rootRoute
     }
+    '/_auth/buyagain': {
+      id: '/_auth/buyagain'
+      path: '/buyagain'
+      fullPath: '/buyagain'
+      preLoaderRoute: typeof AuthBuyagainImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/help': {
+      id: '/_auth/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof AuthHelpImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/notification': {
+      id: '/_auth/notification'
+      path: '/notification'
+      fullPath: '/notification'
+      preLoaderRoute: typeof AuthNotificationImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/profile': {
+      id: '/_auth/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthProfileImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/settings': {
+      id: '/_auth/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthSettingsImport
+      parentRoute: typeof AuthImport
+    }
     '/category/$category': {
       id: '/category/$category'
       path: '/category/$category'
       fullPath: '/category/$category'
       preLoaderRoute: typeof CategoryCategoryImport
+      parentRoute: typeof rootRoute
+    }
+    '/complete/$orderId': {
+      id: '/complete/$orderId'
+      path: '/complete/$orderId'
+      fullPath: '/complete/$orderId'
+      preLoaderRoute: typeof CompleteOrderIdImport
       parentRoute: typeof rootRoute
     }
     '/products/$details': {
@@ -81,6 +324,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsDetailsImport
       parentRoute: typeof rootRoute
     }
+    '/_auth/orders': {
+      id: '/_auth/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof AuthOrdersImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/orders/_orders': {
+      id: '/_auth/orders/_orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof AuthOrdersOrdersImport
+      parentRoute: typeof AuthOrdersRoute
+    }
     '/products_/review/$details': {
       id: '/products_/review/$details'
       path: '/products/review/$details'
@@ -88,73 +345,282 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsReviewDetailsImport
       parentRoute: typeof rootRoute
     }
+    '/_auth/orders/_orders/delivered': {
+      id: '/_auth/orders/_orders/delivered'
+      path: '/delivered'
+      fullPath: '/orders/delivered'
+      preLoaderRoute: typeof AuthOrdersOrdersDeliveredImport
+      parentRoute: typeof AuthOrdersOrdersImport
+    }
+    '/_auth/orders/_orders/neworder': {
+      id: '/_auth/orders/_orders/neworder'
+      path: '/neworder'
+      fullPath: '/orders/neworder'
+      preLoaderRoute: typeof AuthOrdersOrdersNeworderImport
+      parentRoute: typeof AuthOrdersOrdersImport
+    }
+    '/_auth/orders/delivered/$orderId': {
+      id: '/_auth/orders/delivered/$orderId'
+      path: '/delivered/$orderId'
+      fullPath: '/orders/delivered/$orderId'
+      preLoaderRoute: typeof AuthOrdersDeliveredOrderIdImport
+      parentRoute: typeof AuthOrdersImport
+    }
+    '/_auth/orders/_orders/': {
+      id: '/_auth/orders/_orders/'
+      path: '/'
+      fullPath: '/orders/'
+      preLoaderRoute: typeof AuthOrdersOrdersIndexImport
+      parentRoute: typeof AuthOrdersOrdersImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface AuthOrdersOrdersRouteChildren {
+  AuthOrdersOrdersDeliveredRoute: typeof AuthOrdersOrdersDeliveredRoute
+  AuthOrdersOrdersNeworderRoute: typeof AuthOrdersOrdersNeworderRoute
+  AuthOrdersOrdersIndexRoute: typeof AuthOrdersOrdersIndexRoute
+}
+
+const AuthOrdersOrdersRouteChildren: AuthOrdersOrdersRouteChildren = {
+  AuthOrdersOrdersDeliveredRoute: AuthOrdersOrdersDeliveredRoute,
+  AuthOrdersOrdersNeworderRoute: AuthOrdersOrdersNeworderRoute,
+  AuthOrdersOrdersIndexRoute: AuthOrdersOrdersIndexRoute,
+}
+
+const AuthOrdersOrdersRouteWithChildren =
+  AuthOrdersOrdersRoute._addFileChildren(AuthOrdersOrdersRouteChildren)
+
+interface AuthOrdersRouteChildren {
+  AuthOrdersOrdersRoute: typeof AuthOrdersOrdersRouteWithChildren
+  AuthOrdersDeliveredOrderIdRoute: typeof AuthOrdersDeliveredOrderIdRoute
+}
+
+const AuthOrdersRouteChildren: AuthOrdersRouteChildren = {
+  AuthOrdersOrdersRoute: AuthOrdersOrdersRouteWithChildren,
+  AuthOrdersDeliveredOrderIdRoute: AuthOrdersDeliveredOrderIdRoute,
+}
+
+const AuthOrdersRouteWithChildren = AuthOrdersRoute._addFileChildren(
+  AuthOrdersRouteChildren,
+)
+
+interface AuthRouteChildren {
+  AuthBuyagainRoute: typeof AuthBuyagainRoute
+  AuthHelpRoute: typeof AuthHelpRoute
+  AuthNotificationRoute: typeof AuthNotificationRoute
+  AuthProfileRoute: typeof AuthProfileRoute
+  AuthSettingsRoute: typeof AuthSettingsRoute
+  AuthOrdersRoute: typeof AuthOrdersRouteWithChildren
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthBuyagainRoute: AuthBuyagainRoute,
+  AuthHelpRoute: AuthHelpRoute,
+  AuthNotificationRoute: AuthNotificationRoute,
+  AuthProfileRoute: AuthProfileRoute,
+  AuthSettingsRoute: AuthSettingsRoute,
+  AuthOrdersRoute: AuthOrdersRouteWithChildren,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '': typeof AuthRouteWithChildren
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
+  '/faq': typeof FaqRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/track': typeof TrackRoute
   '/wishlist': typeof WishlistRoute
+  '/buyagain': typeof AuthBuyagainRoute
+  '/help': typeof AuthHelpRoute
+  '/notification': typeof AuthNotificationRoute
+  '/profile': typeof AuthProfileRoute
+  '/settings': typeof AuthSettingsRoute
   '/category/$category': typeof CategoryCategoryRoute
+  '/complete/$orderId': typeof CompleteOrderIdRoute
   '/products/$details': typeof ProductsDetailsRoute
+  '/orders': typeof AuthOrdersOrdersRouteWithChildren
   '/products/review/$details': typeof ProductsReviewDetailsRoute
+  '/orders/delivered': typeof AuthOrdersOrdersDeliveredRoute
+  '/orders/neworder': typeof AuthOrdersOrdersNeworderRoute
+  '/orders/delivered/$orderId': typeof AuthOrdersDeliveredOrderIdRoute
+  '/orders/': typeof AuthOrdersOrdersIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '': typeof AuthRouteWithChildren
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
+  '/faq': typeof FaqRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/track': typeof TrackRoute
   '/wishlist': typeof WishlistRoute
+  '/buyagain': typeof AuthBuyagainRoute
+  '/help': typeof AuthHelpRoute
+  '/notification': typeof AuthNotificationRoute
+  '/profile': typeof AuthProfileRoute
+  '/settings': typeof AuthSettingsRoute
   '/category/$category': typeof CategoryCategoryRoute
+  '/complete/$orderId': typeof CompleteOrderIdRoute
   '/products/$details': typeof ProductsDetailsRoute
+  '/orders': typeof AuthOrdersOrdersIndexRoute
   '/products/review/$details': typeof ProductsReviewDetailsRoute
+  '/orders/delivered': typeof AuthOrdersOrdersDeliveredRoute
+  '/orders/neworder': typeof AuthOrdersOrdersNeworderRoute
+  '/orders/delivered/$orderId': typeof AuthOrdersDeliveredOrderIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/_auth': typeof AuthRouteWithChildren
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
+  '/faq': typeof FaqRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/track': typeof TrackRoute
   '/wishlist': typeof WishlistRoute
+  '/_auth/buyagain': typeof AuthBuyagainRoute
+  '/_auth/help': typeof AuthHelpRoute
+  '/_auth/notification': typeof AuthNotificationRoute
+  '/_auth/profile': typeof AuthProfileRoute
+  '/_auth/settings': typeof AuthSettingsRoute
   '/category/$category': typeof CategoryCategoryRoute
+  '/complete/$orderId': typeof CompleteOrderIdRoute
   '/products/$details': typeof ProductsDetailsRoute
+  '/_auth/orders': typeof AuthOrdersRouteWithChildren
+  '/_auth/orders/_orders': typeof AuthOrdersOrdersRouteWithChildren
   '/products_/review/$details': typeof ProductsReviewDetailsRoute
+  '/_auth/orders/_orders/delivered': typeof AuthOrdersOrdersDeliveredRoute
+  '/_auth/orders/_orders/neworder': typeof AuthOrdersOrdersNeworderRoute
+  '/_auth/orders/delivered/$orderId': typeof AuthOrdersDeliveredOrderIdRoute
+  '/_auth/orders/_orders/': typeof AuthOrdersOrdersIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | ''
+    | '/cart'
+    | '/checkout'
+    | '/faq'
+    | '/forgot-password'
+    | '/login'
+    | '/signup'
+    | '/track'
     | '/wishlist'
+    | '/buyagain'
+    | '/help'
+    | '/notification'
+    | '/profile'
+    | '/settings'
     | '/category/$category'
+    | '/complete/$orderId'
     | '/products/$details'
+    | '/orders'
     | '/products/review/$details'
+    | '/orders/delivered'
+    | '/orders/neworder'
+    | '/orders/delivered/$orderId'
+    | '/orders/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | ''
+    | '/cart'
+    | '/checkout'
+    | '/faq'
+    | '/forgot-password'
+    | '/login'
+    | '/signup'
+    | '/track'
     | '/wishlist'
+    | '/buyagain'
+    | '/help'
+    | '/notification'
+    | '/profile'
+    | '/settings'
     | '/category/$category'
+    | '/complete/$orderId'
     | '/products/$details'
+    | '/orders'
     | '/products/review/$details'
+    | '/orders/delivered'
+    | '/orders/neworder'
+    | '/orders/delivered/$orderId'
   id:
     | '__root__'
     | '/'
+    | '/_auth'
+    | '/cart'
+    | '/checkout'
+    | '/faq'
+    | '/forgot-password'
+    | '/login'
+    | '/signup'
+    | '/track'
     | '/wishlist'
+    | '/_auth/buyagain'
+    | '/_auth/help'
+    | '/_auth/notification'
+    | '/_auth/profile'
+    | '/_auth/settings'
     | '/category/$category'
+    | '/complete/$orderId'
     | '/products/$details'
+    | '/_auth/orders'
+    | '/_auth/orders/_orders'
     | '/products_/review/$details'
+    | '/_auth/orders/_orders/delivered'
+    | '/_auth/orders/_orders/neworder'
+    | '/_auth/orders/delivered/$orderId'
+    | '/_auth/orders/_orders/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRouteWithChildren
+  CartRoute: typeof CartRoute
+  CheckoutRoute: typeof CheckoutRoute
+  FaqRoute: typeof FaqRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
+  TrackRoute: typeof TrackRoute
   WishlistRoute: typeof WishlistRoute
   CategoryCategoryRoute: typeof CategoryCategoryRoute
+  CompleteOrderIdRoute: typeof CompleteOrderIdRoute
   ProductsDetailsRoute: typeof ProductsDetailsRoute
   ProductsReviewDetailsRoute: typeof ProductsReviewDetailsRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRouteWithChildren,
+  CartRoute: CartRoute,
+  CheckoutRoute: CheckoutRoute,
+  FaqRoute: FaqRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
+  TrackRoute: TrackRoute,
   WishlistRoute: WishlistRoute,
   CategoryCategoryRoute: CategoryCategoryRoute,
+  CompleteOrderIdRoute: CompleteOrderIdRoute,
   ProductsDetailsRoute: ProductsDetailsRoute,
   ProductsReviewDetailsRoute: ProductsReviewDetailsRoute,
 }
@@ -170,8 +636,17 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/_auth",
+        "/cart",
+        "/checkout",
+        "/faq",
+        "/forgot-password",
+        "/login",
+        "/signup",
+        "/track",
         "/wishlist",
         "/category/$category",
+        "/complete/$orderId",
         "/products/$details",
         "/products_/review/$details"
       ]
@@ -179,17 +654,105 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
+    "/_auth": {
+      "filePath": "_auth.ts",
+      "children": [
+        "/_auth/buyagain",
+        "/_auth/help",
+        "/_auth/notification",
+        "/_auth/profile",
+        "/_auth/settings",
+        "/_auth/orders"
+      ]
+    },
+    "/cart": {
+      "filePath": "cart.ts"
+    },
+    "/checkout": {
+      "filePath": "checkout.tsx"
+    },
+    "/faq": {
+      "filePath": "faq.ts"
+    },
+    "/forgot-password": {
+      "filePath": "forgot-password.ts"
+    },
+    "/login": {
+      "filePath": "login.tsx"
+    },
+    "/signup": {
+      "filePath": "signup.tsx"
+    },
+    "/track": {
+      "filePath": "track.ts"
+    },
     "/wishlist": {
       "filePath": "wishlist.ts"
     },
+    "/_auth/buyagain": {
+      "filePath": "_auth/buyagain.ts",
+      "parent": "/_auth"
+    },
+    "/_auth/help": {
+      "filePath": "_auth/help.ts",
+      "parent": "/_auth"
+    },
+    "/_auth/notification": {
+      "filePath": "_auth/notification.ts",
+      "parent": "/_auth"
+    },
+    "/_auth/profile": {
+      "filePath": "_auth/profile.ts",
+      "parent": "/_auth"
+    },
+    "/_auth/settings": {
+      "filePath": "_auth/settings.ts",
+      "parent": "/_auth"
+    },
     "/category/$category": {
-      "filePath": "category.$category.ts"
+      "filePath": "category.$category.tsx"
+    },
+    "/complete/$orderId": {
+      "filePath": "complete.$orderId.tsx"
     },
     "/products/$details": {
       "filePath": "products.$details.tsx"
     },
+    "/_auth/orders": {
+      "filePath": "_auth/orders",
+      "parent": "/_auth",
+      "children": [
+        "/_auth/orders/_orders",
+        "/_auth/orders/delivered/$orderId"
+      ]
+    },
+    "/_auth/orders/_orders": {
+      "filePath": "_auth/orders/_orders.ts",
+      "parent": "/_auth/orders",
+      "children": [
+        "/_auth/orders/_orders/delivered",
+        "/_auth/orders/_orders/neworder",
+        "/_auth/orders/_orders/"
+      ]
+    },
     "/products_/review/$details": {
       "filePath": "products_.review.$details.ts"
+    },
+    "/_auth/orders/_orders/delivered": {
+      "filePath": "_auth/orders/_orders/delivered.ts",
+      "parent": "/_auth/orders/_orders"
+    },
+    "/_auth/orders/_orders/neworder": {
+      "filePath": "_auth/orders/_orders/neworder.ts",
+      "parent": "/_auth/orders/_orders"
+    },
+    "/_auth/orders/delivered/$orderId": {
+      "filePath": "_auth/orders/delivered.$orderId.ts",
+      "parent": "/_auth/orders"
+    },
+    "/_auth/orders/_orders/": {
+      "filePath": "_auth/orders/_orders/index.tsx",
+      "parent": "/_auth/orders/_orders"
     }
   }
 }

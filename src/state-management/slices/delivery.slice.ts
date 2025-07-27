@@ -1,14 +1,11 @@
 import { createSelector, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { ICurrency } from "./currency.slice";
 import type { RootState } from "#state-management/store.ts";
+import { IDeliveryState } from "#utils/index.ts";
 
-export interface IDeliveryState extends ICurrency {
-	country: string,
-};
 const initialDeliveryState: IDeliveryState = {
 	country: 'canada',
-	name: 'Canadian Dollar', code: 'CAD', symbol: '$'
+	code: 'CA'
 };
 
 export const deliverySlice = createSlice({
@@ -18,9 +15,7 @@ export const deliverySlice = createSlice({
 		setDeliveryLocation: (state, action: PayloadAction<IDeliveryState>) => {
 			state.country = action.payload.country;
 			state.code = action.payload.code;
-			state.name = action.payload.name;
-			state.symbol = action.payload.symbol;
-		}
+		},
 	}
 });
 

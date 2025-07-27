@@ -12,14 +12,14 @@ import ScrollableContainer from "./ScrollableContainer";
 export default function BoughtTogether({ boughtTogether }: { boughtTogether: TItem[] }) {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
-	const handleGotoProductDetails = (itemId: number) => () => {
+	const handleGotoProductDetails = (itemId: string) => () => {
 		dispatch(setShowMenu(false));
 		navigate({
 			to: RoutePath.PRODUCT_DISPLAY,
-			params:{ details: itemId+"" }
+			params: { details: itemId + "" }
 		});
 	};
-        
+
 	return (
 		<Stack pt={4}>
 			<Typography fontFamily={'Alata'} fontSize={'15px'} pl={.5}>
@@ -27,7 +27,7 @@ export default function BoughtTogether({ boughtTogether }: { boughtTogether: TIt
 			</Typography>
 			<MobileContainer>
 				{boughtTogether.map((boughtItem, index) => (
-					<BoughtMoreProduct key={index} item={boughtItem} handleGotoProductDetails={handleGotoProductDetails(boughtItem.productId)}/>
+					<BoughtMoreProduct key={index} item={boughtItem} handleGotoProductDetails={handleGotoProductDetails(boughtItem.id)} />
 				))}
 			</MobileContainer>
 			<WebContainer>
@@ -36,7 +36,7 @@ export default function BoughtTogether({ boughtTogether }: { boughtTogether: TIt
 						<Stack direction={'row'} gap={1}>
 							{
 								boughtTogether.map((boughtItem, index) => (
-									<BoughtMoreProduct key={index} item={boughtItem} handleGotoProductDetails={handleGotoProductDetails(boughtItem.productId)}/>
+									<BoughtMoreProduct key={index} item={boughtItem} handleGotoProductDetails={handleGotoProductDetails(boughtItem.id)} />
 								))
 							}
 						</Stack>
@@ -51,16 +51,16 @@ const BoughtMoreProduct = ({ item, handleGotoProductDetails }: { item: TItem, ha
 	return (
 		<StyledBoughtMoreStack>
 			<Stack borderRadius={3} overflow={'hidden'}>
-				<ProductAvatar 
-					src={item.images[0] || ''} 
+				<ProductAvatar
+					src={item.images[0]?.url || ''}
 					alt={item.name}
-					variant={'rounded'} 
+					variant={'rounded'}
 				/>
 			</Stack>
 			<StyledProductButton disableRipple onClick={handleGotoProductDetails}>
-				<ProductInfo 
-					item={item} 
-					showPrice 
+				<ProductInfo
+					item={item}
+					showPrice
 					fullDetails
 					fontSize="24px"
 					fontWeight="600"

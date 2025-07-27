@@ -16,7 +16,9 @@ export type TCartMap = {
 
 type TCartState = {
 	isOpen: boolean,
-	cartItemsMap: TCartMap
+	cartItemsMap: TCartMap,
+	showCheckoutSignIn: boolean,
+	popupItem: TItem | null
 };
 
 type TRemoveItem = {
@@ -30,7 +32,9 @@ type TUpdateCardItem = {
 
 const initialCartState: TCartState = {
 	isOpen: false,
-	cartItemsMap: getFromLocalStorage('cart') as TCartMap
+	cartItemsMap: getFromLocalStorage('cart') as TCartMap,
+	showCheckoutSignIn: false,
+	popupItem: null
 };
 
 export const cartSlice = createSlice({
@@ -44,8 +48,8 @@ export const cartSlice = createSlice({
 			state.isOpen = true;
 		},
 		addItemToCart: (state, action: PayloadAction<TCartItems>) => {
-			const cartId = `${action.payload.item.productId}-${action.payload.variant}`;
-			const cartProductExist = state.cartItemsMap[`${action.payload.item.productId}-${action.payload.variant}`];
+			const cartId = `${action.payload.item.id}-${action.payload.variant}`;
+			const cartProductExist = state.cartItemsMap[`${action.payload.item.id}-${action.payload.variant}`];
 			if(!cartProductExist) {
 				state.cartItemsMap[cartId] = action.payload;
 			}
@@ -61,12 +65,27 @@ export const cartSlice = createSlice({
 		updateCartItem: (state, action: PayloadAction<TUpdateCardItem>) => {
 			state.cartItemsMap[action.payload.productId_Variant].quantity = action.payload.quantity;
 			saveToLocalStorage('cart', state.cartItemsMap);
+		},
+		setAddToCartPopup: (state, action: PayloadAction<TItem | null>) => {
+			state.popupItem = action.payload;
+		},
+		addBulkItemToCart: (state, action: PayloadAction<Record<string, TCartItems>>) => {
+			const existingCart = state.cartItemsMap;
+			state.cartItemsMap = {
+				...existingCart,
+				...action.payload
+			};
+			saveToLocalStorage('cart', state.cartItemsMap);
 		}
 	}
 });
 
 export default cartSlice.reducer;
-export const { openCart, closeCart, addItemToCart, removeItemFromCart, updateCartItem } = cartSlice.actions;
+export const { openCart, closeCart, 
+	addItemToCart, removeItemFromCart, 
+	updateCartItem, setAddToCartPopup,
+	addBulkItemToCart 
+} = cartSlice.actions;
 
 export const selectCartVisibile = createSelector(
 	[(state: RootState) => state.cart],
@@ -81,4 +100,9 @@ export const selectCartItems = createSelector(
 export const selectCartItemsCount = createSelector(
 	[ (state: RootState) => state.cart.cartItemsMap],
 	(cartItems) => Object.keys(cartItems).length
+);
+
+export const selectPopupAddToCartItem = createSelector(
+	[ (state: RootState) => state.cart],
+	(cart) => cart.popupItem
 );

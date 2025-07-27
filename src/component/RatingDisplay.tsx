@@ -5,7 +5,7 @@ import millify from "millify";
 import pluralize from "pluralize";
 
 const ratings = ['5', '4', '3', '2', '1'];
-export default function RatingDisplay({ ratingBank }: { 
+export default function RatingDisplay({ ratingBank }: {
 	ratingBank: {
 		[x: string]: {
 			percent: number,
@@ -15,7 +15,7 @@ export default function RatingDisplay({ ratingBank }: {
 }) {
 	return (
 		<>
-			<TableContainer sx={{  mt: 1, pb: 2, }}>
+			<TableContainer sx={{ mt: 1, pb: 2, }}>
 				<Table aria-label="rating table">
 					<TableBody >
 						{
@@ -27,7 +27,7 @@ export default function RatingDisplay({ ratingBank }: {
 									<TableCell size="small" width={1}>
 										<Stack direction={'row'} color={theme.palette.primaryBlack.disabled}>
 											<Typography >
-												{rate} 
+												{rate}
 											</Typography>
 											<Star fontSize="inherit" sx={{ height: '8px', width: '8px' }} />
 										</Stack>
@@ -35,16 +35,23 @@ export default function RatingDisplay({ ratingBank }: {
 									<TableCell size="small" width={1}>
 										<Stack direction={'row'} gap={.4}>
 											<span>
-												{millify(ratingBank[rate]?.reviewCount || 0, {
+												{/* {millify(ratingBank[rate]?.reviewCount || 0, {
 													units: ['', 'k', 'm', 'b'],
 													precision: 3,
-												})} 
+												})}  */}
+												0
 											</span>
-											<span>{pluralize('review', ratingBank[rate]?.reviewCount || 0 )}</span>
+											<span>
+												0
+												{/* {pluralize('review', ratingBank[rate]?.reviewCount || 0 )} */}
+											</span>
 										</Stack>
 									</TableCell>
 									<TableCell size="small">
-										<ReviewLinearProgress variant="determinate" value={ratingBank[rate]?.percent || 0} />
+										<ReviewLinearProgress variant="determinate"
+											value={0}
+										// value={ratingBank[rate]?.percent || 0} 
+										/>
 									</TableCell>
 								</TableRow>
 							))

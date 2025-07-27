@@ -3,7 +3,7 @@ import { useAppSelector } from "#state-management/hooks.ts";
 import { selectIsShowHeader } from "#state-management/slices/active-menu.slice.ts";
 import { Stack, styled } from "@mui/material";
 
-export default function MiniNavigation({ children, shouldHide=false }: { children: React.ReactNode, shouldHide?: boolean }) {
+export default function MiniNavigation({ children, shouldHide = false }: { children: React.ReactNode, shouldHide?: boolean }) {
 	const isShowHeader = useAppSelector(selectIsShowHeader);
 	return (
 		<ProductHeadingStack $shouldHide={shouldHide} $isShowHeader={isShowHeader} direction={'row'} alignItems={'center'}>
@@ -18,13 +18,13 @@ const ProductHeadingStack = styled(Stack, {
 	paddingLeft: theme.spacing(),
 	paddingTop: theme.spacing(.5),
 	width: '100%',
-	...($isShowHeader ? { position: 'relative', visibility: $shouldHide ? 'hidden' : 'visible' } : 
-		{ 
+	...($isShowHeader ? { position: 'relative', visibility: $shouldHide ? 'hidden' : 'visible' } :
+		{
 			position: 'fixed',
 			paddingLeft: theme.spacing(5),
-			zIndex: theme.zIndex.appBar, 
-			top: '0px', 
-			backgroundColor: 'white', 
+			zIndex: theme.zIndex.appBar,
+			top: '0px',
+			backgroundColor: 'white',
 			paddingBottom: theme.spacing(),
 			boxShadow: theme.shadows[4],
 		}),
@@ -32,9 +32,9 @@ const ProductHeadingStack = styled(Stack, {
 		paddingLeft: theme.spacing(2),
 	},
 	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		paddingLeft: $isShowHeader ? theme.spacing(4.5) : theme.spacing(2) ,
+		paddingLeft: $isShowHeader ? theme.spacing(4.5) : theme.spacing(2),
 	},
 	[theme.breakpoints.down(600)]: {
-		paddingLeft: theme.spacing(1.5) ,
+		paddingLeft: theme.spacing(1.5),
 	}
 }));

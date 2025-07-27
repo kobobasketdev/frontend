@@ -3,9 +3,9 @@ import { HighlightOff, Menu } from "@mui/icons-material";
 import { AllMobileOnlyView } from "./CommonViews";
 import { useState } from "react";
 
+const hambugerMenu = ['Create Account', 'Shipping and Delivery', 'Chat with us', 'Support and safety', 'About Kobobasket'];
 export default function HambugerMenu() {
 	const [open, setOpen] = useState(false);
-	const hambugerMenu = ['Create Account', 'Shipping and Delivery', 'Chat with us', 'Support and safety', 'About Kobobasket'];
 	const toggleDrawer = (newOpen: boolean) => () => {
 		setOpen(newOpen);
 	};
@@ -18,7 +18,7 @@ export default function HambugerMenu() {
 				</IconButton>
 			</HambugerContainer>
 			<Drawer open={open} onClose={toggleDrawer(false)}>
-				<Stack direction={'row'}  pt={1} height={1}>
+				<Stack direction={'row'} pt={1} height={1}>
 					<Stack>
 						<List disablePadding>
 							{

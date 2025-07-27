@@ -3,23 +3,24 @@ import { ExpandMore } from "@mui/icons-material";
 import { useState, MouseEvent } from "react";
 import { CategorySelection } from "./types";
 import { NavigationHeaderButton } from "./NavigationHeaderButton";
+import { useAppSelector } from "#state-management/hooks.ts";
+import { selectProductCategories } from "#state-management/slices/active-menu.slice.ts";
+import { upperFirst } from "lodash";
+import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 
-export default function SearchDropdown() {
+export default function SearchDropdown({ dropdownSelection, setDropdownSelection }: {
+	dropdownSelection: CategorySelection,
+	setDropdownSelection: (args: CategorySelection) => void
+}) {
 	const [open, setOpen] = useState(false);
-	const [selection, setSelection] = useState<CategorySelection>({
-		id: 1,
-		name: 'All categories'
-	});
+
+	const productCategories = useAppSelector(selectProductCategories);
+
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	//TODO: Get category list from query
 	const categories = [
-		{ id: 1, name: 'All categories' }, 
-		{ id: 2, name: 'Staples' },
-		{ id: 3, name:  'Oils' }, 
-		{ id: 4, name: 'Flour' }, 
-		{ id: 5, name: 'Beauty' }, 
-		{ id: 6, name: 'Spices' }, 
-		{ id: 7, name: 'Snacks' }
+		{ id: 0, name: 'All categories' },
+		...productCategories.slice(1)
 	];
 
 	const handledChangeCategory = (event: MouseEvent<HTMLElement>) => {
@@ -32,15 +33,15 @@ export default function SearchDropdown() {
 	};
 
 	const handleChooseSelection = (userSelection: CategorySelection) => {
-		setSelection({ ... userSelection });
+		setDropdownSelection({ ...userSelection });
 		handleClickAway();
 	};
-      
+
 	const canOpenCategory = open && Boolean(anchorEl);
 	const id = canOpenCategory ? 'change-product-category' : undefined;
 	return (
 		<>
-			<NavigationHeaderButton 
+			<NavigationHeaderButton
 				aria-label="change product category" aria-describedby={id} onClick={handledChangeCategory}
 				sx={{ pl: '0px' }}
 				variant="text"
@@ -48,17 +49,17 @@ export default function SearchDropdown() {
 					<ExpandMore />
 				}
 			>
-				{selection.name}
+				{upperFirst(dropdownSelection.name)}
 			</NavigationHeaderButton>
-			<StyledPopper id={id} open={open} anchorEl={anchorEl} placement="bottom-start">
+			<StyledPopper id={id} open={open} anchorEl={anchorEl} placement="bottom-end">
 				<ClickAwayListener onClickAway={handleClickAway}>
 					<Paper elevation={2}>
 						<StyledList>
 							{categories.map(({ id, name }) => (
 								<ListItem key={id} disablePadding>
-									<ListItemButton disabled={selection.id === id} onClick={() => handleChooseSelection({ id, name })}
+									<ListItemButton disabled={dropdownSelection.id === id} onClick={() => handleChooseSelection({ id, name })}
 										aria-label={`choose ${name}`}>
-										{name}
+										{upperFirst(name)}
 									</ListItemButton>
 								</ListItem>
 							))}
@@ -71,7 +72,10 @@ export default function SearchDropdown() {
 }
 
 const StyledPopper = styled(Popper)(({ theme }) => ({
-	zIndex: theme.zIndex.appBar
+	zIndex: theme.zIndex.appBar,
+	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
+		zIndex: theme.zIndex.tooltip
+	}
 }));
 
 const StyledList = styled(List)({

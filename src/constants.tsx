@@ -11,4 +11,4 @@ export const SMALL_SCREEN_MAX_WIDTH = 576;
 export const CUSTOM_893_WIDTH = 893;
 
 export const drawerWidth = 210;
-export const minimumWeight = 20;
+export const minimumWeight = 10;

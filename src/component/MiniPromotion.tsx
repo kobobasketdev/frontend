@@ -3,38 +3,50 @@ import { TAvatarSizing, TItem, TMiniGrid, TMiniPromotionProps } from "./types";
 import ScrollableContainer from "./ScrollableContainer";
 import { NORMAL_PHONE_BREAKPOINT } from "#constants.tsx";
 import { ProductAvatar as MiniPromotionAvatar, ProductPriceTypography as MiniPromotionPriceTypography } from "./CommonViews";
-import { useAppSelector } from "#state-management/hooks.ts";
-import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
+import { Link } from "@tanstack/react-router";
+import { RoutePath } from "#utils/route.ts";
+import { useQuery } from "@tanstack/react-query";
+import { getAllProductsByCategory } from "#hooks/query/product";
+import { shuffle, upperFirst } from "lodash";
 
-export default function MiniPromotion({ 
-	title, 
-	type, 
-	items, 
+const BANNER = ['Best sellers in ', 'Frequently bought ', 'Amazing Deals on ', 'Shop new products in ', 'Continue shopping for '];
+
+export default function MiniPromotion({
+	itemCount,
+	categoryInfo,
+	type,
 	bgColor,
-	showPrice = false, 
-	isCircularImage = false,  
+	showPrice = false,
+	isCircularImage = false,
 	dynamicClass,
-	height
+	height,
+	title
 }: TMiniPromotionProps) {
+	const index = Math.floor((Math.random() * BANNER.length));
+	const { data: itemsData } = useQuery(getAllProductsByCategory({ page: 1, productCategory: categoryInfo.id, isPromotion: categoryInfo.isPromotion }));
+	const shuffledData = shuffle(itemsData?.data.data as TItem[]);
+	const bannerTitle = title || BANNER[index] + upperFirst(categoryInfo.name);
+
+	const finalItemCount = (!itemCount || itemCount > shuffledData.length) ? shuffledData.length : itemCount;
 	let promoContent;
-	if(type.name === 'grid') {
+	if (type.name === 'grid') {
 		const column = (type as TMiniGrid).column;
-		promoContent = <GridPromotion 
-			items={items} 
-			showPrice={showPrice} 
-			isCircularImage={isCircularImage} 
-			column={column} 
-			spacing={type.spacing} 
-			size={type.size} 
+		promoContent = <GridPromotion
+			items={shuffledData.slice(0, finalItemCount)}
+			showPrice={showPrice}
+			isCircularImage={isCircularImage}
+			column={column}
+			spacing={type.spacing}
+			size={type.size}
 			dynamicClass={dynamicClass}
 		/>;
 	}
 	else {
-		promoContent = <ScrollablePromotion 
-			items={items} 
-			showPrice={showPrice} 
-			isCircularImage={isCircularImage} 
-			spacing={type.spacing} 
+		promoContent = <ScrollablePromotion
+			items={shuffledData.slice(0, finalItemCount)}
+			showPrice={showPrice}
+			isCircularImage={isCircularImage}
+			spacing={type.spacing}
 			size={type.size}
 			scrollBy={type.scollBy}
 		/>;
@@ -42,40 +54,40 @@ export default function MiniPromotion({
 	return (
 		<Stack width={1} height={height || 'inherit'} bgcolor={bgColor} borderRadius={2} pt={2} gap={1}>
 			<MiniPromotionTypography pl={2} pr={2}>
-				{title}
+				{bannerTitle}
 			</MiniPromotionTypography>
 			{promoContent}
 		</Stack>
 	);
 }
 
-const GridPromotion = ({ 
-	items, 
-	showPrice, 
-	isCircularImage, 
+const GridPromotion = ({
+	items,
+	showPrice,
+	isCircularImage,
 	size,
-	column=2, 
-	spacing=2,
+	column = 2,
+	spacing = 2,
 	dynamicClass
-}: { 
-	items: TItem[], 
-	showPrice: boolean, 
+}: {
+	items: TItem[],
+	showPrice: boolean,
 	isCircularImage: boolean,
 	size?: TAvatarSizing,
 	column: number
 	spacing?: number,
-	dynamicClass?: boolean 
+	dynamicClass?: boolean
 }) => {
 	return (
 		<MiniPromotionalGrid $columnGap={column} $spacing={spacing} className="grid-parent">
 			{
 				items.map(item => (
-					<PromotionContent 
+					<PromotionContent
 						dynamicClass={dynamicClass}
-						key={item.productId}
-						item={item} 
-						showPrice={showPrice} 
-						isCircularImage={isCircularImage} 
+						key={item.id}
+						item={item}
+						showPrice={showPrice}
+						isCircularImage={isCircularImage}
 						size={size}
 					/>
 				))
@@ -84,52 +96,58 @@ const GridPromotion = ({
 	);
 };
 
-const PromotionContent = ({ 
-	item, 
-	showPrice, 
+const PromotionContent = ({
+	item,
+	showPrice,
 	dynamicClass,
-	isCircularImage, 
-	size,  
-}: { 
-	item: TItem, 
+	isCircularImage,
+	size,
+}: {
+	item: TItem,
 	dynamicClass?: boolean,
-	showPrice: boolean, 
+	showPrice: boolean,
 	isCircularImage: boolean,
 	size?: TAvatarSizing,
 }) => {
-	const { code, symbol } = useAppSelector(selectDeliverLocation);
-	const price = item.promotion?.promoPrice || item.price;
+	const code = item.variations[0].price.currency;
+	// const symbol = appCurrencySymbol[code];
+	const minimumPrice = Math.min(...item.variations.map(variation => variation.price.converted));
+
 	return (
-		<Stack gap={1.5}>
-			<Stack borderRadius={3} overflow={'hidden'}>
-				<MiniPromotionAvatar 
-					src={item.images[0] || ''} 
-					alt={item.name}
-					variant={isCircularImage ? 'circular' : 'rounded'} 
-					className={dynamicClass ? 'dynamic-avatar' : ''}
-					$size={size}
-				/>
+		<Link to={RoutePath.PRODUCT_DISPLAY} params={{ details: '' + item.id }}>
+			<Stack gap={1.5}>
+				<Stack borderRadius={3} overflow={'hidden'}>
+					<MiniPromotionAvatar
+						src={item.images[0]?.url || ''}
+						alt={item.name}
+						variant={isCircularImage ? 'circular' : 'rounded'}
+						className={dynamicClass ? 'dynamic-avatar' : ''}
+						$size={size}
+					/>
+				</Stack>
+				{
+					showPrice &&
+					<MiniPromotionPriceTypography $fontSize="18px" $isPromotion $fontWeight="700">{code} {minimumPrice}</MiniPromotionPriceTypography>
+
+					// <MiniPromotionPriceTypography $fontSize="18px" $isPromotion $fontWeight="700">{code} {symbol}{price}</MiniPromotionPriceTypography>
+				}
 			</Stack>
-			{
-				showPrice && 
-				<MiniPromotionPriceTypography $fontSize="18px" $isPromotion $fontWeight="700">{code} {symbol}{price}</MiniPromotionPriceTypography>
-			}
-		</Stack>
+		</Link>
 	);
 };
 
-const ScrollablePromotion = ({ 
-	items, 
-	showPrice, 
-	isCircularImage, 
-	size, 
+const ScrollablePromotion = ({
+	items,
+	showPrice,
+	isCircularImage,
+	size,
 	spacing,
 	scrollBy,
-}: { 
-	items: TItem[], 
-	showPrice: boolean, 
+}: {
+	items: TItem[],
+	showPrice: boolean,
 	isCircularImage: boolean,
-	spacing: number 
+	spacing: number
 	size?: TAvatarSizing,
 	scrollBy?: number,
 }) => {
@@ -137,12 +155,12 @@ const ScrollablePromotion = ({
 		<ScrollableContainer orientation="horizontal" float scrollBy={scrollBy}>
 			<Stack direction={'row'} gap={spacing} pl={2} pr={2} >
 				{items.map(item => (
-					<PromotionContent 
-						key={item.productId}
-						item={item} 
-						showPrice={showPrice} 
-						isCircularImage={isCircularImage} 
-						size={size} 
+					<PromotionContent
+						key={item.id}
+						item={item}
+						showPrice={showPrice}
+						isCircularImage={isCircularImage}
+						size={size}
 					/>
 				))}
 			</Stack>
@@ -150,7 +168,7 @@ const ScrollablePromotion = ({
 	);
 };
 
-const MiniPromotionTypography = styled(Typography)(({ theme })=>({
+const MiniPromotionTypography = styled(Typography)(({ theme }) => ({
 	fontFamily: 'Inter',
 	fontWeight: '600',
 	fontSize: '22px',

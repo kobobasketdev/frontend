@@ -1,42 +1,38 @@
 import { minimumWeight } from "#constants.tsx";
-import { Button, Card, Divider, List, ListItem, Stack, styled, Typography } from "@mui/material";
+import { Card, Divider, List, ListItem, Stack, styled, Typography } from "@mui/material";
 import CartProgressbar from "./CartProgressbar";
 import CartItem from "./CartItem";
-import { useAppSelector } from "#state-management/hooks.ts";
-import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
-import { selectCartItems, TCartItems, TCartMap } from "#state-management/slices/cart.slice.ts";
+import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
+import { closeCart, selectCartItems } from "#state-management/slices/cart.slice.ts";
+import { getCartItems, getCartWeight } from "#utils/index.ts";
+import { CartButton, CheckoutButton } from "./CommonViews";
+import { useNavigate } from "@tanstack/react-router";
+import { RoutePath } from "#utils/route.ts";
 
-const weightMap: { [x: string]: number } = {
-	'kg': 1,
-	'g': 1000,
-	'lb': 2.205
-};
 
-const getCartWeight = (cartItems: TCartItems[]) => {
-	return cartItems.reduce((acc, cartItem) => (
-		{
-			weight: acc.weight + (((cartItem.item.variations[cartItem.variant].weight.value)/weightMap[cartItem.item.variations[cartItem.variant].weight.measurement])*cartItem.quantity),
-			total: acc.total + ((cartItem.item.variations[cartItem.variant].promotion?.promoPrice || cartItem.item.variations[cartItem.variant].price)*cartItem.quantity)
-		}
-	), { weight: 0, total: 0 });
-};
-
-const getCartItems = (cartItemsMap: TCartMap) => {
-	const cartKeys = Object.keys(cartItemsMap);
-	const cartItems = [];
-	for(const key of cartKeys) {
-		cartItems.push(cartItemsMap[key]);
-	}
-	return cartItems;
-};
 
 export default function CartDisplay() {
-	const deliveryLocation = useAppSelector(selectDeliverLocation);
+	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
 	const cartItemsMap = useAppSelector(selectCartItems);
 	const cartItems = getCartItems(cartItemsMap);
 	const cartInfo = getCartWeight(cartItems);
-	
+
 	const isDisabled = cartInfo.weight < minimumWeight;
+	const handleGoToCart = (action: string) => () => {
+		let route;
+		switch (action) {
+			case 'cart':
+				route = RoutePath.CART;
+				break;
+			default:
+				route = RoutePath.CHECKOUT;
+		}
+		dispatch(closeCart());
+		navigate({
+			to: route
+		});
+	};
 
 	return (
 		<Stack overflow={'hidden'} position={'relative'} height={1}>
@@ -46,13 +42,16 @@ export default function CartDisplay() {
 						CART
 					</CartHeadingTypography>
 					<CartSubheadTypography>
-						To offer affordable prices, Kobobasket requires a <span>{minimumWeight}kg</span> minimum order. 
+						To offer affordable prices, Kobobasket requires a <span>{minimumWeight}kg</span> minimum order.
 					</CartSubheadTypography>
 				</Stack>
-				<Stack>
-					<CheckoutButton disabled={isDisabled} $disabledButton={isDisabled}>
+				<Stack gap={1.5}>
+					<CheckoutButton disabled={isDisabled} $disabledButton={isDisabled} onClick={handleGoToCart('checkout')}>
 						Checkout {cartItems.length} item
 					</CheckoutButton>
+					<CartButton variant="outlined" onClick={handleGoToCart('cart')}>
+						Go to Cart
+					</CartButton>
 				</Stack>
 				<StyledCheckoutCard sx={{ minHeight: 160 }}>
 					<Stack gap={2}>
@@ -61,17 +60,17 @@ export default function CartDisplay() {
 								Subtotal of products
 							</CartTotalHeadingTypography>
 							<CartTotalbodyTypography>
-								{deliveryLocation.symbol}{cartInfo.total} {deliveryLocation.code}
+								{cartInfo.symbol}{cartInfo.total.toFixed(2)} {cartInfo.code}
 							</CartTotalbodyTypography>
 						</Stack>
-						<Divider/>
-						<CartProgressbar cartWeight={cartInfo.weight}/>
+						<Divider />
+						<CartProgressbar cartWeight={cartInfo.weight} showProgressWeight />
 					</Stack>
 				</StyledCheckoutCard>
 				<List>
-					{cartItems.slice(0, 5).map((cartItem, index) => (
+					{cartItems.map((cartItem, index) => (
 						<CartListItem key={index}>
-							<CartItem item={cartItem.item} variant={cartItem.variant} quantity={cartItem.quantity}/>
+							<CartItem item={cartItem.item} variant={cartItem.variant} quantity={cartItem.quantity} />
 						</CartListItem>
 					))}
 				</List>
@@ -83,7 +82,7 @@ export default function CartDisplay() {
 const CustomCartContainer = styled('div')(({ theme }) => ({
 	// position: 'absolute', 
 	height: '100%',
-	overflowY: 'auto', 
+	overflowY: 'auto',
 	left: '0px',
 	top: '0px',
 	display: 'flex',
@@ -118,16 +117,7 @@ const StyledCheckoutCard = styled(Card)(({ theme }) => ({
 	borderRadius: '4px',
 }));
 
-const CheckoutButton= styled(Button, {
-	shouldForwardProp: prop => prop !== '$disabledButton'
-})<{ $disabledButton: boolean }>(({ theme, $disabledButton }) => ({
-	backgroundColor: $disabledButton ? theme.palette.action.disabled : theme.palette.primaryYellow.main,
-	borderRadius: '15px',
-	textTransform: 'inherit',
-	color: theme.palette.primaryBlack.moreDeeper,
-	fontFamily: 'Roboto',
-	fontSize: '13px',
-}));
+
 
 const CartTotalHeadingTypography = styled(Typography)(({ theme }) => ({
 	color: theme.palette.primaryBlack.lightshade,
