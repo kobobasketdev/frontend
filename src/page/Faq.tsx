@@ -6,7 +6,7 @@ import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WI
 export default function Faq() {
 	return (
 		<StyledStackContent alignItems={'center'}>
-			<Stack direction={'row'} gap={2} width={'auto'} border={1}>
+			<Stack direction={'row'} gap={2} width={'auto'}>
 				<TrackFaqContent highlight='faq' />
 				<Stack pt={3}>
 					<NavStack>

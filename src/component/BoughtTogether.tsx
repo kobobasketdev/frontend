@@ -12,7 +12,7 @@ import ScrollableContainer from "./ScrollableContainer";
 export default function BoughtTogether({ boughtTogether }: { boughtTogether: TItem[] }) {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
-	const handleGotoProductDetails = (itemId: number) => () => {
+	const handleGotoProductDetails = (itemId: string) => () => {
 		dispatch(setShowMenu(false));
 		navigate({
 			to: RoutePath.PRODUCT_DISPLAY,

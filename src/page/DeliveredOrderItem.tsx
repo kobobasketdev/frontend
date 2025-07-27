@@ -2,14 +2,14 @@ import { BuyagainButton, ProductAvatar } from "#component/CommonViews.tsx";
 import { UnderlineButton } from "#component/ContactDetails.tsx";
 import ProfileHeading from "#component/ProfileHeading.tsx";
 import { SavedAddress } from "#component/ShippingAddress.tsx";
-import { TDeliveredOrder, TOrder, TOrderItem } from "#component/types/index.js";
+import { TDeliveredOrder, TOrderItem } from "#component/types/index.js";
 import { CUSTOM_893_WIDTH, DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 
 import { appCurrencySymbol, calculateOnlyItemTotal } from "#utils/index.ts";
 import { RoutePath } from "#utils/route.ts";
 import { ArrowBackIos, StarOutline, UploadFile } from "@mui/icons-material";
 import { Stack, Box, Typography, styled, Collapse, Rating, TextField, Button, IconButton, Divider, SvgIcon, Chip } from "@mui/material";
-import { Link, useParams } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { ChangeEvent, useRef, useState } from "react";
 
@@ -46,7 +46,7 @@ const order: TDeliveredOrder & { orderDate: Date } = {
 
 
 export default function DeliveredOrderItem() {
-	const { orderId } = useParams({ strict: false });
+	// const { orderId } = useParams({ strict: false });
 	const code = order.settlementCurrency;
 	const symbol = appCurrencySymbol[code];
 	const itemTotalOnly = calculateOnlyItemTotal(order.items);

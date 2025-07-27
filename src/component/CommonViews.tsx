@@ -264,7 +264,7 @@ export const StyledProfileButton = styled(Button, {
 	})
 }));
 
-export const CustomProfileGrid = styled('div')(({ theme }) => ({
+export const CustomProfileGrid = styled('div')(() => ({
 	display: 'grid',
 	gridTemplateColumns: 'repeat(1, minmax(auto, 1200px))',
 }));

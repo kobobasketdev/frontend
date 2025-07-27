@@ -2,7 +2,7 @@ import { theme } from "#customtheme.ts";
 import { Box, Typography, Stack, styled, Button } from "@mui/material";
 import CartProgressbar from "./CartProgressbar";
 import { ProductPriceTypography, CheckoutButton } from "./CommonViews";
-import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { minimumWeight, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { Link } from "@tanstack/react-router";
 import { RoutePath } from "#utils/route.ts";
 
@@ -31,7 +31,7 @@ export default function MobileCartContainer({
 					{
 						isDisabled ?
 							<Typography>
-								Reach the <b>20kg minimum</b> for better delivery rates. Keep shopping to enjoy the savings!
+								Reach the <b>{minimumWeight}kg minimum</b> for better delivery rates. Keep shopping to enjoy the savings!
 							</Typography>
 							:
 							<Typography>

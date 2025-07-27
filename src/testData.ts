@@ -4,7 +4,6 @@ export const items: TItem[] = [
 	{
 		id: 1, 
 		name: 'Ofada Rice1', 
-		isWishListItem: false,
 
 		productDetails: `<b>Discover the rich</b>, authentic flavor of traditional pounded yam with Kobobasket Poundo Yam Flour. Perfect for busy families and food lovers, this premium flour ensures quick and easy preparation while delivering unmatched taste and quality.`,
 		images: [{ id: 1, url: '' }, { id: 2, url: '' }, { id: 3, url: '' }],
@@ -63,13 +62,12 @@ export const items: TItem[] = [
 		}
 	},
 	{
-		id: 2, 
-		name: 'Smoked Panla Fish', 
-		isWishListItem: false, 
-		images: [{ id: 1, url: '' }], 
-		promotion: { 
-			promotionName: "Valentine's Deals", 
-			id: 1 
+		id: 2,
+		name: 'Smoked Panla Fish',
+		images: [{ id: 1, url: '' }],
+		promotion: {
+			promotionName: "Valentine's Deals",
+			id: 1
 		},
 		variations: [
 			{
@@ -86,12 +84,14 @@ export const items: TItem[] = [
 				weight: 3
 			}
 		],
+		category: {
+			name: ""
+		}
 	},
 	{
-		id: 24, 
-		name: 'Ijebu Garri', 
-		isWishListItem: false,
-		images: [{ id: 1, url: '' }], 
+		id: 24,
+		name: 'Ijebu Garri',
+		images: [{ id: 1, url: '' }],
 		variations: [
 			{
 				price: {
@@ -107,14 +107,16 @@ export const items: TItem[] = [
 				weight: 3
 			}
 		],
+		category: {
+			name: ""
+		}
 	},
 	{
-		id: 5, 
-		name: 'Dried Ugwu Leaf', 
-		
-		isWishListItem: false,
-		 
-		images: [{ id: 1, url: '' }], 
+		id: 5,
+		name: 'Dried Ugwu Leaf',
+
+
+		images: [{ id: 1, url: '' }],
 		variations: [
 			{
 				price: {
@@ -122,7 +124,7 @@ export const items: TItem[] = [
 					currency: 'CAD',
 					default: 28
 				},
-				marketPrice:{
+				marketPrice: {
 					converted: 15,
 					currency: 'CAD',
 					default: 28
@@ -130,16 +132,18 @@ export const items: TItem[] = [
 				weight: 3
 			}
 		],
+		category: {
+			name: ""
+		}
 	},
 	{
-		id: 3, 
-		name: 'Cameroon Pepper',  
-		isWishListItem: false,
-		 
-		images: [{ id: 1, url: '' }], 
-		promotion: { 
-			promotionName: 'Kobo Specials', 
-			id: 2 
+		id: 3,
+		name: 'Cameroon Pepper',
+
+		images: [{ id: 1, url: '' }],
+		promotion: {
+			promotionName: 'Kobo Specials',
+			id: 2
 		},
 		variations: [
 			{
@@ -148,7 +152,7 @@ export const items: TItem[] = [
 					currency: 'CAD',
 					default: 28
 				},
-				marketPrice:{
+				marketPrice: {
 					converted: 15,
 					currency: 'CAD',
 					default: 28
@@ -156,12 +160,14 @@ export const items: TItem[] = [
 				weight: 0.5
 			}
 		],
+		category: {
+			name: ""
+		}
 	},
 	{
-		id: 6, 
-		name: 'Periwinkle', 
-		isWishListItem: true,
-		images: [{ id: 1, url: '' }], 
+		id: 6,
+		name: 'Periwinkle',
+		images: [{ id: 1, url: '' }],
 		variations: [
 			{
 				price: {
@@ -177,12 +183,14 @@ export const items: TItem[] = [
 				weight: 0.5
 			}
 		],
+		category: {
+			name: ""
+		}
 	},
 	{
-		id: 7, 
-		name: 'Locust Beans (Iru)', 
-		isWishListItem: false,
-		images: [{ id: 1, url:"" }], 
+		id: 7,
+		name: 'Locust Beans (Iru)',
+		images: [{ id: 1, url: "" }],
 		variations: [
 			{
 				price: {
@@ -198,12 +206,14 @@ export const items: TItem[] = [
 				weight: 0.8
 			}
 		],
+		category: {
+			name: ""
+		}
 	},
 	{
-		id: 16, 
-		name: 'Kilishi', 
-		isWishListItem: false,
-		images: [{ id: 1, url: '' }], 
+		id: 16,
+		name: 'Kilishi',
+		images: [{ id: 1, url: '' }],
 		variations: [
 			{
 				price: {
@@ -219,6 +229,9 @@ export const items: TItem[] = [
 				weight: 0.5
 			}
 		],
+		category: {
+			name: ""
+		}
 	}
 ]; 
 

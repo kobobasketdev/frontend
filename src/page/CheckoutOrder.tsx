@@ -18,19 +18,20 @@ import jcbPay from '@src/assets/jcb.png';
 import mastercardPay from '@src/assets/mastercard.png';
 import paypalPay from '@src/assets/paypal.png';
 import visaPay from '@src/assets/visa.png';
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import stripe from '@src/assets/stripe.png';
 import CheckoutOrderSummary, { TCouponCode, TPaymentType } from "#component/CheckoutOrderSummary.tsx";
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement } from '@stripe/react-stripe-js';
 import { ShippingAddressInfo } from "#component/ShippingAddress.tsx";
 import { IOtherShippingInfo, IShippingAddressState, TCreateOrder, TShippingKeys } from "#component/types/index.js";
-import { CountryType, getCartItems, getCartWeight, initialOtherShippingState, shippingInitialState } from "#utils/index.ts";
-import { initialSupportedCountries, IDeliveryState, selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
+import { CountryType, getCartItems, getCartWeight, IDeliveryState, initialOtherShippingState, shippingInitialState } from "#utils/index.ts";
+import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
 import { selectCartItems } from "#state-management/slices/cart.slice.ts";
 import axios from "axios";
 import ShieldSvg from "#component/svg/ShieldSvg.tsx";
 import { useCartMutation } from "#hooks/mutations/cart";
+import { selectSupportedCountries } from "#state-management/slices/supported-countries.ts";
 
 const env = import.meta.env;
 
@@ -42,14 +43,16 @@ const stripePromise = loadStripe(env.VITE_STRIPE_PUBLIC_KEY);
 
 
 export default function CheckoutOrder({ email, handleChangeEmail }: { email: string, handleChangeEmail: (args: boolean) => void }) {
-	const [payForMeEmail, setPayForMeEmail] = useState<string>('');
+	// const [payForMeEmail, setPayForMeEmail] = useState<string>('');
 	const [paymentMethod, setPaymentMethod] = useState<TPaymentType>('card');
+	const supportedCountriesInfo = useAppSelector(selectSupportedCountries);
 	const [otherShippingDetails, setOtherShippingDetails] = useState<IOtherShippingInfo>(initialOtherShippingState);
 	const [shippingError, setShippingError] = useState<IShippingAddressState>(shippingInitialState);
 	const deliveryLocation = useAppSelector(selectDeliverLocation);
-	const [shippingCountry, setShippingCountry] = useState<CountryType | null>(initialSupportedCountries.countries[(deliveryLocation as IDeliveryState).code]);
+	const [shippingCountry, setShippingCountry] = useState<CountryType | null>(supportedCountriesInfo.countries[(deliveryLocation as IDeliveryState).code]);
 	const [stripeClientSecret, setStripeClientSecret] = useState<{ id: string, secret: string }>();
 	const [shippingFee, setShippingFee] = useState(0);
+	const [clearanceFee, setClearanceFee] = useState(0);
 	const [couponCode, setCouponCode] = useState<TCouponCode>({ value: 0, isValid: false });
 	const [shouldLoadingShippingFee, setLoadShippingFee] = useState(false);
 	const { createOrderMutation } = useCartMutation();
@@ -65,10 +68,12 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 	const shouldDisablePayment = !shippingCountry || isDisablePayment || Object.keys(otherShippingDetails).some(shippingDetails => !otherShippingDetails[shippingDetails as TShippingKeys]);
 	console.log(shouldDisablePayment, 'disable payment', stripeClientSecret?.id);
 
-	const finalShippingFee = shouldLoadingShippingFee ? shippingFee : undefined;
-	const paymentTotal = useMemo(() => cartItemInfo.total + (finalShippingFee || 0) - couponCode.value, [cartItemInfo.total, finalShippingFee, couponCode.value]);
+	const [finalShippingFee, finalClearanceFee] = shouldLoadingShippingFee ? [shippingFee, clearanceFee] : [undefined, undefined];
+
+	const paymentTotalWithoutCoupon = cartItemInfo.total;
 
 	useEffect(() => {
+		console.log('here now in checkout');
 		loadPaymentIntent({ initial: true });
 	}, []);
 
@@ -92,7 +97,11 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 		loadPaymentIntent({ province: args.province });
 
 	};
-	function loadPaymentIntent({ initial, province }: { initial?: boolean, province?: string }) {
+	function loadPaymentIntent({ initial, province, updateCoupon }: {
+		initial?: boolean,
+		updateCoupon?: { newCouponCode: TCouponCode | null, updateFn: (arg: TCouponCode) => void },
+		province?: string
+	}) {
 		setIsDisablePayment(true);
 
 		let value;
@@ -109,23 +118,36 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 				method: 'post'
 			};
 		}
+
+		let couponCodeValue = couponCode.code;
+		if (couponCodeValue && !updateCoupon?.newCouponCode) {
+			couponCodeValue = '';
+		}
+		else if (updateCoupon?.newCouponCode) {
+			couponCodeValue = updateCoupon.newCouponCode.code;
+		}
+
 		axios({
 			...value,
 			data: {
 				id: stripeClientSecret?.id,
-				amount: paymentTotal.toFixed(2),
+				amount: paymentTotalWithoutCoupon.toFixed(2),
 				currencyCode: cartItemInfo.code,
 				weight: cartItemInfo.weight,
-				deliveryCountry: {
-					code: shippingCountry?.code, label: shippingCountry?.label,
-					// city: otherShippingDetails.city, postalCode: otherShippingDetails.postalCode,
-					province: province ?? otherShippingDetails.province
-				}
+				couponCode: couponCodeValue,
+				countryCode: shippingCountry?.code,
+				province: province ?? otherShippingDetails.province
 			}
 		}).then(response => {
+			console.log(response.data, 'is success');
 			setShippingFee(response.data.shippingFee);
+			setClearanceFee(response.data.clearanceFee);
 			setStripeClientSecret(response.data.stripeInfo);
 			setIsDisablePayment(false);
+
+			const newCouponCodeValue = updateCoupon?.newCouponCode ? { ...updateCoupon.newCouponCode, value: response.data.discountToDeduct } : { value: 0, isValid: false };
+			updateCoupon?.updateFn(newCouponCodeValue);
+
 			if (!initial) {
 				setLoadShippingFee(true);
 			}
@@ -139,6 +161,10 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 		handleChangeEmail(true);
 	};
 
+	const handleCouponChange = (newCouponCode: TCouponCode | null) => {
+		loadPaymentIntent({ province: otherShippingDetails.province, updateCoupon: { newCouponCode, updateFn: setCouponCode } });
+	};
+
 	const handlePaymentMethod = (paymentType: TPaymentType) => () => {
 		setPaymentMethod(paymentType);
 		scrollTo({
@@ -147,9 +173,10 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 		console.log(paymentAnchorRef.current?.offsetTop);
 	};
 
-	const handlePayForMeName = (e: ChangeEvent<HTMLInputElement>) => {
-		setPayForMeEmail(e.target.value);
-	};
+	// TODO: Add support for pay for me later
+	// const handlePayForMeName = (e: ChangeEvent<HTMLInputElement>) => {
+	// 	setPayForMeEmail(e.target.value);
+	// };
 
 	const createOrder = async () => {
 		const orderData: TCreateOrder = {
@@ -157,12 +184,15 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 				id: cartitem.item.id + '',
 				name: cartitem.item.name,
 				quantity: cartitem.quantity,
+				size: cartitem.item.variations[cartitem.variant].size,
 				weight: cartitem.item.variations[cartitem.variant] + 'kg',
 				price: cartitem.item.variations[cartitem.variant].price.converted
 			})),
 			status: 0,
 			shippingFee: finalShippingFee || 0,
+			clearanceFee: finalClearanceFee || 0,
 			settlementCurrency: cartItemInfo.code,
+			couponCode: couponCode.code,
 			userId: email,
 			shippingAddress: {
 				firstName: '',
@@ -174,7 +204,7 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 				province: otherShippingDetails.province,
 				phone: otherShippingDetails.phone
 			},
-			payformeEmail: paymentMethod === 'payforme' ? payForMeEmail : null
+			// payformeEmail: paymentMethod === 'payforme' ? payForMeEmail : null
 		};
 		const { data } = await createOrderMutation.mutateAsync(orderData);
 		return { orderId: data.id, email };
@@ -304,7 +334,8 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 																	}
 																</Stack>
 															</ListItem>
-															<ListItem disablePadding >
+															{/* TODO: Add support for pay for me later */}
+															{/* <ListItem disablePadding >
 																<Stack width={1} >
 																	<StyledPaymentStack direction={'row'} alignItems={'center'} $isSelected={paymentMethod === 'payforme'}>
 																		<Radio size="small" id="payforme-method" color="default" checked={paymentMethod === 'payforme'} onChange={handlePaymentMethod('payforme')} />
@@ -332,7 +363,7 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 																		</Stack>
 																	}
 																</Stack>
-															</ListItem>
+															</ListItem> */}
 														</List>
 													</AccordionDetails>
 												</StyledAccordion>
@@ -341,9 +372,10 @@ export default function CheckoutOrder({ email, handleChangeEmail }: { email: str
 												shippingFee={finalShippingFee}
 												disablePayment={shouldDisablePayment}
 												itemCount={cartItems.length}
-												paymentTotal={paymentTotal}
+												paymentTotalWithoutCoupon={paymentTotalWithoutCoupon}
 												couponCode={couponCode}
-												handleCouponChange={setCouponCode}
+												clearanceFee={finalClearanceFee}
+												handleCouponChange={handleCouponChange}
 												createOrder={createOrder}
 												cartItemInfo={cartItemInfo}
 												paymentMethod={paymentMethod}

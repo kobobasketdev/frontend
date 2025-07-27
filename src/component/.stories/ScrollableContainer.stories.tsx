@@ -1,69 +1,69 @@
 import { Meta, StoryObj } from "@storybook/react";
-import ScrollableContainer, { IScrollableContainer } from "./ScrollableContainer";
+import ScrollableContainer, { IScrollableContainer } from "../ScrollableContainer";
 import { DEFAULT_VIEWPORT } from "@storybook/addon-viewport";
 import { Avatar, Stack } from "@mui/material";
 
-const meta: Meta<typeof ScrollableContainer>= {
+const meta: Meta<typeof ScrollableContainer> = {
 	component: ScrollableContainer,
 	parameters: {
 		viewport: {
 			defaultViewport: DEFAULT_VIEWPORT
 		}
 	},
-	decorators: (Story) => (<Stack width={1} height={'300px'} border={'1px solid black'}><Story/></Stack>),
+	decorators: (Story) => (<Stack width={1} height={'300px'} border={'1px solid black'}><Story /></Stack>),
 	args: {
 		showNavigation: true,
 		children: <>
-			1.hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			4. hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			6. hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			hello there<br/><hr/>
-			End. hello there<br/><hr/>
-            
+			1.hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			4. hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			6. hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			hello there<br /><hr />
+			End. hello there<br /><hr />
+
 		</>
 	}
 };
@@ -85,7 +85,7 @@ export const DESKTOP_VERTICAL_FLOAT_NAVIGATION: Story = {
 
 export const TABLET_NO_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	},
@@ -94,7 +94,7 @@ export const TABLET_NO_NAVIGATION: Story = {
 
 export const TABLET_INLINE_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	},
@@ -103,7 +103,7 @@ export const TABLET_INLINE_NAVIGATION: Story = {
 
 export const TABLET_FLOAT_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	},
@@ -112,7 +112,7 @@ export const TABLET_FLOAT_NAVIGATION: Story = {
 
 export const LARGEMOBILE_NO_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	},
@@ -121,7 +121,7 @@ export const LARGEMOBILE_NO_NAVIGATION: Story = {
 
 export const LARGEMOBILE_INLINE_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	},
@@ -130,7 +130,7 @@ export const LARGEMOBILE_INLINE_NAVIGATION: Story = {
 
 export const LARGEMOBILE_FLOAT_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	},
@@ -140,7 +140,7 @@ export const LARGEMOBILE_FLOAT_NAVIGATION: Story = {
 
 export const SMALLMOBILE_NO_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	},
@@ -149,7 +149,7 @@ export const SMALLMOBILE_NO_NAVIGATION: Story = {
 
 export const SMALLMOBILE_INLINE_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	},
@@ -158,7 +158,7 @@ export const SMALLMOBILE_INLINE_NAVIGATION: Story = {
 
 export const SMALLMOBILE_FLOAT_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	},
@@ -167,36 +167,36 @@ export const SMALLMOBILE_FLOAT_NAVIGATION: Story = {
 
 const items = [
 	<div style={{ display: 'inline-flex', backgroundColor: 'pink', border: '1px solid blue' }} key={1}>
-		<button>1</button> <button>2</button> <button>3</button> 
+		<button>1</button> <button>2</button> <button>3</button>
 		<button>6</button> <button>7</button>
 		<button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button>
 	</div>,
 	<div style={{ display: 'inline-flex', backgroundColor: 'black', border: '1px solid orange' }} key={2} >
-		<button>1</button> <button>2</button> <button>3</button> 
-		<button>6</button> 
+		<button>1</button> <button>2</button> <button>3</button>
+		<button>6</button>
 		<button>7</button>
 		<button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button>
 	</div>,
 	<div style={{ display: 'inline-flex', backgroundColor: 'black', border: '1px solid orange' }} key={3} >
-		<button>1</button> <button>2</button> <button>3</button> 
-		<button>6</button> 
+		<button>1</button> <button>2</button> <button>3</button>
+		<button>6</button>
 		<button>7</button>
 		<button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button>
 	</div>,
 	<div style={{ display: 'inline-flex', backgroundColor: 'black', border: '1px solid orange' }} key={4} >
-		<button>1</button> <button>2</button> <button>3</button> 
-		<button>6</button> 
+		<button>1</button> <button>2</button> <button>3</button>
+		<button>6</button>
 		<button>7</button>
 		<button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button>
 	</div>,
 	<div style={{ display: 'inline-flex', backgroundColor: 'black', border: '1px solid pink' }} key={5} >
-		<button>1</button> <button>2</button> <button>3</button> 
-		<button>6</button> 
+		<button>1</button> <button>2</button> <button>3</button>
+		<button>6</button>
 		<button>7</button>
 		<button>1</button> <button>2</button> <button>3</button> <button>4</button> <button>5</button> <button>6</button> <button>7</button>
 	</div>
-	
-]; 
+
+];
 // const picItems = [ 
 // 	{ key: 1, src: '', alt: 'Picture 1', variant: 'rounded' }, 
 // 	{ key: 2, src: '', alt: 'Picture 2', variant: 'rounded' }
@@ -224,7 +224,7 @@ export const DESKTOP_HORIZONTAL_FLOAT_NAVIGATION: Story = {
 
 export const TABLET_HORIZONTAL_NO_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	},
@@ -233,7 +233,7 @@ export const TABLET_HORIZONTAL_NO_NAVIGATION: Story = {
 
 export const TABLET_HORIZONTAL_INLINE_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	},
@@ -242,7 +242,7 @@ export const TABLET_HORIZONTAL_INLINE_NAVIGATION: Story = {
 
 export const TABLET_HORIZONTAL_FLOAT_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	},
@@ -251,7 +251,7 @@ export const TABLET_HORIZONTAL_FLOAT_NAVIGATION: Story = {
 
 export const LARGEMOBILE_HORIZONTAL_NO_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	},
@@ -260,7 +260,7 @@ export const LARGEMOBILE_HORIZONTAL_NO_NAVIGATION: Story = {
 
 export const LARGEMOBILE_HORIZONTAL_INLINE_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	},
@@ -269,7 +269,7 @@ export const LARGEMOBILE_HORIZONTAL_INLINE_NAVIGATION: Story = {
 
 export const LARGEMOBILE_HORIZONTAL_FLOAT_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	},
@@ -278,7 +278,7 @@ export const LARGEMOBILE_HORIZONTAL_FLOAT_NAVIGATION: Story = {
 
 export const SMALLMOBILE_HORIZONTAL_NO_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	},
@@ -287,7 +287,7 @@ export const SMALLMOBILE_HORIZONTAL_NO_NAVIGATION: Story = {
 
 export const SMALLMOBILE_HORIZONTAL_INLINE_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	},
@@ -296,7 +296,7 @@ export const SMALLMOBILE_HORIZONTAL_INLINE_NAVIGATION: Story = {
 
 export const SMALLMOBILE_HORIZONTAL_FLOAT_NAVIGATION: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	},

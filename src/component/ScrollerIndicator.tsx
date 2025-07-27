@@ -1,4 +1,4 @@
-import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
+import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { Avatar, styled } from "@mui/material";
 import { SyntheticEvent } from "react";
 

@@ -50,7 +50,7 @@ export default function WebCartContainer({
 								{
 									!isDisabled &&
 									<Typography color={theme.palette.primaryGreen.main} fontSize={'.8rem'} pl={1} pr={1}>
-										Kobobasket offers exceptional delivery prices, with a minimum delivery weight of just 20kg. Enjoy affordable rates for larger orders and seamless delivery right to your door.
+										Kobobasket offers exceptional delivery prices, with a minimum delivery weight of just {minimumWeight}kg. Enjoy affordable rates for larger orders and seamless delivery right to your door.
 									</Typography>
 								}
 								<Box maxWidth={'300px'} p={1} width={1} position={'relative'} display={'flex'}>
@@ -68,7 +68,7 @@ export default function WebCartContainer({
 												top: '-10px',
 												left: 4
 											}}>
-												{weight}kg
+												{weight.toFixed(2)}kg
 											</span>
 										</Box>
 									}
@@ -77,7 +77,7 @@ export default function WebCartContainer({
 									isDisabled &&
 									<Stack gap={2} >
 										<Typography color={theme.palette.primaryGreen.main} fontSize={'.8rem'} pl={1} pr={1}>
-											Reach the <b>20kg minimum</b> for better delivery rates. Keep shopping to enjoy the savings!
+											Reach the <b>{minimumWeight}kg minimum</b> for better delivery rates. Keep shopping to enjoy the savings!
 										</Typography>
 										<Stack width={1 / 2} alignSelf={'center'}>
 											<CheckoutButton $isCurved={false} onClick={handleCartButton}>
@@ -88,6 +88,14 @@ export default function WebCartContainer({
 								}
 							</OrderLabelContainer>
 							<Stack gap={1}>
+								<Stack direction={'row'} justifyContent={'space-between'} alignContent={'center'}>
+									<Typography fontSize='14px'>
+										Local price savings
+									</Typography>
+									<ProductPriceTypography $isPromotion $fontWeight="600" $fontSize="14px">
+										{userCurrency.code} {userCurrency.symbol}{totalSavings.toFixed(2)}
+									</ProductPriceTypography>
+								</Stack>
 								<Stack direction={'row'} justifyContent={'space-between'} alignContent={'center'}>
 									<Typography>
 										Weight of total products
@@ -106,28 +114,20 @@ export default function WebCartContainer({
 								</Stack>
 								<Stack direction={'row'} justifyContent={'space-between'} alignContent={'center'}>
 									<Typography>
-										Market price savings
-									</Typography>
-									<ProductPriceTypography $isPromotion $fontWeight="600">
-										{userCurrency.code} {userCurrency.symbol}{totalSavings.toFixed(2)}
-									</ProductPriceTypography>
-								</Stack>
-								<Stack direction={'row'} justifyContent={'space-between'} alignContent={'center'}>
-									<Typography>
 										Shipping fee
 									</Typography>
 									<Typography >
 										Calculated at checkout
 									</Typography>
 								</Stack>
-								<Stack direction={'row'} justifyContent={'space-between'} alignContent={'center'}>
+								{/* <Stack direction={'row'} justifyContent={'space-between'} alignContent={'center'}>
 									<Typography>
 										Estimated Taxes
 									</Typography>
 									<Typography >
 										Calculated at checkout
 									</Typography>
-								</Stack>
+								</Stack> */}
 							</Stack>
 							<Stack pt={3} gap={1}>
 								<ProceedToCheckoutButton variant="contained" disabled={isDisabled} onClick={handleCartButton}>

@@ -146,13 +146,6 @@ const BrandHeaderActionContainer = styled(Box)(({ theme }) => ({
 	},
 }));
 
-const MediumScreenUpOnlyView = styled(Box)(({ theme }) => ({
-	display: 'none',
-	[theme.breakpoints.between(MEDIUM_SCREEN_MAX_WIDTH, DESKTOP_SCREEN_MAX_WIDTH)]: {
-		display: 'inline-flex',
-	},
-}));
-
 const BrandWebTopButtonContainer = styled(Box)(({ theme }) => ({
 	paddingTop: theme.spacing(.5),
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {

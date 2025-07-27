@@ -5,6 +5,7 @@ import wishlistReducer from "./slices/wishlist.slice";
 import activeMenuReducer from './slices/active-menu.slice';
 import reviewReducer from './slices/review.slice';
 import userReducer from './slices/user.slice';
+import supportedCountries from "./slices/supported-countries";
 
 export const store = configureStore({
 	reducer: {
@@ -13,7 +14,8 @@ export const store = configureStore({
 		wishlist: wishlistReducer,
 		menu: activeMenuReducer,
 		review: reviewReducer,
-		user: userReducer
+		user: userReducer,
+		supportedcountries: supportedCountries
 	}
 });
 

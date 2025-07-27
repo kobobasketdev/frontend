@@ -1,4 +1,4 @@
-import { Alert, Checkbox, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Stack, styled, TextField, Typography } from "@mui/material";
+import { Alert, Box, Checkbox, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Stack, styled, TextField, Typography } from "@mui/material";
 import { CheckoutButton, SigupWithGoogle } from "./CommonViews";
 import GoogleSvg from "./svg/GoogleSvg";
 import { ChangeEvent, SyntheticEvent, useState } from "react";
@@ -13,6 +13,7 @@ import { useSnackbar } from "notistack";
 import { useAuthMutation } from "#hooks/mutation/auth.ts";
 import { useAppDispatch } from "#state-management/hooks.ts";
 import { setRouteRedirect } from "#state-management/slices/active-menu.slice.ts";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const initialState = {
 	email: '',
@@ -20,7 +21,7 @@ const initialState = {
 	isAgreed: false
 };
 
-
+const CAPTCHA_SITE_KEY = import.meta.env['VITE_CLIENT_GOOGLE_CAPTCHA_SITE_KEY'];
 
 export default function LoginContent({
 	handleEmailPropagate, showHeading = false,
@@ -34,6 +35,7 @@ export default function LoginContent({
 	const [fieldsError, setFieldsError] = useState<{ [x: string]: string[] }>({});
 	const dispatch = useAppDispatch();
 	const { enqueueSnackbar } = useSnackbar();
+	const [isCaptchaVerified, setCaptchaVerified] = useState<string | null>(null);
 
 	const { register } = useAuthMutation();
 
@@ -102,7 +104,11 @@ export default function LoginContent({
 		}
 	};
 
-	const isDisabled = Boolean(passwordError.find(error => !error[0]));
+	const handleCaptchaChange = (value: string | null) => {
+		setCaptchaVerified(value);
+	};
+
+	const isDisabled = Boolean(passwordError.find(error => !error[0]) || !fields.isAgreed) || !isCaptchaVerified;
 	return (
 		<>
 			{
@@ -188,15 +194,18 @@ export default function LoginContent({
 										}}>Conditions of use and Privacy Notice</Link>
 									</Typography>
 								</Stack>
+								<Box>
+									<ReCAPTCHA sitekey={CAPTCHA_SITE_KEY} onChange={handleCaptchaChange} />
+								</Box>
 								<CheckoutButton type="submit" $isCurved={false} disabled={isDisabled} $disabledButton={isDisabled} onClick={handleCreateAccount}>CONTINUE</CheckoutButton>
 							</Stack>
 						</form>
 					</Stack>
-					<SigupWithGoogle>
+					{/* <SigupWithGoogle>
 						<Stack direction={'row'} alignItems={'center'} gap={1}>
 							Sign Up with Google <GoogleSvg />
 						</Stack>
-					</SigupWithGoogle>
+					</SigupWithGoogle> */}
 				</Stack>
 			</Stack>
 		</>

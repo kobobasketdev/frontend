@@ -75,7 +75,7 @@ export default function WebReviewSection({ item, reviews }: { item: TItem, revie
 					}
 				</Stack>
 			</WebReviewStack>
-			<WebReviewContainer reviews={reviews} item={item} />
+			<WebReviewContainer initialReviews={reviews} item={item} />
 		</>
 	);
 }

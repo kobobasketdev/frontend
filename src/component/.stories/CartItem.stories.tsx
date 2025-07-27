@@ -1,9 +1,13 @@
 import { Meta, StoryObj } from "@storybook/react";
-import CartDisplay from './CartDisplay';
+import CartItem from "../CartItem";
 import { DEFAULT_VIEWPORT } from "@storybook/addon-viewport";
+import { items as itemsStub } from "#testData.ts";
 
-const meta: Meta<typeof CartDisplay> = {
-	component: CartDisplay,
+const meta: Meta<typeof CartItem> = {
+	component: CartItem,
+	args: {
+		item: itemsStub[0]
+	},
 	decorators: (Story) => (<div style={{ width: '500px' }}>
 		<Story />
 	</div>),
@@ -15,13 +19,13 @@ const meta: Meta<typeof CartDisplay> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof CartDisplay>;
+type Story = StoryObj<typeof CartItem>;
 
 export const DESKTOP: Story = {};
 
 export const TABLET: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	}
@@ -29,7 +33,7 @@ export const TABLET: Story = {
 
 export const LARGEMOBILE: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	}
@@ -37,7 +41,7 @@ export const LARGEMOBILE: Story = {
 
 export const SMALLMOBILE: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	}

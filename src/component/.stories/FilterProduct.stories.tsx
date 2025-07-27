@@ -1,24 +1,24 @@
 import { Meta, StoryObj } from "@storybook/react";
-import MarketPlace from "./MarketPlace";
+import FilterProduct from "../FilterProduct";
 import { DEFAULT_VIEWPORT } from "@storybook/addon-viewport";
 
-const meta: Meta<typeof MarketPlace> = {
-	component: MarketPlace,
+const meta: Meta<typeof FilterProduct> = {
+	component: FilterProduct,
 	parameters: {
 		viewport: {
 			defaultViewport: DEFAULT_VIEWPORT
 		}
-	}
+	},
 };
 
 export default meta;
-type Story = StoryObj<typeof MarketPlace>;
+type Story = StoryObj<typeof FilterProduct>;
 
 export const DESKTOP: Story = {};
 
 export const TABLET: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	}
@@ -26,7 +26,7 @@ export const TABLET: Story = {
 
 export const LARGEMOBILE: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	}
@@ -34,7 +34,7 @@ export const LARGEMOBILE: Story = {
 
 export const SMALLMOBILE: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	}

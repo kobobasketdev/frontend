@@ -3,18 +3,19 @@ import { ProductAvatar, ProductPromotionChip, WishLishIconButton } from "./Commo
 import { IProductItemProps, TItem } from "./types";
 import ScrollableContainer from "./ScrollableContainer";
 import GrommetWishListSvg from "./svg/GrommetWishlistSvg";
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import ProductAddToCartControl from "./ProductAddToCartControl";
 import ProductInfo from "./ProductInfo";
 import { MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { useAppDispatch } from "#state-management/hooks.ts";
-import { addToWishlist, removeFromWishlist } from "#state-management/slices/wishlist.slice.ts";
 import { RoutePath } from "#utils/route.ts";
 import { useNavigate } from "@tanstack/react-router";
 import { setShowMenu } from "#state-management/slices/active-menu.slice.ts";
 import { Check, IosShare } from "@mui/icons-material";
 import { useSnackbar } from "notistack";
 import { setAddToCartPopup } from "#state-management/slices/cart.slice.ts";
+import { WishlistIdContext } from "#utils/context.ts";
+import { useWishlistMutation } from "#hooks/mutations/wishlist";
 
 
 export default function ProductItem({
@@ -31,28 +32,25 @@ export default function ProductItem({
 	const navigate = useNavigate();
 	const { enqueueSnackbar } = useSnackbar();
 	const dispatch = useAppDispatch();
-	const [isWishListItem, setIsWishListItem] = useState<boolean>(false);
 	const isLoggedIn = Boolean(localStorage.getItem('access_token'));
-	useEffect(() => {
-		setIsWishListItem(item.isWishListItem);
-	}, [item.isWishListItem]);
+	const { addToWishlist, removeFromWishlist } = useWishlistMutation();
+	const wishlistIdsSet = useContext(WishlistIdContext);
+	const isWishlistItem = wishlistIdsSet.has(item.id + '');
 
 	const handleAddToCartPopup = (item: TItem) => {
 		dispatch(setAddToCartPopup(item));
 	};
 
 	const handleAddToWishlist = (item: TItem) => () => {
-		if (isWishListItem) {
-			dispatch(removeFromWishlist("" + item.id));
+		if (isWishlistItem) {
+			removeFromWishlist.mutateAsync(item.id);
 		}
 		else {
-			dispatch(addToWishlist(item));
+			addToWishlist.mutateAsync(item.id);
 		}
-		const newWishListStatus = !isWishListItem;
-		setIsWishListItem(newWishListStatus);
 	};
 
-	const handleGotoProductDetails = (itemId: number) => () => {
+	const handleGotoProductDetails = (itemId: string) => () => {
 		dispatch(setShowMenu(false));
 		navigate({
 			to: RoutePath.PRODUCT_DISPLAY,
@@ -60,7 +58,7 @@ export default function ProductItem({
 		});
 	};
 
-	const handleCopyToClipBoard = (itemId: number) => () => {
+	const handleCopyToClipBoard = (itemId: string) => () => {
 		navigator.clipboard.writeText(location.origin + "/products/" + itemId);
 
 		enqueueSnackbar(<Alert icon={<Check fontSize="inherit" />} severity="success">
@@ -74,15 +72,15 @@ export default function ProductItem({
 	return (
 		<Stack gap={1} position={'relative'}>
 			{
-				fullDetails && (
+				fullDetails && item.promotion_id !== 1 && (
 					<ProductPromotionWishlistStack $hasPromotion={Boolean(item.promotion)} $disableWishlisting={disableWishlisting}>
 						{
-							item.promotion && <ProductPromotionChip label={item.promotion.promotionName} size="small" />
+							item.promotion && <ProductPromotionChip label={item.promotion.title} size="small" />
 						}
 						{
 							!disableWishlisting && isLoggedIn &&
 							<WishLishIconButton onClick={handleAddToWishlist(item)}>
-								<GrommetWishListSvg $isFilled={isWishListItem || item.isWishListItem} />
+								<GrommetWishListSvg $isFilled={isWishlistItem} />
 							</WishLishIconButton>
 
 						}
@@ -124,7 +122,6 @@ export default function ProductItem({
 							<ProductShareCustomIconButton onClick={handleCopyToClipBoard(item.id)}>
 								<IosShare />
 								<ProductShareCustomSpan >
-
 									Share
 								</ProductShareCustomSpan>
 							</ProductShareCustomIconButton>

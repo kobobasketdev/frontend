@@ -1,10 +1,10 @@
-import { RoutePath } from '#utils/route.ts'
-import { createFileRoute, Navigate } from '@tanstack/react-router'
+import { RoutePath } from '#utils/route.ts';
+import { createFileRoute, Navigate } from '@tanstack/react-router';
 
 export const Route = createFileRoute(RoutePath.INTERNAL_ORDERS)({
-  component: RouteComponent,
-})
+	component: RouteComponent,
+});
 
 function RouteComponent() {
-  return <Navigate to={RoutePath.DELIVERED_ORDER} />
+	return <Navigate to={RoutePath.DELIVERED_ORDER} />;
 }

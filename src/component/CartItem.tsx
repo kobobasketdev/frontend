@@ -17,7 +17,7 @@ export default function CartItem({ variant, item, quantity }: { variant: number,
 			<Stack direction={'row'}>
 				<WeightSpan>
 					<Typography fontSize={'14px'}>
-						{item.variations[variant].weight}kg
+						{`${item.variations[variant].size || `${item.variations[variant].weight}kg`}`}
 					</Typography>
 				</WeightSpan>
 			</Stack>

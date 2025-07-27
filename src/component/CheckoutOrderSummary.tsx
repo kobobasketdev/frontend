@@ -1,5 +1,5 @@
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
-import { ExpandMore, Remove } from "@mui/icons-material";
+import { Cancel, ExpandMore, Remove } from "@mui/icons-material";
 import { Alert, Box, Button, Checkbox, FormLabel, List, ListItem, Stack, styled, SvgIcon, TextField, Typography } from "@mui/material";
 import pluralize from "pluralize";
 import { ChangeEvent, SyntheticEvent, useEffect, useRef, useState } from "react";
@@ -10,24 +10,26 @@ import { RoutePath } from "#utils/route.ts";
 import { CheckoutButton } from "./CommonViews";
 import { useStripe, useElements } from '@stripe/react-stripe-js';
 import { useSnackbar } from "notistack";
-import { validateEmail } from "#utils/validation.ts";
+// import { validateEmail } from "#utils/validation.ts";
 import { useCartMutation } from "#hooks/mutations/cart";
 
 const env = import.meta.env;
 export type TPaymentType = 'card' | 'paypal' | 'payforme';
-export type TCouponCode = { value: number, isValid: boolean, code?: string };
+export type TCouponCode = { value: number, isValid: boolean, code?: string, type?: 'percentage' | 'exact' };
 export default function CheckoutOrderSummar({
 	shippingFee,
+	clearanceFee,
 	itemCount,
 	cartItemInfo,
 	paymentMethod,
 	couponCode,
 	disablePayment,
-	paymentTotal,
+	paymentTotalWithoutCoupon,
 	createOrder,
-	handleCouponChange
+	handleCouponChange,
 }: {
 	shippingFee?: number,
+	clearanceFee?: number,
 	itemCount: number,
 	couponCode: TCouponCode,
 	cartItemInfo: {
@@ -36,10 +38,10 @@ export default function CheckoutOrderSummar({
 		code: string;
 		symbol: string;
 	},
-	paymentTotal: number,
+	paymentTotalWithoutCoupon: number,
 	disablePayment: boolean,
 	paymentMethod: TPaymentType,
-	handleCouponChange: (args: TCouponCode) => void,
+	handleCouponChange: (args: TCouponCode | null) => void,
 	createOrder: () => Promise<{ orderId: string, email: string }>,
 }) {
 	const [saveMyInfo, setSaveMyInfo] = useState<boolean>(true);
@@ -135,7 +137,10 @@ export default function CheckoutOrderSummar({
 		}
 		try {
 			const { data } = await applyCouponCode.mutateAsync(coupon);
-			handleCouponChange({ value: data.value, isValid: true, code: coupon });
+			if (!data.isValid) {
+				throw Error('Invalid coupon');
+			}
+			handleCouponChange({ value: data.coupon.discount, isValid: true, code: data.coupon.code, type: data.coupon.discount_type });
 		}
 		catch (e: any) {
 			enqueueSnackbar(<Alert severity="error">
@@ -145,6 +150,10 @@ export default function CheckoutOrderSummar({
 				style: { backgroundColor: '#fdeded', padding: '0px 0px', }
 			});
 		}
+	};
+
+	const handleRemoveCoupon = () => {
+		handleCouponChange(null);
 	};
 
 	const handleSaveMyInfo = (_e: SyntheticEvent, checked: boolean) => {
@@ -208,6 +217,16 @@ export default function CheckoutOrderSummar({
 										<ListItem disablePadding>
 											<Stack direction={'row'} justifyContent={'space-between'} width={1}>
 												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'}>
+													Total Cart Weight
+												</Typography>
+												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'} fontWeight={'500'}>
+													{cartItemInfo.weight.toFixed(2)}kg
+												</Typography>
+											</Stack>
+										</ListItem>
+										<ListItem disablePadding>
+											<Stack direction={'row'} justifyContent={'space-between'} width={1}>
+												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'}>
 													Subtotal ({itemCount} {pluralize('item', itemCount)})
 												</Typography>
 												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'} fontWeight={'500'}>
@@ -230,20 +249,36 @@ export default function CheckoutOrderSummar({
 										</ListItem>
 										<ListItem disablePadding>
 											<Stack direction={'row'} justifyContent={'space-between'} width={1}>
+												<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'}>
+													Clearance fee
+												</Typography>
+												{
+													clearanceFee &&
+													<Typography color="rgba(27, 31, 38, 0.8)" fontSize={'14px'} fontWeight={'500'}>
+														{cartItemInfo.code} {cartItemInfo.symbol}{clearanceFee.toFixed(2)}
+													</Typography>
+												}
+											</Stack>
+										</ListItem>
+										<ListItem disablePadding>
+											<Stack direction={'row'} justifyContent={'space-between'} width={1}>
 												{
 													couponCode.isValid ?
 														<>
 															<Typography fontSize={'14px'} color="rgba(27, 31, 38, 0.8)">
 																Coupon Applied
 															</Typography>
-															<Stack color="#d32f2f" fontWeight={'500'} fontSize={'14px'} alignItems={'center'} direction={'row'}>
-																<Remove color="error" /> {cartItemInfo.code} {cartItemInfo.symbol}{couponCode.value}
+															<Stack direction={'row'} gap={1}>
+																<Stack color="#d32f2f" fontWeight={'500'} fontSize={'14px'} alignItems={'center'} direction={'row'}>
+																	<Remove color="error" /> {cartItemInfo.code} {cartItemInfo.symbol}{couponCode.value}
+																</Stack>
+																<Button color="inherit" onClick={handleRemoveCoupon} size="small"> {couponCode.code} <Cancel fontSize="small" /> </Button>
 															</Stack>
 														</>
 														:
 														<>
 															<TextField size="small" value={coupon} onChange={handleOnCouponChange} placeholder="Coupon code" />
-															<Button variant="contained" sx={{ bgcolor: 'black' }} disabled={applyCouponCode.isPending} onClick={handleApplyCoupon} size="small">Apply</Button>
+															<Button variant="contained" sx={{ bgcolor: 'black' }} disabled={applyCouponCode.isPending || isLoading || disablePayment} onClick={handleApplyCoupon} size="small">Apply</Button>
 														</>
 												}
 											</Stack>
@@ -254,7 +289,7 @@ export default function CheckoutOrderSummar({
 													Total
 												</Typography>
 												<Typography fontSize={'16px'} fontWeight={'600'}>
-													{cartItemInfo.code} {cartItemInfo.symbol}{(paymentTotal.toFixed(2))}
+													{cartItemInfo.code} {cartItemInfo.symbol}{(paymentTotalWithoutCoupon + (shippingFee || 0) + (clearanceFee || 0) - couponCode.value).toFixed(2)}
 												</Typography>
 											</Stack>
 										</ListItem>

@@ -5,5 +5,4 @@ type TContext = {
 };
 export const GuestContext = createContext<TContext | null>(null);
 
-
-export const SearchDisptachContext = createContext<TSearchDispatch | null>(null);
+export const WishlistIdContext = createContext<Set<string>>(new Set());

@@ -8,7 +8,7 @@ import { memo, useState } from "react";
 const MemoInitialMarketPlace = memo(InitialMarketPlace);
 const MemoMoreMarketPlace = memo(MoreMarketPlace);
 export default function MarketPlace() {
-	const [page, setPage] = useState<number>(0);
+	const [page, setPage] = useState<number>(1);
 	const handleLoadMore = () => {
 		setPage(prev => prev + 1);
 	};
@@ -17,12 +17,14 @@ export default function MarketPlace() {
 			<Stack width={1}>
 				<Banner>
 				</Banner>
-				<MemoInitialMarketPlace key={'inital'} />
-				{
-					Array(page).fill('').map((_, index) => (
-						<MemoMoreMarketPlace key={index} page={(index + 1)} />
-					))
-				}
+				<div>
+					<MemoInitialMarketPlace key={'inital'} />
+					{
+						Array(page).fill('').map((_, index) => (
+							<MemoMoreMarketPlace key={index} page={(index + 1)} />
+						))
+					}
+				</div>
 				<Stack alignItems={'center'}>
 					<StyledButton onClick={handleLoadMore} variant="outlined" color="inherit" size="small" >VIEW MORE PRODUCTS</StyledButton>
 				</Stack>

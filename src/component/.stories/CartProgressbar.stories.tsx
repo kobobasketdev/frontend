@@ -1,9 +1,12 @@
 import { Meta, StoryObj } from "@storybook/react";
-import DeliverySelection from "./DeliverySelection";
+import CartProgressbar from "../CartProgressbar";
 import { DEFAULT_VIEWPORT } from "@storybook/addon-viewport";
 
-const meta: Meta<typeof DeliverySelection> = {
-	component: DeliverySelection,
+const meta: Meta<typeof CartProgressbar> = {
+	component: CartProgressbar,
+	args: {
+		cartWeight: 0
+	},
 	parameters: {
 		viewport: {
 			defaultViewport: DEFAULT_VIEWPORT
@@ -12,13 +15,13 @@ const meta: Meta<typeof DeliverySelection> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof DeliverySelection>;
+type Story = StoryObj<typeof CartProgressbar>;
 
 export const DESKTOP: Story = {};
 
 export const TABLET: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	}
@@ -26,7 +29,7 @@ export const TABLET: Story = {
 
 export const LARGEMOBILE: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	}
@@ -34,7 +37,7 @@ export const LARGEMOBILE: Story = {
 
 export const SMALLMOBILE: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	}

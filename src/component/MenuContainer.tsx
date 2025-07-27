@@ -19,7 +19,7 @@ export default function MenuContainer({ contentViewArea = '45px' }: { contentVie
 	const [open, setOpen] = useState(false);
 	const [hoverMenu, setHoverMenu] = useState<{ id?: number, name?: string }>({});
 	const { data } = useQuery(getCategoryItems(hoverMenu.id));
-	const previewItems: TItem[] = data?.data || [];
+	const previewItems: TItem[] = data?.data.data || [];
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 
@@ -78,7 +78,7 @@ export default function MenuContainer({ contentViewArea = '45px' }: { contentVie
 							onMouseLeave={handleMouseLeave()}>
 							<CustomStack height={contentViewArea}>
 								<ScrollableContainer orientation="horizontal">
-									<StyledStack direction={'row'} gap={2} flexGrow={1} >
+									<StyledStack direction={'row'} gap={1} flexGrow={1} >
 										{
 											productCategories.map((menu, index) => {
 												if (index === 0) {
@@ -112,7 +112,7 @@ export default function MenuContainer({ contentViewArea = '45px' }: { contentVie
 												<Grid container spacing={4} maxWidth={'500px'}>
 													{
 														previewItems.length > 0 && previewItems.slice(0, 20).map(item => <Grid key={item.id}>
-															<FilterItem title={item.name} imageSrc={item.images[0]} href={`/products/${item.id}`} />
+															<FilterItem title={item.name} imageSrc={item.images[0]?.url} href={`/products/${item.id}`} />
 														</Grid>)
 													}
 												</Grid>
@@ -201,7 +201,7 @@ const MenuButton = styled(Button, {
 		backgroundColor: 'rgba(120, 120, 128, 0.2)'
 	},
 	[theme.breakpoints.down(TABLET_SCREEN_MAX_WIDTH)]: {
-		backgroundColor: $isActive ? 'rgba(120, 120, 128, 0.2)' : 'white',
+		backgroundColor: $isActive ? 'rgba(120, 120, 128, 0.2)' : 'inherit',
 		borderRadius: '12px',
 		fontSize: '1rem',
 		padding: '4px 8px',

@@ -1,9 +1,9 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { DEFAULT_VIEWPORT } from '@storybook/addon-viewport';
-import Header from './Header';
+import { Meta, StoryObj } from "@storybook/react";
+import SearchDropdown from "../SearchDropdown";
+import { DEFAULT_VIEWPORT } from "@storybook/addon-viewport";
 
-const meta: Meta<typeof Header> = {
-	component: Header,
+const meta: Meta<typeof SearchDropdown> = {
+	component: SearchDropdown,
 	parameters: {
 		viewport: {
 			defaultViewport: DEFAULT_VIEWPORT
@@ -12,14 +12,13 @@ const meta: Meta<typeof Header> = {
 };
 
 export default meta;
-
-type Story = StoryObj<typeof Header>;
+type Story = StoryObj<typeof SearchDropdown>;
 
 export const DESKTOP: Story = {};
 
 export const TABLET: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	}
@@ -27,7 +26,7 @@ export const TABLET: Story = {
 
 export const LARGEMOBILE: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	}
@@ -35,7 +34,7 @@ export const LARGEMOBILE: Story = {
 
 export const SMALLMOBILE: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	}

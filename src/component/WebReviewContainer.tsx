@@ -8,23 +8,58 @@ import { TItem, TReview } from "./types";
 import ReviewContent from "./ReviewContent";
 import ReviewBanner from "./ReviewBanner";
 import { RadioFilters } from "./GeneralFilter";
+import { getProductReviews } from "#hooks/query/product";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
-export default function WebReviewContainer({ reviews, item }: { reviews: TReview[], item: TItem }) {
+export default function WebReviewContainer({ item, initialReviews }: { item: TItem, initialReviews: TReview[] }) {
 	const dispatch = useAppDispatch();
+	const queryClient = useQueryClient();
+	const [page, setPage] = useState(1);
+	const [filterBy, setFilterBy] = useState<string | number>('all');
+	const [sortBy, setSortBy] = useState<string>('');
+	const [loadedReviews, setLoadedReviews] = useState<TReview[]>([]);
 	const isWebReviewOpen = useAppSelector(selectIsWebReviewOpen);
 
-	const handleSortBy = (value: string) => {
+	useEffect(() => {
+		setLoadedReviews(initialReviews);
+	}, [initialReviews]);
+
+	const handleSortBy = async (value: string) => {
 		console.log('sorting', value);
+		const { data } = await queryClient.fetchQuery(getProductReviews({ productId: item.id, page: 1, filterBy, sortBy }));
+		setLoadedReviews([
+			...data
+		]);
+		setPage(1);
+		setSortBy(value);
 	};
 
-	const handleFilterBy = (value: string) => {
+	const handleFilterBy = async (value: string | number) => {
 		console.log('filtering', value);
+		const { data } = await queryClient.fetchQuery(getProductReviews({ productId: item.id, page: 1, filterBy, sortBy }));
+		setLoadedReviews([
+			...data
+		]);
+		setPage(1);
+		setFilterBy(value);
 	};
+
+	// const handleInfinitScroll = async () => {
+	// 	const newPage = page + 1;
+	// 	const { data } = await queryClient.fetchQuery(getProductReviews({ productId: item.id, page: newPage, filterBy, sortBy }));
+	// 	setLoadedReviews([
+	// 		...loadedReviews,
+	// 		...data
+	// 	]);
+	// 	setPage(newPage);
+	// };
 
 	const handleCloseWebReview = () => {
 		dispatch(setIsOpenWebReview(false));
 		dispatch(setReviewImageToView(null));
 	};
+
 	return (
 		<Modal open={isWebReviewOpen}>
 			<Stack height={1} justifyContent={'center'} alignItems={'center'}>
@@ -39,10 +74,10 @@ export default function WebReviewContainer({ reviews, item }: { reviews: TReview
 					</Stack>
 					<Stack direction={'row'} gap={1} overflow={'hidden'}>
 						{
-							reviews.length > 0 &&
+							loadedReviews.length > 0 &&
 							<Stack gap={1.5} overflow={'auto'} pl={1} pr={2} pb={1} sx={{ scrollbarWidth: 'thin' }} >
 								{
-									reviews.map((review, index) => (
+									loadedReviews.map((review, index) => (
 										<ReviewContent key={index} reviewer={review} tag={index + 1} isWebView />
 									))
 								}

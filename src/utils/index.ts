@@ -58,7 +58,7 @@ export const validatePassword = (password: string) => {
 
 export const calculateOnlyItemTotal = (items: TOrderItem[]) => {
 	const itemTotal = items.reduce((acc, current) => {
-		return acc + (current.amount * current.quantity);
+		return acc + (current.price * current.quantity);
 	}, 0);
 	return itemTotal;
 };
@@ -81,6 +81,7 @@ export interface CountryType {
 	code: string;
 	label: string;
 	phone: string;
+	currency?: string;
 	suggested?: boolean;
 }
 
@@ -95,7 +96,9 @@ export const appCurrencySymbol: {
 	'EUR': '€',
 	'CNY': '¥',
 	'AUD': '$',
-	'NGN': '₦'
+	'NGN': '₦',
+	'AED': 'د.إ',
+	'HKD': 'HK$'
 };
 // From https://bitbucket.org/atlassian/atlaskit-mk-2/raw/4ad0e56649c3e6c973e226b7efaeb28cb240ccb0/packages/core/select/src/data/countries.js
 export const countries: readonly CountryType[] = [
@@ -533,4 +536,13 @@ export const province: Record<string, string[]> = {
 	"FR": [ "saint-barthélemy", "nouvelle-aquitaine", "île-de-france", "mayotte", "auvergne-rhône-alpes", "occitanie", "pays-de-la-loire", "normandie", "corse", "bretagne", "saint-martin", "wallis and futuna", "alsace", "provence-alpes-côte-d’azur", "paris", "centre-val de loire", "grand-est", "saint pierre and miquelon", "french guiana", "la réunion", "french polynesia", "bourgogne-franche-comté", "martinique", "hauts-de-france", "guadeloupe", "ain", "aisne", "allier", "alpes-de-haute-provence", "hautes-alpes", "alpes-maritimes", "ardèche", "ardennes", "ariège", "aube", "aude", "aveyron", "bouches-du-rhône", "calvados", "cantal", "charente", "charente-maritime", "cher", "corrèze", "côte-d'or", "côtes-d'armor", "creuse", "dordogne", "doubs", "drôme", "eure", "eure-et-loir", "finistère", "corse-du-sud", "haute-corse", "gard", "haute-garonne", "gers", "gironde", "hérault", "ille-et-vilaine", "indre", "indre-et-loire", "isère", "jura", "landes", "loir-et-cher", "loire", "haute-loire", "loire-atlantique", "loiret", "lot", "lot-et-garonne", "lozère", "maine-et-loire", "manche", "marne", "haute-marne", "mayenne", "meurthe-et-moselle", "meuse", "morbihan", "moselle", "nièvre", "nord", "oise", "orne", "pas-de-calais", "puy-de-dôme", "pyrénées-atlantiques", "hautes-pyrénées", "pyrénées-orientales", "bas-rhin", "haut-rhin", "rhône", "métropole de lyon", "haute-saône", "saône-et-loire", "sarthe", "savoie", "haute-savoie", "seine-maritime", "seine-et-marne", "yvelines", "deux-sèvres", "somme", "tarn", "tarn-et-garonne", "var", "vaucluse", "vendée", "vienne", "haute-vienne", "vosges", "yonne", "territoire de belfort", "essonne", "hauts-de-seine", "seine-saint-denis", "val-de-marne", "val-d'oise", "clipperton", "french southern and antarctic lands" ],
 	"HK": [ "yuen long", "tsuen wan", "tai po", "sai kung", "islands", "central and western", "wan chai", "eastern", "southern", "yau tsim mong", "sham shui po", "kowloon city", "wong tai sin", "kwun tong", "kwai tsing", "tuen mun", "north", "sha tin" ],
 	"AU": [ "victoria", "south australia", "queensland", "western australia", "australian capital territory", "tasmania", "new south wales", "northern territory" ],
+};
+
+export interface IDeliveryState {
+	country: string,
+	code: string
+};
+
+export type TCountry = {
+	[country: string]: CountryType
 };

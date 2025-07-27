@@ -11,7 +11,7 @@ export const useAuthMutation = () => {
 	const dispatch = useAppDispatch();
 	const register = useMutation({
 		mutationFn: (userInfo: ICreateAccount) => {
-			return fetcher.post('v1/register', { ...userInfo, firstName: 'test', lastName: 'client' });
+			return fetcher.post('v1/register', { ...userInfo });
 		},
 	});
 

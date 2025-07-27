@@ -6,17 +6,22 @@ import { useAppDispatch } from "#state-management/hooks.ts";
 import { CartWishlistSvg } from "./svg/WishlistSvg";
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { useCartMutation } from "#hooks/mutations/cart";
+import { useWishlistMutation } from "#hooks/mutations/wishlist";
+import { useState } from "react";
 
-export default function CartItemControl({ productId, quantity, variant, isCheckoutItem }: {
+export default function CartItemControl({ productId, quantity, variant, isWishlistItem }: {
 	variant: number,
-	productId: number,
+	productId: string,
 	quantity: number,
-	isCheckoutItem?: boolean
+	isWishlistItem?: boolean
 }) {
 	const displayQuantity = quantity;
 	const dispatch = useAppDispatch();
 	const { removeCartItem, updateCartItem: axiosupdateCartItem } = useCartMutation();
+	const { addToWishlist } = useWishlistMutation();
+	const [internalIsWishlist, setInternalIsWishList] = useState(false);
 
+	const finalIsWishlist = isWishlistItem || internalIsWishlist;
 	const handleQuantity = (value: number) => () => {
 		const newCount = displayQuantity + value;
 		if (newCount < 1) {
@@ -36,8 +41,9 @@ export default function CartItemControl({ productId, quantity, variant, isChecko
 		}
 	};
 
-	const handleAddToWishlist = (itemId: number) => () => {
-		// dispatch(addToWishlist(item));
+	const handleAddToWishlist = (itemId: string) => () => {
+		addToWishlist.mutateAsync(itemId);
+		setInternalIsWishList(true);
 	};
 	return (
 		<Stack direction={'row'} alignItems={'center'} gap={1} justifyContent={'space-between'} width={1}>
@@ -54,10 +60,10 @@ export default function CartItemControl({ productId, quantity, variant, isChecko
 					</IconButton>
 				</ControlStack>
 				{
-					isCheckoutItem && localStorage.getItem('access_token') &&
+					!finalIsWishlist && localStorage.getItem('access_token') &&
 					<WishListControl variant="outlined" size="small" color="inherit" onClick={handleAddToWishlist(productId)}>
 						<Stack direction={'row'} alignItems={'center'} justifyContent={'center'}>
-							<Typography pl={.5} fontSize={'12px'}>Move to wishlist</Typography>
+							<Typography pl={.5} fontSize={'12px'}>Add to wishlist</Typography>
 							<SvgIcon viewBox="-2 -4 16 16">
 								<CartWishlistSvg />
 							</SvgIcon>
@@ -68,12 +74,9 @@ export default function CartItemControl({ productId, quantity, variant, isChecko
 
 			<RemoveFromCartButton onClick={handleRemoveFromCart()} variant="outlined" color="inherit" size="small">
 				<Stack direction={'row'} alignItems={'center'} justifyContent={'center'}>
-					{
-						isCheckoutItem &&
-						<Typography fontSize={'12px'}>
-							Delete
-						</Typography>
-					}
+					<Typography fontSize={'12px'}>
+						Delete
+					</Typography>
 					<RemoveItemSvg />
 				</Stack>
 			</RemoveFromCartButton>

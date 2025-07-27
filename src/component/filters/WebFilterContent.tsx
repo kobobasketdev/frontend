@@ -13,9 +13,8 @@ export default function WebFilterContent() {
 	const categories = useAppSelector(selectProductCategories).slice(1);
 	const [selectedFilterProduct, setSelectedFilterProduct] = useState<TFilterSelect>({ name: categories[0].name, id: categories[0].id });
 	const { data } = useQuery(getCategoryItems(selectedFilterProduct.id));
-	const previewItems: TItem[] = data?.data;
+	const previewItems: TItem[] = data?.data.data;
 	const handleSelectFilterProduct = (filterProduct: TFilterSelect) => () => {
-		// console.log(filterProduct);
 		setSelectedFilterProduct(filterProduct);
 	};
 	return (
@@ -29,9 +28,9 @@ export default function WebFilterContent() {
 									{capitalize('new products')}
 								</ProductFilterListItemButton>
 							</ProductFilterListItem> */}
-							{categories.map((category, index) => (
-								<ProductFilterListItem key={index}>
-									<ProductFilterListItemButton $isActive={selectedFilterProduct.name === category.name} onClick={handleSelectFilterProduct({ id: category.id, name: category.name })}>
+							{categories.map(category => (
+								<ProductFilterListItem key={category.id}>
+									<ProductFilterListItemButton $isActive={selectedFilterProduct.id === category.id} onClick={handleSelectFilterProduct({ id: category.id, name: category.name })}>
 										{capitalize(category.name)}
 									</ProductFilterListItemButton>
 								</ProductFilterListItem>
@@ -51,8 +50,8 @@ export default function WebFilterContent() {
 					<Stack pt={4}>
 						<Grid container spacing={4}>
 							{
-								previewItems && previewItems.slice(0, 20).map(item => <Grid>
-									<FilterItem key={item.id} title={item.name} imageSrc={item.images[0]?.url || ''} href={`/products/${item.id}`} />
+								previewItems && previewItems.slice(0, 20).map(item => <Grid key={item.id}>
+									<FilterItem title={item.name} imageSrc={item.images[0]?.url || ''} href={`/products/${item.id}`} />
 								</Grid>)
 							}
 						</Grid>

@@ -36,11 +36,11 @@ export default function ProductInfo({
 					<ProductNameTypography>
 						{item.name}
 					</ProductNameTypography>
-					<Stack direction={'row'} gap={.5}>
+					<Stack direction={'row'} gap={.5} flexWrap={'wrap'}>
 						{
 							item.variations.map((variation, index) => (
 								<ProductWeightTypography key={index}>
-									{variation.weight}kg{index < item.variations.length - 1 && ','}
+									{variation.size || `${variation.weight}kg`}{index < item.variations.length - 1 && ','}
 								</ProductWeightTypography>
 							))
 						}
@@ -48,7 +48,7 @@ export default function ProductInfo({
 					<Stack direction={'row'} alignItems={'center'} gap={1} pt={1}>
 						<ProductLocationPriceTypography>
 							Local price near you {' '}
-							<ProductLocationPriceSpan >
+							<ProductLocationPriceSpan>
 								{code} {symbol}{minimumMarktPrice}
 							</ProductLocationPriceSpan>
 						</ProductLocationPriceTypography>

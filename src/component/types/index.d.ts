@@ -1,5 +1,5 @@
 export type CategorySelection = { id: number, name: string };
-export type TPromotionInfo = { id: number, promotionName: string };
+export type TPromotionInfo = { id: number, title: string, discount: number };
 export type TAvatarSizing = { height?: string, width?: string };
 export type TMiniGrid = { name: 'grid', spacing: number, column: number, size?: TAvatarSizing };
 export type TMiniScroll = { name: 'scroll', spacing: number, size?: TAvatarSizing, scollBy?: number };
@@ -33,12 +33,9 @@ export type TItemImage = {
 };
 
 export type TItem = { 
-	id: number, 
+	id: string, 
 	name: string,
-	productCategoryId?: string,
 	description?: string,
-	isWishListItem: boolean, 
-	productDetails?: string,
 	category: {
 		name: string
 	}
@@ -47,9 +44,12 @@ export type TItem = {
 	soldCount?: number,
 	likeCount?: number,
 	images: TItemImage[], 
-	isBestSeller?: boolean,
+	is_best_seller?: boolean,
 	promotion?: TPromotionInfo,
+	promotion_id: number,
 	variations: TProductVariant[],
+	product_category_id: number,
+	type: string,
 	ratingBank?: {
 		[x: string]: {
 			percent: number,
@@ -182,13 +182,15 @@ export type TOrder = {
 	userId: string,
 	status: number,
 	shippingFee: number,
+	clearanceFee: number,
 	orderDate: Date,
 	deliveryDate: Date,
 	shippingAddress: Omit<IResidentialAddress, 'id'>,
-	settlementCurrency: string
+	settlementCurrency: string,
+	couponCode?: string
 };
 
-export type TCreateOrder = Omit<TOrder, 'orderDate' | 'deliveryDate'> & { payformeEmail: string | null };
+export type TCreateOrder = Omit<TOrder, 'orderDate' | 'deliveryDate'>; 
 
 export type TNewOrder = Omit<TOrder, 'deliveryDate' | 'shippingAddress'> & { shippingAddress: IResidentialAddress };
 

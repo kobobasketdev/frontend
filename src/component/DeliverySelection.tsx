@@ -1,22 +1,27 @@
-import { Stack, styled, Typography } from "@mui/material";
+import { Stack, styled } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
 import { useState, } from "react";
 import { NavigationHeaderButton } from "./NavigationHeaderButton";
 import LocationSvg from "./svg/LocationSvg";
 import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
-import { IDeliveryState, initialSupportedCountries, setDeliveryLocation, selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
+import { setDeliveryLocation, selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
 import { upperFirst } from "lodash";
 import { MEDIUM_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import DeliveryCountryList from "./DeliveryCountryList";
-
-const LOCATIONID = 'CA';
+import { selectSupportedCountries } from "#state-management/slices/supported-countries.ts";
+import { useQuery } from "@tanstack/react-query";
+import { getUserLocation } from "#hooks/query/country";
+import { IDeliveryState } from "#utils/index.ts";
 
 export default function DeliverySelection({ locationIcon }: { locationIcon?: boolean }) {
 	const [open, setOpen] = useState(false);
 	const deliveryLocation = useAppSelector(selectDeliverLocation);
+	const supportedDeliveryCountries = useAppSelector(selectSupportedCountries);
+	const { data: userLocationData } = useQuery(getUserLocation());
+	const userLocation = userLocationData?.data as { country: string, region: string };
 	const dispatch = useAppDispatch();
 
-	const isLocationBased = LOCATIONID === deliveryLocation.code;
+	const isLocationBased = userLocation && userLocation.country === deliveryLocation.code;
 
 
 	const handleChangeCurrency = () => {
@@ -48,7 +53,7 @@ export default function DeliverySelection({ locationIcon }: { locationIcon?: boo
 			</StyledStack>
 			<DeliveryCountryList
 				open={open}
-				supportedCountries={initialSupportedCountries}
+				supportedCountries={supportedDeliveryCountries}
 				selection={deliveryLocation}
 				isLocationBased={isLocationBased}
 				handleClose={handleClose}
@@ -64,16 +69,5 @@ const StyledStack = styled(Stack)(({ theme }) => ({
 	},
 	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
 		paddingTop: theme.spacing(0)
-	}
-}));
-
-const StyledTypography = styled(Typography)(({ theme }) => ({
-	color: theme.palette.primaryBlack.lightshade,
-	textAlign: 'left',
-	fontFamily: 'Roboto',
-	letterSpacing: '0.17px',
-	fontSize: '14px',
-	[theme.breakpoints.between('xs', 'sm')]: {
-		fontSize: '12px',
 	}
 }));

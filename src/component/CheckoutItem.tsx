@@ -7,6 +7,8 @@ import CartItemControl from "./CartItemControl";
 import { useAppDispatch } from "#state-management/hooks.ts";
 import { appCurrencySymbol } from "#utils/index.ts";
 import { useCartMutation } from "#hooks/mutations/cart";
+import { useContext } from "react";
+import { WishlistIdContext } from "#utils/context.ts";
 
 export default function CheckoutItem({ cartItem }: { cartItem: TCartItems }) {
 	const dispatch = useAppDispatch();
@@ -15,6 +17,7 @@ export default function CheckoutItem({ cartItem }: { cartItem: TCartItems }) {
 	const price = productVariation.price.converted;
 	const code = productVariation.price.currency;
 	const symbol = appCurrencySymbol[code];
+	const wishlistIdsSet = useContext(WishlistIdContext);
 	const { removeCartItem } = useCartMutation();
 
 	const handleChange = () => {
@@ -43,13 +46,13 @@ export default function CheckoutItem({ cartItem }: { cartItem: TCartItems }) {
 					<Stack direction={'row'}>
 						<WeightSpan>
 							<Typography fontSize={'14px'}>
-								{cartItem.item.variations[cartItem.variant].weight}kg
+								{`${cartItem.item.variations[cartItem.variant].size || `${cartItem.item.variations[cartItem.variant].weight}kg`}`}
 							</Typography>
 						</WeightSpan>
 					</Stack>
 				</Stack>
 				<Stack direction={'row'}>
-					<CartItemControl variant={cartItem.variant} productId={cartItem.item.id} quantity={cartItem.quantity} isCheckoutItem={!cartItem.item.isWishListItem} />
+					<CartItemControl variant={cartItem.variant} productId={cartItem.item.id} quantity={cartItem.quantity} isWishlistItem={wishlistIdsSet.has(cartItem.item.id + '')} />
 				</Stack>
 			</Stack>
 		</StyledStack>

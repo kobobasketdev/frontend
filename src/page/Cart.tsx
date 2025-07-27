@@ -1,27 +1,58 @@
 import CheckoutCartItem from "#component/CheckoutCartItem.tsx";
-import { StyledHeaderLink } from "#component/CommonViews.tsx";
+import { ShopTypography, StyledHeaderLink } from "#component/CommonViews.tsx";
 import MiniNavigation from "#component/MiniNavigation.tsx";
 import MobileCartContainer from "#component/MobileCartCheckout.tsx";
+import ProductItem from "#component/ProductItem.tsx";
+import { TItem } from "#component/types/index.js";
 import WebCartContainer from "#component/WebCartContainer.tsx";
 import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, minimumWeight, SMALL_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH } from "#constants.tsx";
-import { useAppSelector } from "#state-management/hooks.ts";
-import { selectCartItems } from "#state-management/slices/cart.slice.ts";
+import fetcher from "#hooks/fetcher.ts";
+import { getWishlistItem } from "#hooks/query/wishlist";
+import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
+import { addBulkItemToCart, selectCartItems, TCartItems } from "#state-management/slices/cart.slice.ts";
 import { getCartItems, getCartWeight, getTotalSavings } from "#utils/index.ts";
 import { RoutePath } from "#utils/route.ts";
 import { ChevronRight, IosShare } from "@mui/icons-material";
 import { Box, Button, Stack, Typography, styled } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import pluralize from "pluralize";
+import { useEffect, useState } from "react";
 
+const env = import.meta.env;
 export default function Cart() {
 	const navigate = useNavigate();
-
 	const cartItemsMap = useAppSelector(selectCartItems);
+	const dispatch = useAppDispatch();
 	const cartItems = getCartItems(cartItemsMap);
 	const cartInfo = getCartWeight(cartItems);
-
+	const { data } = useQuery(getWishlistItem(1));
+	const wishlistItems: TItem[] = data?.data || [];
 	const isDisabled = cartInfo.weight < minimumWeight;
 	const totalSavings = getTotalSavings(cartItems);
+	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => {
+		if (localStorage.getItem('access_token')) {
+			setIsLoading(true);
+			fetcher.get(env.VITE_URL_ENDPOINT + 'v1/cart')
+				.then(response => {
+					const { data: savedCarts }: { data: TCartItems[] } = response;
+					const mappedCart = savedCarts.reduce((acc, savedCart) => {
+						const { item, variant } = savedCart;
+						acc[item.id + '_' + variant] = savedCart;
+						return acc;
+					}, {} as Record<string, TCartItems>);
+					dispatch(addBulkItemToCart(mappedCart));
+					setIsLoading(false);
+				})
+				.catch(response => {
+					console.log(response, 'error');
+					setIsLoading(false);
+				});
+		}
+	}, [dispatch]);
+
 	const handleCartButton = () => {
 		navigate({
 			to: isDisabled ? RoutePath.HOME : RoutePath.CHECKOUT
@@ -58,7 +89,10 @@ export default function Cart() {
 							</Stack>
 						</StyledShareCartButton>
 					</Stack>
-					<CheckoutCartItem cartItems={cartItems} />
+					{
+						!isLoading &&
+						<CheckoutCartItem cartItems={cartItems} />
+					}
 				</Stack>
 				<WebCartContainer
 					weight={cartInfo.weight}
@@ -74,33 +108,31 @@ export default function Cart() {
 					itemCount={cartItems.length}
 					totalSavings={totalSavings} totalPrice={cartInfo.total} />
 			</StyledCartContainerStack>
-			{/* <ContentStack mt={3}>
-				<Stack gap={2} >
-					<Stack gap={1}>
-						<ShopTypography>
-							ITEMS IN YOUR WISH LIST
-						</ShopTypography>
+			{
+				localStorage.getItem('access_token') &&
+				<ContentStack mt={3}>
+					<Stack gap={2} >
+						<Stack gap={1}>
+							<ShopTypography>
+								ITEMS IN YOUR WISH LIST
+							</ShopTypography>
+						</Stack>
+						<ProductItemGrid>
+							{wishlistItems.map((item, index) => (
+								<ProductItem
+									key={index}
+									item={item}
+									showPrice={true}
+									isCircularImage={false}
+									fullDetails
+									fontSize="24px"
+									fontWeight="600"
+								/>
+							))}
+						</ProductItemGrid>
 					</Stack>
-					<ProductItemGrid>
-						{Array(5).fill('Item').map((arrayItem, index) => (
-							<ProductItem
-								key={index}
-								item={{
-									...itemsStub[0], id: index, name: arrayItem + " " + index, promotion: {
-										promotionName: "Valentine's Deals",
-										id: Math.floor(Math.random() * 100)
-									}
-								}}
-								showPrice={true}
-								isCircularImage={false}
-								fullDetails
-								fontSize="24px"
-								fontWeight="600"
-							/>
-						))}
-					</ProductItemGrid>
-				</Stack>
-			</ContentStack> */}
+				</ContentStack>
+			}
 
 			{/* <ContentStack mt={3}>
 				<Stack gap={2} >

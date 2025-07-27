@@ -8,11 +8,12 @@ import { selectRouteRedirect } from "#state-management/slices/active-menu.slice.
 import { RoutePath } from "#utils/route.ts";
 import { validateLogin } from "#utils/validation.ts";
 import { VisibilityOff, Visibility } from "@mui/icons-material";
-import { Alert, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Stack, TextField, Typography, styled } from "@mui/material";
+import { Alert, Box, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Stack, TextField, Typography, styled } from "@mui/material";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { AxiosError } from "axios";
 import { useSnackbar } from "notistack";
 import { ChangeEvent, SyntheticEvent, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 
 type TSignIn = {
 	email: string,
@@ -22,6 +23,9 @@ const initialState = {
 	email: '',
 	password: ''
 };
+
+const CAPTCHA_SITE_KEY = import.meta.env['VITE_CLIENT_GOOGLE_CAPTCHA_SITE_KEY'];
+
 export default function Login() {
 	const [fields, setFields] = useState<TSignIn>(initialState);
 	const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -31,6 +35,8 @@ export default function Login() {
 	const [showVerify, setShowVerify] = useState<boolean>(false);
 	const navigate = useNavigate();
 	const routeRedirect = useAppSelector(selectRouteRedirect);
+	const [isCaptchaVerified, setCaptchaVerified] = useState<string | null>(null);
+
 
 	const handleChange = (field: string) => (e: ChangeEvent<HTMLInputElement>) => {
 		setFields({
@@ -80,6 +86,10 @@ export default function Login() {
 		console.log(_args);
 		setShowVerify(false);
 	};
+
+	const handleCaptchaChange = (value: string | null) => {
+		setCaptchaVerified(value);
+	};
 	return (
 		<>
 			{
@@ -125,7 +135,10 @@ export default function Login() {
 											<Link to={RoutePath.FORGOTPASSWORD} style={{ fontSize: '14px', color: '#3d8cf3', fontWeight: 'normal' }}>
 												Forgot password
 											</Link>
-											<CheckoutButton type="submit" $isCurved={false} onClick={handleLogin}>
+											<Box>
+												<ReCAPTCHA sitekey={CAPTCHA_SITE_KEY} onChange={handleCaptchaChange} />
+											</Box>
+											<CheckoutButton type="submit" $isCurved={false} onClick={handleLogin} $disabledButton={!isCaptchaVerified} disabled={!isCaptchaVerified}>
 												Sign in to my KoboBasket's Account
 											</CheckoutButton>
 										</Stack>

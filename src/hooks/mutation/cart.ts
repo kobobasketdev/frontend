@@ -1,10 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import fetcher from '../fetcher';
 import { TCreateOrder, TItem } from '#component/types/index.js';
-import { TCheckoutOrderSummary } from '#utils/index.ts';
 
 type TCartItem = {
-	productId: number,
+	productId: string,
 	variationId: number,
 	quantity: number
 };
@@ -22,7 +21,7 @@ export const useCartMutation = () => {
 	});
 
 	const updateCartItem = useMutation({
-		mutationFn: (cartUpdate: { cartItemId: number, quantity: number }) => {
+		mutationFn: (cartUpdate: { cartItemId: string, quantity: number }) => {
 			return fetcher.put('v1/cart', cartUpdate);
 		},
 		onSuccess: (data) => {
@@ -32,7 +31,7 @@ export const useCartMutation = () => {
 	});
 
 	const removeCartItem = useMutation({
-		mutationFn: (cartItemId: number) => {
+		mutationFn: (cartItemId: string) => {
 			return fetcher.delete('v1/cart/'+cartItemId);
 		},
 		onSuccess: () => {
@@ -54,7 +53,7 @@ export const useCartMutation = () => {
 
 	const applyCouponCode = useMutation({
 		mutationFn: (couponCode: string) => {
-			return fetcher.post('v1/coupons', {
+			return fetcher.post('v1/checkout/coupons', {
 				couponCode
 			});
 		}

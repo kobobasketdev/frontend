@@ -106,7 +106,7 @@ export const selectLoginUserId = createSelector(
 
 export const selectLoginUserFirstname = createSelector(
 	[(state: RootState) => state.user],
-	(user) => user.currentUser?.first_name
+	(user) => user.currentUser?.first_name || user.currentUser?.email
 );
 
 export const selectLoginUserFullname = createSelector(

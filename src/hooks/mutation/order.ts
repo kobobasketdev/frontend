@@ -1,8 +1,8 @@
 import fetcher from "#hooks/fetcher.ts";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 export const useOrderMutation = () => {
-	const queryClient = useQueryClient();
+	// const queryClient = useQueryClient();
 
 	const addReview = useMutation({
 		mutationFn: (fields: { orderId: string, productId: string, rating: number, title: string, comment: string, photos: File[] }) => {
@@ -16,14 +16,14 @@ export const useOrderMutation = () => {
 				}
 			});
 		},
-		onSuccess: (_, fields) => {
-			const { orderId, productId } = fields;
-			queryClient.setQueryData(['delievered-order-detail', orderId], (oldData) => {
-				const itemReviewed = oldData.orderItems.find(item => item.id === productId);
-				itemReviewed.isReviewed = true;
-				return { ...oldData };
-			});
-		}
+		// onSuccess: (_, fields) => {
+		// 	const { orderId, productId } = fields;
+		// 	queryClient.setQueryData(['delievered-order-detail', orderId], (oldData) => {
+		// 		const itemReviewed = oldData.orderItems.find(item => item.id === productId);
+		// 		itemReviewed.isReviewed = true;
+		// 		return { ...oldData };
+		// 	});
+		// }
 	});
 
 	const cancelOrder = useMutation({

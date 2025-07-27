@@ -25,7 +25,7 @@ export const ContactDetails = () => {
 
 		const [firstName, ...otherName] = localFullname.split(' ');
 		try {
-			await updateProfile.mutateAsync({ firstName: firstName || '', lastName: otherName.join(' ') || '' });
+			await updateProfile.mutateAsync({ first_name: firstName || '', last_name: otherName.join(' ') || '' });
 			setIsEditable(false);
 		}
 		catch {

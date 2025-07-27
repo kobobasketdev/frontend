@@ -24,7 +24,7 @@ export default function MiniPromotion({
 }: TMiniPromotionProps) {
 	const index = Math.floor((Math.random() * BANNER.length));
 	const { data: itemsData } = useQuery(getAllProductsByCategory({ page: 1, productCategory: categoryInfo.id, isPromotion: categoryInfo.isPromotion }));
-	const shuffledData = shuffle(itemsData?.data as TItem[]);
+	const shuffledData = shuffle(itemsData?.data.data as TItem[]);
 	const bannerTitle = title || BANNER[index] + upperFirst(categoryInfo.name);
 
 	const finalItemCount = (!itemCount || itemCount > shuffledData.length) ? shuffledData.length : itemCount;

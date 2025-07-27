@@ -3,7 +3,7 @@ import ProductSpecificFilter from "#component/ProductSpecificFilter.tsx";
 import { TItem } from "#component/types/index.js";
 import { LARGED_DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, DESKTOP_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import fetcher from "#hooks/fetcher.ts";
-import { Button, Pagination, Stack, styled } from "@mui/material";
+import { Pagination, Stack, styled } from "@mui/material";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -21,10 +21,12 @@ export default function ProductCategory({ categoryId }: { categoryId: number }) 
 		placeholderData: keepPreviousData
 	});
 
-	const products: TItem[] = productsCategoryData?.data || [];
-	console.log(categoryId, 'is the Id');
+	const products: TItem[] = productsCategoryData?.data.data || [];
+	const meta = productsCategoryData?.data.meta;
+	const totalPage = meta ? Math.floor(meta.total / meta.per_page) : 1;
 
 	const onFilterChange = (key: string, value: string, type: 'add' | 'remove') => {
+		console.log(value, key);
 		let newValue = '';
 		if (type === 'add') {
 			newValue = filters[key] ? filters[key] + ',' + value : value;
@@ -32,6 +34,7 @@ export default function ProductCategory({ categoryId }: { categoryId: number }) 
 		else {
 			newValue = filters[key]?.replace(',' + value, '').replace(value + ',', '').replace(value, '');
 		}
+		setPage(1);
 		setFilters({
 			...filters,
 			[key]: newValue
@@ -62,10 +65,14 @@ export default function ProductCategory({ categoryId }: { categoryId: number }) 
 							))}
 						</ProductItemGrid>
 					</ContentStack>
-					<StyledViewMoreStack alignItems={'center'} >
-						{/* <StyledButton variant="outlined" color="inherit" size="small" >VIEW MORE PRODUCTS</StyledButton> */}
-						<Pagination count={4} size="large" shape="rounded" onChange={handleChange} />
-					</StyledViewMoreStack>
+					{
+						totalPage > 1 && (
+							<StyledViewMoreStack alignItems={'center'} >
+								{/* <StyledButton variant="outlined" color="inherit" size="small" >VIEW MORE PRODUCTS</StyledButton> */}
+								<Pagination count={totalPage} page={page} size="large" shape="rounded" onChange={handleChange} />
+							</StyledViewMoreStack>
+						)
+					}
 				</ProductCategoryStack>
 			</StyledStack>
 		</StyledStackContent>
@@ -184,6 +191,6 @@ const ProductItemGrid = styled('div')(({ theme }) => ({
 	}
 }));
 
-const StyledButton = styled(Button)(({ theme }) => ({
-	backgroundColor: theme.palette.action.hover
-}));
+// const StyledButton = styled(Button)(({ theme }) => ({
+// 	backgroundColor: theme.palette.action.hover
+// }));

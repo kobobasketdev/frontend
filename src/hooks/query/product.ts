@@ -61,8 +61,9 @@ export const getAllCategories = () => queryOptions({
 	placeholderData: keepPreviousData
 });
 
-export const getProductById = ({ productId }: { productId: number }) => queryOptions({
+export const getProductById = ({ productId }: { productId: string }) => queryOptions({
 	queryKey: ['product-detail',  productId ],
+	staleTime: 5200000,
 	queryFn: async() => {
 		return fetcher.get('v1/products/'+productId);
 	}
@@ -71,10 +72,10 @@ export const getProductById = ({ productId }: { productId: number }) => queryOpt
 export const getProductReviews = ({
 	productId, page, filterBy, sortBy
 }: {
-	productId: number, page: number, filterBy?: string | number, sortBy?: string
+	productId: string, page: number, filterBy?: string | number, sortBy?: string
 }) => queryOptions({
 	queryKey: ['product-review', productId, page, { filterBy, sortBy }],
-	queryFn: async() => fetcher.get('v1/products/'+productId+'/reviews?page='+page+'&limit=10&filterBy='+filterBy+'&sortBy='+sortBy)
+	queryFn: async() => fetcher.get('v1/reviews/'+productId+'?page='+page+'&limit=10&filterBy='+filterBy+'&sortBy='+sortBy)
 });
 
 export const getBestSeller = (categoryId = 'all') => queryOptions({
@@ -91,9 +92,9 @@ export const getFrequentlyBought = (categoryId = 'all') => queryOptions({
 	}
 });
 
-export const searchProduct = (search: string, categoryId?: number) => queryOptions({
+export const searchProductQuery = (search: string, categoryId?: number) => queryOptions({
 	queryKey: ['search-product', search, { categoryId } ],
 	queryFn: async () => {
-		return fetcher.get('v1/products/search?query='+search+'&category='+categoryId);
+		return fetcher.get('v1/products?search='+search+'&searchCategory='+categoryId);
 	}
 });

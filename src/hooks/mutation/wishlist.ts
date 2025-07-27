@@ -4,20 +4,28 @@ import fetcher from "../fetcher";
 export const useWishlistMutation = () => {
 	const queryClient = useQueryClient();
 	const addToWishlist = useMutation({
-		mutationFn: (productId: number) => {
+		mutationFn: (productId: string) => {
 			return fetcher.post('v1/wishlist/add', { productId });
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+		onSuccess: (_, productId) => {
+			queryClient.setQueryData(['wishlist-ids'], (oldWishlistIds: string[]) => {
+				const newData = [...oldWishlistIds, productId+''];
+				return newData;
+			});
+			// queryClient.invalidateQueries({ queryKey: ['wishlist'] });
 		}
 	});
 
 	const removeFromWishlist = useMutation({
-		mutationFn: (productId: number) => {
+		mutationFn: (productId: string) => {
 			return fetcher.delete('v1/wishlist/'+productId);
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+		onSuccess: (_, productId) => {
+			queryClient.setQueryData(['wishlist-ids'], (oldWishlistIds: string[]) => {
+				const newData = oldWishlistIds.filter(wishlistId => wishlistId !== productId+'');
+				return newData;
+			});
+			// queryClient.invalidateQueries({ queryKey: ['wishlist'] });
 		}
 	});
 

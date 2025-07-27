@@ -1,24 +1,46 @@
-import { TItem } from "#component/types/index.js";
+import { TItem, TReview } from "#component/types/index.js";
 import { CUSTOM_893_WIDTH, DESKTOP_SCREEN_MAX_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { RoutePath } from "#utils/route.ts";
 import { Link } from "@tanstack/react-router";
-import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Divider, Stack, styled, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Divider, Skeleton, Stack, styled, Typography } from "@mui/material";
 import MiniNavigation from "#component/MiniNavigation.tsx";
 import { Check, ChevronRight, ExpandMore, IosShare } from '@mui/icons-material';
 import { CustomSpan, ShopTypography, StyledHeaderLink } from "#component/CommonViews.tsx";
-import { items as itemsStub, reviews as reviewsStub } from "#testData.ts";
 import ProductItem from "#component/ProductItem.tsx";
 import { useSnackbar } from "notistack";
-import _ from "lodash";
 import BoughtTogether from "#component/BoughtTogether.tsx";
 import RatingHeading from "#component/RatingHeading.tsx";
 import ReviewSection from "#component/ReviewSection.tsx";
 import { useEffect, useRef } from "react";
 import ProductsDetail from "#component/ProductsDetail.tsx";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { getProductReviews } from "#hooks/query/product";
+import fetcher from "#hooks/fetcher.ts";
 
 
 export default function ProductDisplay({ item }: { item: TItem }) {
 	const { enqueueSnackbar } = useSnackbar();
+	const { data: reviewData, isFetching: isReviewFetching } = useQuery(getProductReviews({ productId: item.id, page: 1 }));
+	const { data: recommendedProductsData, isFetching: isRecommendedFetching } = useQuery({
+		queryKey: ['recommended-products', 1],
+		queryFn: async () => {
+			return fetcher.get(`v1/products?page=${1}&limit=40`);
+		},
+		staleTime: 5400000,
+		placeholderData: keepPreviousData
+	});
+
+	const { data: frequentlyBoughtData, isFetching: isFrequentlyFetching } = useQuery({
+		queryKey: ['frequently-bought', item.id],
+		queryFn: async () => {
+			return fetcher.get('v1/frequently-bought/' + item.id);
+		},
+		placeholderData: keepPreviousData
+	});
+
+	const recommendedProducts = recommendedProductsData?.data.data as TItem[];
+	const frequentlyBought = frequentlyBoughtData?.data as TItem[];
+	const reviewStubs: TReview[] = reviewData?.data.data || [];
 	const pictureProductRef = useRef<HTMLElement | null>(null);
 	const productDetailRef = useRef<HTMLDivElement | null>(null);
 
@@ -71,7 +93,7 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 								<ChevronRight />
 							</Stack>
 						</StyledHeaderLink>
-						<Link to={RoutePath.CATEGORY} params={{ category: _.upperCase(item.productCategoryId!) }}>
+						<Link to={RoutePath.CATEGORY} params={{ category: item.category.name }}>
 							<StyledHeaderTypography textTransform={'uppercase'}>
 								{item.category.name}
 							</StyledHeaderTypography>
@@ -137,17 +159,23 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 							</AccordionDetails>
 						</CustomAccordion>
 					</Box>
-					<BoughtTogether boughtTogether={itemsStub.slice(0, 4)} />
+					{
+						!isFrequentlyFetching &&
+						<BoughtTogether boughtTogether={frequentlyBought || []} />
+					}
 				</ProductsDetail>
 				<span id="reviews" />
 			</ContainerCollection>
-			<ReviewContainer>
-				<Stack alignItems={'center'} p={2} pt={1} gap={3}>
-					<Divider orientation="horizontal" variant="fullWidth" sx={{ width: 1 }} />
-					<RatingHeading heading="CUSTOMERS RATINGS AND REVIEWS" />
-				</Stack>
-				<ReviewSection reviews={reviewsStub} item={item} />
-			</ReviewContainer>
+			{
+				!isReviewFetching && Boolean(reviewStubs.length) &&
+				<ReviewContainer>
+					<Stack alignItems={'center'} p={2} pt={1} gap={3}>
+						<Divider orientation="horizontal" variant="fullWidth" sx={{ width: 1 }} />
+						<RatingHeading heading="CUSTOMERS RATINGS AND REVIEWS" />
+					</Stack>
+					<ReviewSection reviews={reviewStubs} item={item} />
+				</ReviewContainer>
+			}
 			<ContentStack mt={2}>
 				<Stack gap={2} >
 					<Stack gap={1}>
@@ -156,22 +184,21 @@ export default function ProductDisplay({ item }: { item: TItem }) {
 						</ShopTypography>
 					</Stack>
 					<ProductItemGrid>
-						{Array(24).fill('Item').map((arrayItem, index) => (
-							<ProductItem
-								key={index}
-								item={{
-									...itemsStub[0], id: index, name: arrayItem + " " + index, promotion: {
-										id: 1,
-										promotionName: '5x bundle'
-									}
-								}}
-								showPrice={true}
-								isCircularImage={false}
-								fullDetails
-								fontSize="24px"
-								fontWeight="600"
-							/>
-						))}
+						{
+							!isRecommendedFetching ? recommendedProducts.map((item, index) => (
+								<ProductItem
+									key={index}
+									item={item}
+									showPrice={true}
+									isCircularImage={false}
+									fullDetails
+									fontSize="24px"
+									fontWeight="600"
+								/>
+							)) : [...Array(10)].map((_, index) => (
+								<Skeleton key={index} height='320px' />
+							))
+						}
 					</ProductItemGrid>
 				</Stack>
 			</ContentStack>

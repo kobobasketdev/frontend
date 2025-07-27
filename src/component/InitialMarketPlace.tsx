@@ -10,6 +10,8 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { shuffle } from "lodash";
 import fetcher from "#hooks/fetcher.ts";
 import { TItem } from "./types";
+import { RoutePath } from "#utils/route.ts";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function InitialMarketPlace() {
 	const { data: categories } = useQuery(getAllCategories());
@@ -23,19 +25,19 @@ export default function InitialMarketPlace() {
 		placeholderData: keepPreviousData
 	});
 
-	const { data: largePromotionData } = useQuery({
+	const { data: basketData } = useQuery({
 		queryKey: ['promotion', 1],
-		queryFn: () => fetcher.get('v1/products?page=1&limit=10&productCategory=2'),
+		queryFn: () => fetcher.get('v1/products?page=1&limit=10&type=basket'),
 		staleTime: 5400000,
 		placeholderData: keepPreviousData
 	});
-	const products: TItem[] = productsData?.data || [];
-	const promotions = shuffle(largePromotionData?.data || []);
-	const shuffledCategorySet = new Set(shuffle(categories?.data));
+	const products: TItem[] = productsData?.data.data || [];
+	const basketProducts = shuffle(basketData?.data.data || []);
+	const shuffledCategorySet = new Set(shuffle(categories?.data.data));
 	const categoryIterator = shuffledCategorySet[Symbol.iterator]();
 
 	return (
-		<Stack width={1} gap={6} pt={4} pb={4}>
+		<Stack width={1} gap={6} pt={4} pb={2}>
 			<ContentStack>
 				{
 					shuffledCategorySet.size > 0 &&
@@ -109,7 +111,7 @@ export default function InitialMarketPlace() {
 								itemCount={2} bgColor={theme.palette.menuBackground.main} />
 						</StyledLeftStack>
 					}
-					<LargePromotionContainer promotions={promotions} />
+					<LargePromotionContainer basketProducts={basketProducts} />
 					{
 						shuffledCategorySet.size > 0 &&
 						<StyledRightStack gap={2}>
@@ -155,17 +157,24 @@ export default function InitialMarketPlace() {
 }
 
 
-const LargePromotionContainer = ({ promotions }: { promotions: TItem[] }) => {
+const LargePromotionContainer = ({ basketProducts }: { basketProducts: TItem[] }) => {
+	const navigate = useNavigate();
+	const handleGotoProductDetails = (itemId: string) => () => {
+		navigate({
+			to: RoutePath.PRODUCT_DISPLAY,
+			params: { details: itemId + "" }
+		});
+	};
 	return (
 		<StyledLargePromotionStack borderRadius={3} overflow={'hidden'}>
 			{
-				promotions.length > 0 &&
+				basketProducts.length > 0 &&
 				<ScrollableContainer orientation="horizontal" float fullContent>
 					{
-						promotions.map(item => (
+						basketProducts.map(item => (
 							<CustomPromotionStack key={item.id}>
 								<ProductAvatar src={item.images[0]?.url || ''} variant="rounded" />
-								<LargePromotionShopNow>
+								<LargePromotionShopNow onClick={handleGotoProductDetails(item.id)}>
 									Shop Now
 								</LargePromotionShopNow>
 							</CustomPromotionStack>

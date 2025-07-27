@@ -18,7 +18,7 @@ export default function HeaderSearch({
 	onSearch
 }: {
 	showAdornment?: boolean,
-	searchResult?: { id: number, name: string }[],
+	searchResult: { id: number, name: string }[] | null,
 	placeholder?: string,
 	showDropdown?: boolean,
 	showSearchList?: boolean,
@@ -79,10 +79,10 @@ export default function HeaderSearch({
 			</ListItem>
 		</>;
 	}
-	else if (!searchResult) {
+	else if (searchResult === null) {
 		searchListContent = <ListItem>Something went wrong!!</ListItem>;
 	}
-	else if (searchResult.length > 0) {
+	else if (searchResult && searchResult.length > 0) {
 		searchListContent = <>
 			{
 				searchResult.slice(0, 6).map(result => (
@@ -93,14 +93,7 @@ export default function HeaderSearch({
 					</ListItem>
 				))
 			}
-			{
-				dropdownSelection.id > 0 &&
-				<ListItem disableGutters>
-					<StyledViewMoreListItemButton onClick={handleSeeMoreSearchProduct}>
-						View more product
-					</StyledViewMoreListItemButton>
-				</ListItem>
-			}
+
 		</>;
 	}
 	else {
@@ -113,13 +106,22 @@ export default function HeaderSearch({
 			{
 				searchProduct && showSearchList && (
 					<StyledSearchListContainer>
-						<List sx={{ bgcolor: 'white' }} disablePadding dense>
+						<List sx={{ bgcolor: 'white', maxHeight: '180px', overflow: 'auto' }} disablePadding dense>
 							{
 								<>
 									{searchListContent}
 								</>
 							}
+
 						</List>
+						{
+							dropdownSelection.id > 0 && (searchResult && searchResult.length > 0) &&
+							<Box pt={1}>
+								<StyledViewMoreListItemButton onClick={handleSeeMoreSearchProduct}>
+									View more {dropdownSelection.name} product
+								</StyledViewMoreListItemButton>
+							</Box>
+						}
 					</StyledSearchListContainer>
 				)
 			}
@@ -225,7 +227,7 @@ const StyledOutlinedInput = styled(OutlinedInput)(({ theme }) => ({
 	},
 }));
 
-const LanscapeMobileScreenUpward = styled(Box)(({ theme }) => ({
+const LanscapeMobileScreenUpward = styled(Box)(() => ({
 	// [theme.breakpoints.down(SMALL_SCREEN_MAX_WIDTH)]: {
 	// 	display: 'none'
 	// }

@@ -4,21 +4,21 @@ import ProfileSvg from "./svg/ProfileSvg";
 import WishlistIcon from "./svg/WishlistSvg";
 import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
 import { selectCartItemsCount } from "#state-management/slices/cart.slice.ts";
-import { selectWishlistCount } from "#state-management/slices/wishlist.slice.ts";
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { useNavigate } from "@tanstack/react-router";
 import { RoutePath } from "#utils/route.ts";
 import { setRouteRedirect } from "#state-management/slices/active-menu.slice.ts";
 import MobileHeaderSearch from "./MobileHeaderSearch";
 import { selectLoginUserFirstname } from "#state-management/slices/user.slice.ts";
+import { useContext } from "react";
+import { WishlistIdContext } from "#utils/context.ts";
 
 export default function NavigationUserActions() {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const cartItemsCount = useAppSelector(selectCartItemsCount);
-	const wishlistItemsCount = useAppSelector(selectWishlistCount);
 	const currentUserFullname = useAppSelector(selectLoginUserFirstname);
-
+	const wishlistIdsSet = useContext(WishlistIdContext);
 	const handleNavigation = (action: string) => () => {
 		let route;
 		switch (action) {
@@ -59,7 +59,7 @@ export default function NavigationUserActions() {
 			{
 				localStorage.getItem('access_token') && <span>
 					<IconButton onClick={handleNavigation('wishlist')} >
-						<Badge color="warning" badgeContent={wishlistItemsCount} variant="dot">
+						<Badge color="warning" badgeContent={wishlistIdsSet.size} variant="dot">
 							<WishlistIcon />
 						</Badge>
 					</IconButton>

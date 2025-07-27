@@ -4,45 +4,61 @@ import MiniPromotion from "#component/MiniPromotion.tsx";
 import ProductItem from "#component/ProductItem.tsx";
 import GrommetWishListSvg from "#component/svg/GrommetWishlistSvg.tsx";
 import LargeWishlistSvg from "#component/svg/LargeWishlistSvg.tsx";
+import { TItem } from "#component/types/index.js";
 import WishlistRecommendation from "#component/WishlistRecommendation.tsx";
 import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH, LARGED_DESKTOP_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { theme } from "#customtheme.ts";
+import { useWishlistMutation } from "#hooks/mutations/wishlist";
 import { getAllProducts } from "#hooks/query/product";
-import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
-import { removeFromWishlist, selectWishlistItems } from "#state-management/slices/wishlist.slice.ts";
-import { items as itemsStub } from "#testData.ts";
+import { getWishlistItem } from "#hooks/query/wishlist";
 import { RoutePath } from "#utils/route.ts";
 import { ChevronRight } from "@mui/icons-material";
-import { Button, Dialog, DialogActions, DialogContent, Stack, styled, SvgIcon, Typography } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, Pagination, Stack, styled, SvgIcon, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 export default function WishlistDisplay() {
-	const wishlistItem = useAppSelector(selectWishlistItems);
-	const wishlistArray = Object.keys(wishlistItem);
+	const [page, setPage] = useState(1);
+	const { data } = useQuery(getWishlistItem(page));
+	const wishlistItems: TItem[] = data?.data || [];
 	const { data: wishlistRecommendData } = useQuery(getAllProducts({ page: 1 }));
-	const wishlistRecommendation = wishlistRecommendData?.data || [];
+	const wishlistRecommendation = wishlistRecommendData?.data.data || [];
 	const [firstRemoveId, setFirstRemoveId] = useState<string>('');
 	const [openDialog, setOpenDialog] = useState<boolean>(false);
-	const dispatch = useAppDispatch();
+	const { removeFromWishlist } = useWishlistMutation();
 
-	const handleRemoveFromWishlist = (itemId: number) => () => {
+	const handleRemoveFromWishlist = (itemId: number) => async () => {
 		if (!firstRemoveId) {
 			setFirstRemoveId(itemId + "");
 			setOpenDialog(true);
 			return;
 		}
-		dispatch(removeFromWishlist(itemId + ""));
+		try {
+			await removeFromWishlist.mutateAsync(Number(itemId));
+		}
+		catch (e: any) {
+			console.log(e.message);
+		}
+
 	};
 
-	const handleOk = () => {
-		dispatch(removeFromWishlist(firstRemoveId));
+	const handleOk = async () => {
+		try {
+			await removeFromWishlist.mutateAsync(Number(firstRemoveId));
+		}
+		catch (e: any) {
+			console.log(e.message);
+		}
 		setOpenDialog(false);
 	};
 
 	const handleCancel = () => {
 		setFirstRemoveId('');
 		setOpenDialog(false);
+	};
+
+	const handleChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+		setPage(value);
 	};
 
 	return (
@@ -61,7 +77,7 @@ export default function WishlistDisplay() {
 				</MiniNavigation>
 			</ContainerCollection>
 			{
-				wishlistArray.length === 0 ?
+				wishlistItems.length === 0 ?
 					(
 						<>
 							<EmptyStateTextStack gap={1} >
@@ -70,7 +86,7 @@ export default function WishlistDisplay() {
 								</ShopTypography>
 							</EmptyStateTextStack>
 							<Stack justifyContent={'center'} alignItems={'center'}>
-								<CustomSvgIcon viewBox="0 0 548 548">
+								<CustomSvgIcon viewBox="0 0 708 708">
 									<LargeWishlistSvg />
 								</CustomSvgIcon>
 							</Stack>
@@ -86,10 +102,10 @@ export default function WishlistDisplay() {
 								</Stack>
 								<ProductItemGrid>
 									{
-										wishlistArray.map((wishItem, index) => (
+										wishlistItems.map((wishItem, index) => (
 											<CustomWishlistContainer key={index}>
 												<ProductItem
-													item={wishlistItem[wishItem]}
+													item={wishItem}
 													showPrice={true}
 													disableWishlisting
 													disableProductSlider
@@ -100,7 +116,7 @@ export default function WishlistDisplay() {
 													fontWeight="600"
 												/>
 												<WishlistCustomFloatingSpan>
-													<WishLishIconButton onClick={handleRemoveFromWishlist(wishlistItem[wishItem].id)}>
+													<WishLishIconButton onClick={handleRemoveFromWishlist(wishItem.id)}>
 														<GrommetWishListSvg $isFilled={true} />
 													</WishLishIconButton>
 												</WishlistCustomFloatingSpan>
@@ -112,6 +128,9 @@ export default function WishlistDisplay() {
 						</ContentStack>
 					)
 			}
+			<StyledViewMoreStack alignItems={'center'} >
+				<Pagination count={4} page={page} size="large" shape="rounded" onChange={handleChange} />
+			</StyledViewMoreStack>
 			<Stack gap={2} p={1} pl={1} pr={1} mt={6}>
 				<ShopTypography>
 					Best-sellers in the last 24 hours
@@ -140,6 +159,15 @@ export default function WishlistDisplay() {
 		</StyledStackContent>
 	);
 }
+
+const StyledViewMoreStack = styled(Stack)(({ theme }) => ({
+	// width: 'calc(100% - 220px)',
+	width: '100%',
+	alignSelf: 'end',
+	[theme.breakpoints.down(955)]: {
+		alignSelf: 'unset'
+	}
+}));
 
 const CustomConfirmButton = styled(Button)(({ theme }) => ({
 	backgroundColor: theme.palette.primaryYellow.main,

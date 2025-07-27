@@ -50,7 +50,7 @@ export default function ProductSpecificFilter({ onFilterChange }: { onFilterChan
 		<ProductFilterStack $isShowHeader={isShowHeader} gap={2}>
 			<Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} >
 				<CategoryTitle>
-					{upperFirst(productCategories[activeMenu].name)}
+					{upperFirst(productCategories[activeMenu]?.name || '')}
 				</CategoryTitle>
 				<StyledMobileFilter>
 					<StyledFilterButton variant="text" endIcon={<FilterList />} color="inherit" onClick={handleOpenMobileFilter}>

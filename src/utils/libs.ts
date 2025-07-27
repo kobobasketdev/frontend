@@ -1,5 +1,5 @@
 import { queryClient } from "#hooks/fetcher.ts";
-import { searchProduct } from "#hooks/query/product";
+import { searchProductQuery } from "#hooks/query/product";
 import { debounce } from "lodash";
 
 export const debouncedSearch = debounce(async (
@@ -8,18 +8,19 @@ export const debouncedSearch = debounce(async (
 		searchString: string, 
 		category?: number, 
 		setIsSearching: (args: boolean) => void, 
-		setSearchResult: (args?: { id: number, name: string }[]) => void 
+		setSearchResult: (args: { id: number, name: string }[] | null) => void 
 	}
 ) => {
 	try{
-		const result = await queryClient.fetchQuery(searchProduct(searchString, category));
+		const result = await queryClient.fetchQuery(searchProductQuery(searchString, category));
 		setIsSearching(false);
-		setSearchResult(result.data.items);
+		setSearchResult(result.data.data);
 	}
-	catch{
+	catch (e){
+		console.log(e);
 		setIsSearching(false);
-		setSearchResult();
+		setSearchResult(null);
 	}
-}, 2000, {
+}, 1000, {
 	trailing: true
 });

@@ -1,6 +1,5 @@
 import { Stack, styled } from "@mui/material";
 import ScrollableContainer from "./ScrollableContainer";
-import { items as itemsStub } from "#testData.ts";
 import ProductItem from "./ProductItem";
 import { MEDIUM_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { TItem } from "./types";

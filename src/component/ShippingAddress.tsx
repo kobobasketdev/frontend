@@ -1,10 +1,10 @@
 import { useAppSelector } from "#state-management/hooks.ts";
 import { selectDefaultAddressId, selectResidentialAddresses } from "#state-management/slices/user.slice.ts";
-import { Alert, Autocomplete, Box, Button, Checkbox, Divider, FormControl, FormControlLabel, FormHelperText, InputAdornment, InputLabel, MenuItem, Modal, OutlinedInput, Select, SelectChangeEvent, Stack, styled, TextField, Typography } from "@mui/material";
+import { Alert, Autocomplete, Box, Button, Checkbox, Divider, FormControl, FormControlLabel, FormHelperText, InputAdornment, InputLabel, Modal, OutlinedInput, Stack, styled, TextField, Typography } from "@mui/material";
 import { IOtherShippingInfo, IResidentialAddress, IShippingAddressState, TAddressToEdit, TShippingErrorKey } from "./types";
 import { UnderlineButton } from "./ContactDetails";
-import { countries, CountryType, initialOtherShippingState, province, shippingInitialState } from "#utils/index.ts";
-import { initialSupportedCountries, IDeliveryState, selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
+import { countries, CountryType, IDeliveryState, initialOtherShippingState, province, shippingInitialState } from "#utils/index.ts";
+import { selectDeliverLocation } from "#state-management/slices/delivery.slice.ts";
 import { parsePhoneNumberFromString, CountryCode, isValidPhoneNumber } from "libphonenumber-js";
 import { useState, SyntheticEvent, ChangeEvent, useEffect } from "react";
 import { BuyagainButton } from "./CommonViews";
@@ -12,6 +12,7 @@ import { validateResidentialAddress } from "#utils/validation.ts";
 import { useSnackbar } from "notistack";
 import { useAuthMutation } from "#hooks/mutations/auth";
 import { startCase } from "lodash";
+import { selectSupportedCountries } from "#state-management/slices/supported-countries.ts";
 
 export default function ShippingAddress() {
 	const addresses = useAppSelector(selectResidentialAddresses);
@@ -74,12 +75,13 @@ const ResidentialAddressModal = ({ open, handleCloseModal, addressToEdit, isNew 
 }) => {
 	const [isDefault, setIsDefault] = useState<boolean>(false);
 	const [addressFieldName, setAddressFieldName] = useState<{ [x: string]: string }>({});
+	const supportedCountriesInfo = useAppSelector(selectSupportedCountries);
 	const [otherShippingDetails, setOtherShippingDetails] = useState<IOtherShippingInfo>(initialOtherShippingState);
 	const [shippingError, setShippingError] = useState<IShippingAddressState>(shippingInitialState);
 	const deliveryLocation = useAppSelector(selectDeliverLocation);
 	const { createNewShippingAddress, updateShippingAddress } = useAuthMutation();
 	const { enqueueSnackbar } = useSnackbar();
-	const [shippingCountry, setShippingCountry] = useState<CountryType | null>(initialSupportedCountries.countries[(deliveryLocation as IDeliveryState).code]);
+	const [shippingCountry, setShippingCountry] = useState<CountryType | null>(supportedCountriesInfo.countries[(deliveryLocation as IDeliveryState).code]);
 
 	useEffect(() => {
 		if (addressToEdit) {
@@ -89,11 +91,11 @@ const ResidentialAddressModal = ({ open, handleCloseModal, addressToEdit, isNew 
 				firstName: firstName || '',
 				lastName: lastName || ''
 			});
-			setShippingCountry(initialSupportedCountries.countries[countries.find(countryInfo => countryInfo.label.toLowerCase() === country.trim().toLowerCase())?.code || (deliveryLocation as IDeliveryState).code]);
+			setShippingCountry(supportedCountriesInfo.countries[countries.find(countryInfo => countryInfo.label.toLowerCase() === country.trim().toLowerCase())?.code || (deliveryLocation as IDeliveryState).code]);
 			setOtherShippingDetails(otherShippingData);
 			setIsDefault(isDefault || false);
 		}
-	}, [addressToEdit, deliveryLocation]);
+	}, [addressToEdit, deliveryLocation, supportedCountriesInfo]);
 
 	const hasError = Object.keys(shippingError).reduce((acc, current) => {
 		if (acc) {
@@ -284,10 +286,12 @@ export const ShippingAddressInfo = ({
 	setShippingCountry: (args: CountryType | null) => void
 }) => {
 
+	const supportedCountriesInfo = useAppSelector(selectSupportedCountries);
+
 	const handleChangeShippingCountry = (_e: SyntheticEvent, value: CountryType | null) => {
 		const possibleError = {
 			...initialOtherShippingState,
-			country: value && !(value.code in initialSupportedCountries.countries) ? `Delivery not available to ${value.label}. We are working fast to bring KoboBasket to your location` : ''
+			country: value && !(value.code in supportedCountriesInfo.countries) ? `Delivery not available to ${value.label}. We are working fast to bring KoboBasket to your location` : ''
 		};
 		setShippingCountry(value);
 		setOtherShippingDetails(initialOtherShippingState);
@@ -420,7 +424,7 @@ export const ShippingAddressInfo = ({
 	);
 };
 
-const ModalStyledStack = styled(Stack)(({ theme }) => ({
+const ModalStyledStack = styled(Stack)(() => ({
 	// height: '100vmin',
 	// [theme.breakpoints.down(DESKTOP_SCREEN_MAX_WIDTH)]: {
 	// 	height: '60%'

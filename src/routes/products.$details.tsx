@@ -1,6 +1,4 @@
-import { TItem } from '#component/types/index.js';
-import { items as itemStubs } from '#testData.ts';
-import { getProductById } from '#hooks/query/product';
+import { getProductById, getProductReviews } from '#hooks/query/product';
 import ProductDisplay from '#page/ProductDisplay.tsx';
 import { setActiveMenu, setIsShowheaderContainer, setShowMenu } from '#state-management/slices/active-menu.slice.ts';
 import { store } from '#state-management/store.ts';
@@ -8,9 +6,8 @@ import { RoutePath } from '#utils/route.ts';
 import { createFileRoute } from '@tanstack/react-router';
 
 const RouteComponent = () => {
-	// const { data } = Route.useLoaderData();
-	// const item = data.item as TItem;
-	return <ProductDisplay item={itemStubs[0]} />;
+	const { data } = Route.useLoaderData();
+	return <ProductDisplay item={data} />;
 };
 
 export const Route = createFileRoute(RoutePath.PRODUCT_DISPLAY)({
@@ -25,7 +22,8 @@ export const Route = createFileRoute(RoutePath.PRODUCT_DISPLAY)({
 		});
 	},
 	loader: async ({ params, context: { queryClient } }) => {
-		// return queryClient.ensureQueryData(getProductById({ productId: +params.details }));
+		queryClient.prefetchQuery(getProductReviews({ page: 1, productId: params.details }));
+		return queryClient.ensureQueryData(getProductById({ productId: params.details }));
 	},
 	component: RouteComponent
 });

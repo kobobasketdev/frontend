@@ -17,7 +17,8 @@ export const Route = createFileRoute(RoutePath.CATEGORY)({
 		let categoryId = 0;
 		try {
 			const { data: categoriesData } = await queryClient.ensureQueryData(getAllCategories());
-			const categories = categoriesData as TProductCategory[];
+			const categories = categoriesData.data as TProductCategory[];
+			console.log(categories);
 			const menuIndex = categories.findIndex(categoryItem => categoryItem.name === category);
 			categoryId = categories.find(categoryItem => categoryItem.name === category)?.id || 0;
 

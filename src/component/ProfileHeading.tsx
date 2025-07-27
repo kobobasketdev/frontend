@@ -29,7 +29,7 @@ export default function ProfileHeading({ activeMenu = -1 }: { activeMenu?: numbe
 	return (
 		<TopStack className="profile-nav">
 			<AvatarStack direction={'row'} alignItems={'center'} gap={1} pt={2}>
-				<Typography fontFamily={'Alata'} fontSize={'24px'}>Hi {currentUserFullname}</Typography>
+				<Typography fontFamily={'Alata'} fontSize={'24px'} border={1} noWrap>Hi {currentUserFullname}</Typography>
 			</AvatarStack>
 			<StyledGrid>
 				{

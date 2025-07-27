@@ -158,41 +158,41 @@ const FullWidthAddToCart = styled(Button, {
 	}
 }));
 
-const AddToCartButton = styled(Button)(({ theme }) => ({
-	backgroundColor: theme.palette.primaryYellow.main,
-	fontFamily: 'Roboto',
-	fontWeight: '500',
-	fontSize: '16px',
-	lineHeight: '13px',
-	letterSpacing: '0.46px',
-	textTransform: 'inherit',
-	padding: theme.spacing(1.2),
-	paddingLeft: theme.spacing(1.5),
-	paddingRight: theme.spacing(1.5),
-	borderRadius: '16px',
-	color: theme.palette.primaryBlack.moreDeeper,
-	'& > #mobile-svg': {
-		display: 'none'
-	},
-	'& > span': {
-		marginLeft: theme.spacing()
-	},
-	'.MuiTouchRipple-root': {
-		transition: '.5s',
-	},
-	':focus': {
-		animation: `${Effect} 500ms ${theme.transitions.easing.easeIn} `,
-	},
-	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
-		borderRadius: '28px',
-		'& > #mobile-svg': {
-			display: 'inline'
-		},
-		'& > svg:not(#mobile-svg)': {
-			display: 'none'
-		},
-		// '& > span': {
-		// 	display: 'none'
-		// }
-	}
-}));
+// const AddToCartButton = styled(Button)(({ theme }) => ({
+// 	backgroundColor: theme.palette.primaryYellow.main,
+// 	fontFamily: 'Roboto',
+// 	fontWeight: '500',
+// 	fontSize: '16px',
+// 	lineHeight: '13px',
+// 	letterSpacing: '0.46px',
+// 	textTransform: 'inherit',
+// 	padding: theme.spacing(1.2),
+// 	paddingLeft: theme.spacing(1.5),
+// 	paddingRight: theme.spacing(1.5),
+// 	borderRadius: '16px',
+// 	color: theme.palette.primaryBlack.moreDeeper,
+// 	'& > #mobile-svg': {
+// 		display: 'none'
+// 	},
+// 	'& > span': {
+// 		marginLeft: theme.spacing()
+// 	},
+// 	'.MuiTouchRipple-root': {
+// 		transition: '.5s',
+// 	},
+// 	':focus': {
+// 		animation: `${Effect} 500ms ${theme.transitions.easing.easeIn} `,
+// 	},
+// 	[theme.breakpoints.down(MEDIUM_SCREEN_MAX_WIDTH)]: {
+// 		borderRadius: '28px',
+// 		'& > #mobile-svg': {
+// 			display: 'inline'
+// 		},
+// 		'& > svg:not(#mobile-svg)': {
+// 			display: 'none'
+// 		},
+// 		// '& > span': {
+// 		// 	display: 'none'
+// 		// }
+// 	}
+// }));

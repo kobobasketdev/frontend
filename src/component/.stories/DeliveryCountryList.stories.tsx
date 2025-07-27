@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from "@storybook/react";
-import DeliveryCountryList from "./DeliveryCountryList";
+import DeliveryCountryList from "../DeliveryCountryList";
 import { fn } from '@storybook/test';
 import { DEFAULT_VIEWPORT } from "@storybook/addon-viewport";
 

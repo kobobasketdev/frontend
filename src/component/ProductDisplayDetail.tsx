@@ -1,9 +1,8 @@
 import { Box, IconButton, Rating, Stack, styled, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { TItem } from "./types";
 import { CustomLongWishlistButton, ProductPriceTypography, ProductSavingTypography, ViewMore } from "./CommonViews";
-import { useAppDispatch } from "#state-management/hooks.ts";
 import { CheckCircle, ExpandLess, ExpandMore } from "@mui/icons-material";
-import { MouseEvent, useEffect, useState } from "react";
+import { MouseEvent, useContext, useState } from "react";
 import { theme } from "#customtheme.ts";
 import htmlReactParse from 'html-react-parser';
 import GrommetWishListSvg from "./svg/GrommetWishlistSvg";
@@ -11,8 +10,9 @@ import pluralize from "pluralize";
 import millify from "millify";
 import { TABLET_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import ProductAddToCartControl from "./ProductAddToCartControl";
-import { removeFromWishlist, addToWishlist } from "#state-management/slices/wishlist.slice.ts";
 import { appCurrencySymbol } from "#utils/index.ts";
+import { WishlistIdContext } from "#utils/context.ts";
+import { useWishlistMutation } from "#hooks/mutations/wishlist";
 
 const getSavedPercent = (price: number, locationPrice: number) => {
 	return Math.abs(price - locationPrice);
@@ -27,22 +27,19 @@ export default function ProductDisplayDetail({
 	fontWeight?: string,
 	fontSize?: string,
 }) {
-	const dispatch = useAppDispatch();
-	const [isWishListItem, setIsWishListItem] = useState<boolean>(false);
+	const { addToWishlist, removeFromWishlist } = useWishlistMutation();
+	const wishlistIdsSet = useContext(WishlistIdContext);
+	const isWishlistItem = wishlistIdsSet.has(item.id + '');
+
 	const handleAddToWishlist = (item: TItem) => () => {
-		if (isWishListItem) {
-			dispatch(removeFromWishlist("" + item.id));
+		if (isWishlistItem) {
+			removeFromWishlist.mutateAsync(item.id);
 		}
 		else {
-			dispatch(addToWishlist(item));
+			addToWishlist.mutateAsync(item.id);
 		}
-		const newWishListStatus = !isWishListItem;
-		setIsWishListItem(newWishListStatus);
 	};
 
-	useEffect(() => {
-		setIsWishListItem(item.isWishListItem);
-	}, []);
 
 	const [selectedVariant, setSelectedVariant] = useState<number>(0);
 	const productVariant = item.variations[selectedVariant];
@@ -53,12 +50,15 @@ export default function ProductDisplayDetail({
 	const marketPrice = productVariant.marketPrice?.converted;
 
 	const handleVariantSelection = (_e: MouseEvent<HTMLElement>, value: number) => {
+		if (value == null) {
+			return;
+		}
 		setSelectedVariant(value);
 	};
 	return (
 		<>
 			<StyledStack gap={2} p={1}>
-				<ProductDetails details={item.productDetails || "10-Pack Men'S Boxer Briefs, 96% Polyester 4% Elastane, Solid Color, Breathable Comfort Fit, Knit Fabric, Slight Stretch, Casual Athletic Shorts"} />
+				<ProductDetails details={item.description || "10-Pack Men'S Boxer Briefs, 96% Polyester 4% Elastane, Solid Color, Breathable Comfort Fit, Knit Fabric, Slight Stretch, Casual Athletic Shorts"} />
 				<Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
 					<Typography fontSize={'14px'} fontWeight={'500'} color={theme.palette.primaryOrange.main}>
 						LOCAL MARKET PRICE <span style={{ textDecoration: 'line-through' }}>{code} {symbol}{marketPrice}</span>
@@ -91,10 +91,10 @@ export default function ProductDisplayDetail({
 					</ReviewSpan>
 				</Stack>
 				{
-					item.isBestSeller &&
+					Boolean(item.is_best_seller) &&
 					<Stack direction={'row'}>
 						<BestSellerSpan>
-							Best Sellers in {item.productCategoryId}
+							Best Sellers in {item.category.name}
 						</BestSellerSpan>
 					</Stack>
 				}
@@ -105,6 +105,7 @@ export default function ProductDisplayDetail({
 					size="small"
 					value={selectedVariant}
 					exclusive
+
 					onChange={handleVariantSelection}
 					aria-label="text alignment"
 				>
@@ -114,7 +115,7 @@ export default function ProductDisplayDetail({
 								{
 									selectedVariant === index && <CheckCircle fontSize="small" color="success" />
 								}
-								{variant.weight}kg
+								{variant.size || `${variant.weight}kg`}
 							</ToggleButton>
 						))
 					}
@@ -124,14 +125,17 @@ export default function ProductDisplayDetail({
 				<Box p={1} flexGrow={1}>
 					<ProductAddToCartControl item={item} fullWidth choosenVariant={selectedVariant} showControl />
 				</Box>
-				<Box p={1} flexGrow={1}>
-					<CustomLongWishlistButton onClick={() => handleAddToWishlist(item)()} fullWidth sx={{ pl: 2.5, pr: 2.5 }}>
-						<GrommetWishListSvg $isFilled={isWishListItem} />
-						<WishlistCustomSpan>
-							ADD TO WISHLIST
-						</WishlistCustomSpan>
-					</CustomLongWishlistButton>
-				</Box>
+				{
+					!isWishlistItem && localStorage.getItem('access_token') &&
+					<Box p={1} flexGrow={1}>
+						<CustomLongWishlistButton onClick={() => handleAddToWishlist(item)()} fullWidth sx={{ pl: 2.5, pr: 2.5 }}>
+							<GrommetWishListSvg $isFilled={isWishlistItem} />
+							<WishlistCustomSpan>
+								ADD TO WISHLIST
+							</WishlistCustomSpan>
+						</CustomLongWishlistButton>
+					</Box>
+				}
 			</StyledReversableStack>
 		</>
 	);
@@ -140,8 +144,9 @@ export default function ProductDisplayDetail({
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 	gap: theme.spacing(1.5),
 
-	'.MuiToggleButtonGroup-firstButton, .MuiToggleButtonGroup-lastButton': {
-		width: '70px',
+	'.MuiToggleButton-standard': {
+		minWidth: '70px',
+		width: 'auto',
 		color: 'black',
 		border: `1px solid ${theme.palette.divider}`,
 		borderRadius: theme.spacing(.5),

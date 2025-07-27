@@ -69,13 +69,22 @@ export const cartSlice = createSlice({
 		setAddToCartPopup: (state, action: PayloadAction<TItem | null>) => {
 			state.popupItem = action.payload;
 		},
+		addBulkItemToCart: (state, action: PayloadAction<Record<string, TCartItems>>) => {
+			const existingCart = state.cartItemsMap;
+			state.cartItemsMap = {
+				...existingCart,
+				...action.payload
+			};
+			saveToLocalStorage('cart', state.cartItemsMap);
+		}
 	}
 });
 
 export default cartSlice.reducer;
 export const { openCart, closeCart, 
 	addItemToCart, removeItemFromCart, 
-	updateCartItem, setAddToCartPopup 
+	updateCartItem, setAddToCartPopup,
+	addBulkItemToCart 
 } = cartSlice.actions;
 
 export const selectCartVisibile = createSelector(

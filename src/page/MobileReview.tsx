@@ -2,23 +2,33 @@ import RatingHeading from "#component/RatingHeading.tsx";
 import ReviewBanner from "#component/ReviewBanner.tsx";
 import ReviewContent from "#component/ReviewContent.tsx";
 import ReviewImageModal from "#component/ReviewImageModal.tsx";
+import { TReview } from "#component/types/index.js";
 import { MEDIUM_SCREEN_MAX_WIDTH } from "#constants.tsx";
 import { theme } from "#customtheme.ts";
+import { getProductReviews } from "#hooks/query/product";
 import { RoutePath } from "#utils/route.ts";
 import { ChevronLeft, ExpandMore } from "@mui/icons-material";
-import { Box, FormControl, MenuItem, Select, SelectChangeEvent, Stack, styled } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, styled } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLoaderData } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
 export default function MobileReview() {
 	const { item, reviews } = useLoaderData({ from: RoutePath.INTERNAL_MOBILEREVIEW });
+	const [page, setPage] = useState(1);
+	const queryClient = useQueryClient();
+	const [loadedReviews, setLoadedReviews] = useState<TReview[]>([]);
 	const [filters, setFilters] = useState({
-		sortBy: 'Sort By',
-		filterBy: 'Filter By'
+		sortBy: 'all',
+		filterBy: 'all'
 	});
-
+	console.log(page);
 	const headerRef = useRef<HTMLDivElement | null>(null);
 	const reviewFilterRef = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		setLoadedReviews(reviews);
+	}, [reviews]);
 
 	useEffect(() => {
 		scrollTo({
@@ -49,18 +59,51 @@ export default function MobileReview() {
 		};
 	}, []);
 
-	const handleFilterBy = (e: SelectChangeEvent<unknown>) => {
-		console.log(e.target.value);
+
+	// const handleInfinitScroll = async () => {
+	// 	const newPage = page + 1;
+	// 	const { data } = await queryClient.fetchQuery(getProductReviews({
+	// 		productId: item.id, page: newPage,
+	// 		filterBy: filters.filterBy, sortBy: filters.sortBy
+	// 	}));
+	// 	setLoadedReviews([
+	// 		...loadedReviews,
+	// 		...data
+	// 	]);
+	// 	setPage(newPage);
+	// };
+
+	const handleFilterBy = async (e: SelectChangeEvent<unknown>) => {
+		const value = e.target.value + '';
+		const { data } = await queryClient.fetchQuery(getProductReviews({
+			productId: item.id, page: 1,
+			filterBy: value, sortBy: filters.sortBy
+		}));
+		setLoadedReviews([
+			...loadedReviews,
+			...data
+		]);
+		setPage(1);
 		setFilters({
 			...filters,
-			filterBy: e.target.value + ''
+			filterBy: value
 		});
 	};
 
-	const handleSortBy = (e: SelectChangeEvent<unknown>) => {
+	const handleSortBy = async (e: SelectChangeEvent<unknown>) => {
+		const value = e.target.value + '';
+		const { data } = await queryClient.fetchQuery(getProductReviews({
+			productId: item.id, page: 1,
+			sortBy: value, filterBy: filters.filterBy
+		}));
+		setLoadedReviews([
+			...loadedReviews,
+			...data
+		]);
+		setPage(1);
 		setFilters({
 			...filters,
-			sortBy: e.target.value + ''
+			sortBy: value
 		});
 	};
 	return (
@@ -80,6 +123,7 @@ export default function MobileReview() {
 					</Stack>
 					<CustomFilter ref={reviewFilterRef}>
 						<FormControl fullWidth>
+							<InputLabel shrink sx={{ bgcolor: "white", pl: 1, pr: 1 }}>Sort By</InputLabel>
 							<StyledSelect variant="outlined" value={filters.sortBy} IconComponent={ExpandMore}
 								labelId="sort-by-label"
 								onChange={handleSortBy} slotProps={{
@@ -89,9 +133,6 @@ export default function MobileReview() {
 										}
 									}
 								}}>
-								<MenuItem value="Sort By">
-									Sort By
-								</MenuItem>
 								<MenuItem value="all">
 									All
 								</MenuItem>
@@ -113,6 +154,7 @@ export default function MobileReview() {
 							</StyledSelect>
 						</FormControl>
 						<FormControl fullWidth>
+							<InputLabel shrink sx={{ bgcolor: "white", pl: 1, pr: 1 }}>Filter By</InputLabel>
 							<StyledSelect variant="outlined" value={filters.filterBy} IconComponent={ExpandMore}
 								labelId="filter-by-label"
 								onChange={handleFilterBy} slotProps={{
@@ -122,9 +164,6 @@ export default function MobileReview() {
 										}
 									}
 								}}>
-								<MenuItem value='Filter By'>
-									Filter By
-								</MenuItem>
 								<MenuItem value={'all'}>
 									All
 								</MenuItem>
@@ -147,10 +186,10 @@ export default function MobileReview() {
 						</FormControl>
 					</CustomFilter>
 					{
-						reviews.length > 0 &&
+						loadedReviews.length > 0 &&
 						<Stack gap={1.5}>
 							{
-								reviews.map((review, index) => (
+								loadedReviews.map((review, index) => (
 									<ReviewContent key={index} reviewer={review} tag={index + 1} />
 								))
 							}

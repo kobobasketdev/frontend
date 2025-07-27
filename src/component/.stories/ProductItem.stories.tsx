@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from "@storybook/react";
-import ProductItem from "./ProductItem";
+import ProductItem from "../ProductItem";
 import { DEFAULT_VIEWPORT } from "@storybook/addon-viewport";
 
 const meta: Meta<typeof ProductItem> = {
@@ -11,19 +11,21 @@ const meta: Meta<typeof ProductItem> = {
 	},
 	decorators: (Story) => (<div style={{ width: 'fit-content' }}><Story /></div>),
 	args: {
-		item : { productId: 5, 
-			name: 'White Ijebu Garri', 
-			weight: '3kg', 
-			price: 15, 
+		item: {
+			productId: 5,
+			name: 'White Ijebu Garri',
+			weight: '3kg',
+			price: 15,
 			isWishListItem: false,
-			locationPrice: 30, 
-			images: ["", ""], 
-			promotion: { 
-				promoName: 'Best seller', 
+			locationPrice: 30,
+			images: ["", ""],
+			promotion: {
+				promoName: 'Best seller',
 				promoPrice: 10
-			} }, 
-		showPrice: true, 
-		isCircularImage: false, 
+			}
+		},
+		showPrice: true,
+		isCircularImage: false,
 		fullDetails: true,
 		fontSize: '18px',
 		fontWeight: '700',
@@ -39,7 +41,7 @@ export const DESKTOP: Story = {};
 
 export const TABLET: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'tablet'
 		}
 	}
@@ -47,7 +49,7 @@ export const TABLET: Story = {
 
 export const LARGEMOBILE: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile2'
 		}
 	}
@@ -55,7 +57,7 @@ export const LARGEMOBILE: Story = {
 
 export const SMALLMOBILE: Story = {
 	parameters: {
-		viewport:{
+		viewport: {
 			defaultViewport: 'mobile1'
 		}
 	}

@@ -110,7 +110,7 @@ export default function TrackOrder() {
 	);
 }
 
-const CustomSkeleton = styled(Skeleton)(({ theme }) => ({
+const CustomSkeleton = styled(Skeleton)(() => ({
 	paddingTop: 0
 }));
 

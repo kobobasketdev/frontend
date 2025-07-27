@@ -3,8 +3,8 @@ import { ContactDetails } from "#component/ContactDetails.tsx";
 import ProfileHeading from "#component/ProfileHeading.tsx";
 import ShippingAddress from "#component/ShippingAddress.tsx";
 import { DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, MEDIUM_SCREEN_MAX_WIDTH, SMALL_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH } from "#constants.tsx";
-import { useAppDispatch } from "#state-management/hooks.ts";
-import { extractsupportedCountries, initialSupportedCountries } from "#state-management/slices/delivery.slice.ts";
+import { useAppDispatch, useAppSelector } from "#state-management/hooks.ts";
+import { extractsupportedCountries, selectSupportedCountries } from "#state-management/slices/supported-countries.ts";
 import { signOut } from "#state-management/slices/user.slice.ts";
 import { RoutePath } from "#utils/route.ts";
 import { ArrowBackIos, ArrowForwardIos, Place } from "@mui/icons-material";
@@ -13,7 +13,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { upperFirst } from "lodash";
 
 export default function Settings() {
-	const supportedCountries = extractsupportedCountries(initialSupportedCountries);
+	const supportedCountriesInfo = useAppSelector(selectSupportedCountries);
+	const supportedCountries = extractsupportedCountries(supportedCountriesInfo);
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	return (

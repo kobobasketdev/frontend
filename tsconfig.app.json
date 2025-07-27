@@ -25,5 +25,6 @@
       "@src/*": ["./src/*"]
     }
   },
-  "include": ["src", "fileTransformer.ts", "jest-setup.ts"]
+  "include": ["src", "fileTransformer.ts", "jest-setup.ts"],
+  "exclude": ["**/.stories"]
 }

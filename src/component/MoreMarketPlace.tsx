@@ -1,4 +1,4 @@
-import { Stack, styled } from "@mui/material";
+import { Skeleton, Stack, styled } from "@mui/material";
 import { ContentStack } from "./CommonViews";
 import ProductItem from "./ProductItem";
 import { LARGED_DESKTOP_SCREEN_MAX_WIDTH, TABLET_SCREEN_MAX_WIDTH, CUSTOM_893_WIDTH, MEDIUM_SCREEN_MAX_WIDTH } from "#constants.tsx";
@@ -7,7 +7,7 @@ import fetcher from "#hooks/fetcher.ts";
 import { TItem } from "./types";
 
 export default function MoreMarketPlace({ page }: { page: number }) {
-	const { data: productsData } = useQuery({
+	const { data: productsData, isFetching } = useQuery({
 		queryKey: ['all-product', page],
 		queryFn: async () => {
 			return fetcher.get(`v1/products?page=${page}&limit=40`);
@@ -15,14 +15,28 @@ export default function MoreMarketPlace({ page }: { page: number }) {
 		staleTime: 5400000,
 		placeholderData: keepPreviousData
 	});
-	const products: TItem[] = productsData?.data || [];
+	const products: TItem[] = productsData?.data.data || [];
 
-	console.log('rendering ', page);
+	if (isFetching) {
+		return (
+			<Stack width={1} pt={2} pb={2}>
+				<ContentStack>
+					<Stack gap={2} >
+						<ProductItemGrid>
+							{[...Array(10)].map((_, index) => (
+								<Skeleton key={index} height='320px' />
+							))}
+						</ProductItemGrid>
+					</Stack>
+				</ContentStack>
+			</Stack>
+		);
+	}
 	return (
 		<>
 			{
 				products.length > 0 &&
-				<Stack width={1} pt={4} pb={4}>
+				<Stack width={1} pt={2} pb={2}>
 					<ContentStack>
 						<Stack gap={2} >
 							<ProductItemGrid>

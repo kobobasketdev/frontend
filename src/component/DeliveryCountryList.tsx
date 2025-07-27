@@ -2,7 +2,8 @@ import { Box, IconButton, List, ListItem, ListItemButton, Modal, Stack, styled, 
 import { HighlightOff } from '@mui/icons-material';
 import ScrollableContainer from "./ScrollableContainer";
 import { upperFirst } from 'lodash';
-import { extractsupportedCountries, IDeliveryState, TSupportedCountry } from "#state-management/slices/delivery.slice.ts";
+import { extractsupportedCountries, TSupportedCountry } from "#state-management/slices/supported-countries.ts";
+import { IDeliveryState } from "#utils/index.ts";
 
 
 export default function DeliveryCountryList({
@@ -149,26 +150,10 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
 	marginBottom: theme.spacing(1.5),
 }));
 
-const SideStyledBox = styled(Box)(({ theme }) => ({
-	width: '150px',
-	[theme.breakpoints.between('xs', 'sm')]: {
-		width: '130px'
-	}
-}));
-
 const ListTypography = styled(Typography)(({ theme }) => ({
 	fontFamily: 'Roboto',
 	fontSize: '16px',
 	[theme.breakpoints.between('xs', 'sm')]: {
 		fontSize: '14px'
-	}
-}));
-
-const LsitTypographyLight = styled(Typography)(({ theme }) => ({
-	fontWeight: '400',
-	fontFamily: 'Roboto',
-	fontSize: '14px',
-	[theme.breakpoints.between('xs', 'sm')]: {
-		fontSize: '12px',
 	}
 }));

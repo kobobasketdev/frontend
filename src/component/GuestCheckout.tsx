@@ -3,11 +3,15 @@ import { CheckoutButton } from "./CommonViews";
 import { ChangeEvent, SyntheticEvent, useContext, useState } from "react";
 import { GuestContext } from "#utils/context.ts";
 import { validateEmail } from "#utils/validation.ts";
+import ReCAPTCHA from 'react-google-recaptcha';
+
+const CAPTCHA_SITE_KEY = import.meta.env['VITE_CLIENT_GOOGLE_CAPTCHA_SITE_KEY'];
 
 export default function GuestCheckout() {
 	const guestContext = useContext(GuestContext);
 	const [email, setEmail] = useState<string>('');
 	const [error, setError] = useState<boolean>(false);
+	const [isCaptchaVerified, setCaptchaVerified] = useState<string | null>(null);
 
 	const handleGuestCheckout = (e: SyntheticEvent) => {
 		e.preventDefault();
@@ -25,6 +29,11 @@ export default function GuestCheckout() {
 		setEmail(e.target.value);
 		setError(false);
 	};
+
+	const handleCaptchaChange = (value: string | null) => {
+		setCaptchaVerified(value);
+	};
+
 	return (
 		<form>
 			<Stack gap={1}>
@@ -46,7 +55,10 @@ export default function GuestCheckout() {
 							You will receive confirmation of your order details via Email
 						</Typography>
 					</Box>
-					<CheckoutButton type="submit" $isCurved={false} onClick={handleGuestCheckout}>
+					<Box>
+						<ReCAPTCHA sitekey={CAPTCHA_SITE_KEY} onChange={handleCaptchaChange} />
+					</Box>
+					<CheckoutButton type="submit" $isCurved={false} onClick={handleGuestCheckout} $disabledButton={!isCaptchaVerified} disabled={!isCaptchaVerified}>
 						Continue as a Guest
 					</CheckoutButton>
 				</Stack>
